@@ -104,6 +104,14 @@ impl Cpu {
 
                 None
             }
+            0xB1 => {
+                let addr = self.indirect_y();
+                let value = self.read(addr);
+
+                self.lda(value);
+
+                None
+            }
             0x00 => Some(ExitStatus::Brk),
             _ => Some(ExitStatus::UnknownOpCode),
         }
@@ -249,4 +257,30 @@ mod tests {
         assert_eq!(result, ExitStatus::Brk);
         assert_eq!(cpu.a_register, 0x01);
     }
+
+    #[test]
+    fn test_lda_indirect_y() {
+        let mut cpu = Cpu::new();
+        cpu.y_index_register = 0x01;
+        cpu.memory[0..5].copy_from_slice(&[0xB1, 0x03, 0x00, 0xFE, 0x07]);
+        cpu.memory[0x07FF] = 0x01;
+        let result = cpu.run();
+
+        assert_eq!(result, ExitStatus::Brk);
+        assert_eq!(cpu.a_register, 0x01);
+    }
+
+    // At the moment the cpu does not have access to
+    // the full memory range, failing to test the overflow
+    // case
+    // #[test]
+    // fn test_lda_indirect_y_overflow() {
+    //     let mut cpu = Cpu::new();
+    //     cpu.y_index_register = 0x06;
+    //     cpu.memory[0..6].copy_from_slice(&[0xB1, 0x03, 0x00, 0xFF, 0x07, 0x01]);
+    //     let result = cpu.run();
+    //
+    //     assert_eq!(result, ExitStatus::Brk);
+    //     assert_eq!(cpu.a_register, 0x01);
+    // }
 }
