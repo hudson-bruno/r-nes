@@ -80,6 +80,14 @@ impl Cpu {
 
                 None
             }
+            0xBD => {
+                let addr = self.absolute_x();
+                let value = self.read(addr);
+
+                self.lda(value);
+
+                None
+            }
             0x00 => Some(ExitStatus::Brk),
             _ => Some(ExitStatus::UnknownOpCode),
         }
@@ -149,4 +157,30 @@ mod tests {
         assert_eq!(result, ExitStatus::Brk);
         assert_eq!(cpu.a_register, 0x01);
     }
+
+    #[test]
+    fn test_lda_absolute_x() {
+        let mut cpu = Cpu::new();
+        cpu.x_index_register = 0x01;
+        cpu.memory[0..4].copy_from_slice(&[0xBD, 0xFE, 0x07, 0x00]);
+        cpu.memory[0x07FF] = 0x01;
+        let result = cpu.run();
+
+        assert_eq!(result, ExitStatus::Brk);
+        assert_eq!(cpu.a_register, 0x01);
+    }
+
+    // At the moment the cpu does not have access to
+    // the full memory range, failing to test the overflow
+    // case
+    // #[test]
+    // fn test_lda_absolute_x_overflow() {
+    //     let mut cpu = Cpu::new();
+    //     cpu.x_index_register = 0x05;
+    //     cpu.memory[0..5].copy_from_slice(&[0xBD, 0xFF, 0x07, 0x00, 0x01]);
+    //     let result = cpu.run();
+    //
+    //     assert_eq!(result, ExitStatus::Brk);
+    //     assert_eq!(cpu.a_register, 0x01);
+    // }
 }

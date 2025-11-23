@@ -5,6 +5,7 @@ pub trait AddressingModes {
     fn zero_page(&mut self) -> u16;
     fn zero_page_x(&mut self) -> u16;
     fn absolute(&mut self) -> u16;
+    fn absolute_x(&mut self) -> u16;
 }
 
 impl AddressingModes for Cpu {
@@ -33,6 +34,15 @@ impl AddressingModes for Cpu {
 
     fn absolute(&mut self) -> u16 {
         let addr = self.read_as_address(self.program_counter);
+        self.program_counter += 2;
+
+        addr
+    }
+
+    fn absolute_x(&mut self) -> u16 {
+        let addr = self
+            .read_as_address(self.program_counter)
+            .wrapping_add(self.x_index_register as u16);
         self.program_counter += 2;
 
         addr
