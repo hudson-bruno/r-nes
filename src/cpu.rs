@@ -72,6 +72,14 @@ impl Cpu {
 
                 None
             }
+            0xAD => {
+                let addr = self.absolute();
+                let value = self.read(addr);
+
+                self.lda(value);
+
+                None
+            }
             0x00 => Some(ExitStatus::Brk),
             _ => Some(ExitStatus::UnknownOpCode),
         }
@@ -125,6 +133,17 @@ mod tests {
         let mut cpu = Cpu::new();
         cpu.x_index_register = 0x04;
         cpu.memory[0..4].copy_from_slice(&[0xB5, 0xFF, 0x00, 0x01]);
+        let result = cpu.run();
+
+        assert_eq!(result, ExitStatus::Brk);
+        assert_eq!(cpu.a_register, 0x01);
+    }
+
+    #[test]
+    fn test_lda_absolute() {
+        let mut cpu = Cpu::new();
+        cpu.memory[0..4].copy_from_slice(&[0xAD, 0xFF, 0x07, 0x00]);
+        cpu.memory[0x07FF] = 0x01;
         let result = cpu.run();
 
         assert_eq!(result, ExitStatus::Brk);
