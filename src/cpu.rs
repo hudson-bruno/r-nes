@@ -1,5 +1,7 @@
-use crate::cpu::memory::Memory;
+use crate::cpu::{addressing_modes::AddressingModes, instructions::Instructions, memory::Memory};
 
+mod addressing_modes;
+mod instructions;
 mod memory;
 
 pub struct Cpu {
@@ -46,6 +48,14 @@ impl Cpu {
         self.program_counter += 1;
 
         match op_code {
+            0xA9 => {
+                let addr = self.immediate();
+                let value = self.read(addr);
+
+                self.lda(value);
+
+                None
+            }
             0x00 => Some(ExitStatus::Brk),
             _ => Some(ExitStatus::UnknownOpCode),
         }
@@ -55,5 +65,20 @@ impl Cpu {
 impl Default for Cpu {
     fn default() -> Self {
         Self::new()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_lda_immediate() {
+        let mut cpu = Cpu::new();
+        cpu.memory[0..3].copy_from_slice(&[0xA9, 0x01, 0x00]);
+        let result = cpu.run();
+
+        assert_eq!(result, ExitStatus::Brk);
+        assert_eq!(cpu.a_register, 0x01);
     }
 }
