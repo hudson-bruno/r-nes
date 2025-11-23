@@ -1,4 +1,5 @@
 use crate::cpu::{addressing_modes::AddressingModes, instructions::Instructions, memory::Memory};
+use bitflags::bitflags;
 
 mod addressing_modes;
 mod instructions;
@@ -9,11 +10,25 @@ pub struct Cpu {
 
     // Registers
     pub a_register: u8,
-    pub status_register: u8,
+    pub status_register: Status,
     pub program_counter: u16,
     pub stack_pointer: u8,
     pub x_index_register: u8,
     pub y_index_register: u8,
+}
+
+bitflags! {
+    #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+    pub struct Status: u8 {
+        const CARRY     = 1 << 0;
+        const ZERO      = 1 << 1;
+        const INTERRUPT = 1 << 2;
+        const DECIMAL   = 1 << 3;
+        const BREAK     = 1 << 4;
+        const UNUSED    = 1 << 5;
+        const OVERFLOW  = 1 << 6;
+        const NEGATIVE  = 1 << 7;
+    }
 }
 
 #[derive(Debug, PartialEq)]
@@ -27,7 +42,7 @@ impl Cpu {
         Cpu {
             memory: [0; 2 * 1024],
             a_register: 0,
-            status_register: 0,
+            status_register: Status::empty(),
             program_counter: 0,
             stack_pointer: 0,
             x_index_register: 0,
