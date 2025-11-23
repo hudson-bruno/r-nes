@@ -7,6 +7,7 @@ pub trait AddressingModes {
     fn absolute(&mut self) -> u16;
     fn absolute_x(&mut self) -> u16;
     fn absolute_y(&mut self) -> u16;
+    fn indirect_x(&mut self) -> u16;
 }
 
 impl AddressingModes for Cpu {
@@ -56,5 +57,14 @@ impl AddressingModes for Cpu {
         self.program_counter += 2;
 
         addr
+    }
+
+    fn indirect_x(&mut self) -> u16 {
+        let indirect_addr = self
+            .read(self.program_counter)
+            .wrapping_add(self.x_index_register) as u16;
+        self.program_counter += 1;
+
+        self.read_as_address(indirect_addr)
     }
 }

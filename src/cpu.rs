@@ -96,6 +96,14 @@ impl Cpu {
 
                 None
             }
+            0xA1 => {
+                let addr = self.indirect_x();
+                let value = self.read(addr);
+
+                self.lda(value);
+
+                None
+            }
             0x00 => Some(ExitStatus::Brk),
             _ => Some(ExitStatus::UnknownOpCode),
         }
@@ -217,4 +225,28 @@ mod tests {
     //     assert_eq!(result, ExitStatus::Brk);
     //     assert_eq!(cpu.a_register, 0x01);
     // }
+
+    #[test]
+    fn test_lda_indirect_x() {
+        let mut cpu = Cpu::new();
+        cpu.x_index_register = 0x01;
+        cpu.memory[0..5].copy_from_slice(&[0xA1, 0x02, 0x00, 0xFF, 0x07]);
+        cpu.memory[0x07FF] = 0x01;
+        let result = cpu.run();
+
+        assert_eq!(result, ExitStatus::Brk);
+        assert_eq!(cpu.a_register, 0x01);
+    }
+
+    #[test]
+    fn test_lda_indirect_x_overflow() {
+        let mut cpu = Cpu::new();
+        cpu.x_index_register = 0x04;
+        cpu.memory[0..5].copy_from_slice(&[0xA1, 0xFF, 0x00, 0xFF, 0x07]);
+        cpu.memory[0x07FF] = 0x01;
+        let result = cpu.run();
+
+        assert_eq!(result, ExitStatus::Brk);
+        assert_eq!(cpu.a_register, 0x01);
+    }
 }
