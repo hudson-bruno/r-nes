@@ -1,8 +1,11 @@
-use crate::cpu::{Cpu, ExitStatus, addressing_modes::AddressingModes, instructions::Instructions};
+use crate::cpu::{
+    Cpu, ExitStatus, addressing_modes::AddressingModes, instructions::Instructions,
+    operand::OperandLocation,
+};
 
 #[derive(Debug)]
 pub struct Instruction {
-    pub addressing_mode: fn(&mut Cpu) -> u16,
+    pub addressing_mode: fn(&mut Cpu) -> OperandLocation,
     pub operation: fn(&mut Cpu) -> Option<ExitStatus>,
 }
 

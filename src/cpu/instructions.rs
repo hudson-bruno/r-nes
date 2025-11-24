@@ -1,8 +1,5 @@
 use crate::{
-    cpu::{
-        Cpu, ExitStatus, Status,
-        memory::{Memory, stack::Stack},
-    },
+    cpu::{Cpu, ExitStatus, Status, memory::stack::Stack, operand::Operand},
     utils::BitsExt,
 };
 
@@ -28,7 +25,11 @@ impl Instructions for Cpu {
     }
 
     fn ora(&mut self) -> Option<ExitStatus> {
-        self.a_register |= self.op_memory;
+        let Some(operand) = self.get_operand() else {
+            return Some(ExitStatus::MissingOperand);
+        };
+
+        self.a_register |= operand;
 
         self.status_register.set(Status::ZERO, self.a_register == 0);
         self.status_register
@@ -38,11 +39,14 @@ impl Instructions for Cpu {
     }
 
     fn asl(&mut self) -> Option<ExitStatus> {
-        self.status_register
-            .set(Status::CARRY, self.op_memory.get_bit(7));
+        let Some(operand) = self.get_operand() else {
+            return Some(ExitStatus::MissingOperand);
+        };
 
-        let result = self.op_memory << 1;
-        self.write(self.op_memory_address, result);
+        self.status_register.set(Status::CARRY, operand.get_bit(7));
+
+        let result = operand << 1;
+        self.update_operand(result);
 
         self.status_register.set(Status::ZERO, result == 0);
         self.status_register
@@ -59,7 +63,11 @@ impl Instructions for Cpu {
     }
 
     fn lda(&mut self) -> Option<ExitStatus> {
-        self.a_register = self.op_memory;
+        let Some(operand) = self.get_operand() else {
+            return Some(ExitStatus::MissingOperand);
+        };
+
+        self.a_register = operand;
 
         self.status_register.set(Status::ZERO, self.a_register == 0);
         self.status_register

@@ -1,9 +1,12 @@
-use crate::cpu::{instructions::lookup::INSTRUCTIONS_LOOKUP, memory::Memory};
+use crate::cpu::{
+    instructions::lookup::INSTRUCTIONS_LOOKUP, memory::Memory, operand::OperandLocation,
+};
 use bitflags::bitflags;
 
 pub mod addressing_modes;
 pub mod instructions;
 pub mod memory;
+pub mod operand;
 
 pub struct Cpu {
     pub memory: [u8; 2 * 1024],
@@ -16,8 +19,7 @@ pub struct Cpu {
     pub x_index_register: u8,
     pub y_index_register: u8,
 
-    pub op_memory: u8,
-    pub op_memory_address: u16,
+    pub operand_location: OperandLocation,
 }
 
 bitflags! {
@@ -38,6 +40,7 @@ bitflags! {
 pub enum ExitStatus {
     Brk,
     UnknownOpCode,
+    MissingOperand,
 }
 
 impl Cpu {
@@ -50,8 +53,7 @@ impl Cpu {
             stack_pointer: 0xFF,
             x_index_register: 0,
             y_index_register: 0,
-            op_memory: 0,
-            op_memory_address: 0,
+            operand_location: OperandLocation::Implicit,
         }
     }
 
@@ -68,8 +70,7 @@ impl Cpu {
         self.program_counter += 1;
 
         if let Some(op) = &INSTRUCTIONS_LOOKUP[op_code as usize] {
-            self.op_memory_address = (op.addressing_mode)(self);
-            self.op_memory = self.read(self.op_memory_address);
+            self.operand_location = (op.addressing_mode)(self);
 
             (op.operation)(self)
         } else {
