@@ -54,19 +54,31 @@ pub const INSTRUCTIONS_LOOKUP: [Option<Instruction>; 256] = [
     }), // 0x0E
     None, // 0x0F
     None, // 0x10
-    None, // 0x11
+    Some(Instruction {
+        addressing_mode: Cpu::indirect_y,
+        operation: Cpu::ora,
+    }), // 0x11
     None, // 0x12
     None, // 0x13
     None, // 0x14
-    None, // 0x15
+    Some(Instruction {
+        addressing_mode: Cpu::zero_page_x,
+        operation: Cpu::ora,
+    }), // 0x15
     None, // 0x16
     None, // 0x17
     None, // 0x18
-    None, // 0x19
+    Some(Instruction {
+        addressing_mode: Cpu::absolute_y,
+        operation: Cpu::ora,
+    }), // 0x19
     None, // 0x1A
     None, // 0x1B
     None, // 0x1C
-    None, // 0x1D
+    Some(Instruction {
+        addressing_mode: Cpu::absolute_x,
+        operation: Cpu::ora,
+    }), // 0x1D
     None, // 0x1E
     None, // 0x1F
     None, // 0x20
