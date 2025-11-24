@@ -65,7 +65,10 @@ pub const INSTRUCTIONS_LOOKUP: [Option<Instruction>; 256] = [
         addressing_mode: Cpu::zero_page_x,
         operation: Cpu::ora,
     }), // 0x15
-    None, // 0x16
+    Some(Instruction {
+        addressing_mode: Cpu::zero_page_x,
+        operation: Cpu::asl,
+    }), // 0x16
     None, // 0x17
     None, // 0x18
     Some(Instruction {
@@ -79,7 +82,10 @@ pub const INSTRUCTIONS_LOOKUP: [Option<Instruction>; 256] = [
         addressing_mode: Cpu::absolute_x,
         operation: Cpu::ora,
     }), // 0x1D
-    None, // 0x1E
+    Some(Instruction {
+        addressing_mode: Cpu::absolute_x,
+        operation: Cpu::asl,
+    }), // 0x1E
     None, // 0x1F
     None, // 0x20
     None, // 0x21
