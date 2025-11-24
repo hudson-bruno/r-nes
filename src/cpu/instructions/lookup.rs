@@ -31,7 +31,10 @@ pub const INSTRUCTIONS_LOOKUP: [Option<Instruction>; 256] = [
         addressing_mode: Cpu::implicit,
         operation: Cpu::php,
     }), // 0x08
-    None, // 0x09
+    Some(Instruction {
+        addressing_mode: Cpu::immediate,
+        operation: Cpu::ora,
+    }), // 0x09
     None, // 0x0A
     None, // 0x0B
     None, // 0x0C
