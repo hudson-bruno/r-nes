@@ -17,6 +17,7 @@ pub struct Cpu {
     pub y_index_register: u8,
 
     pub op_memory: u8,
+    pub op_memory_address: u16,
 }
 
 bitflags! {
@@ -50,6 +51,7 @@ impl Cpu {
             x_index_register: 0,
             y_index_register: 0,
             op_memory: 0,
+            op_memory_address: 0,
         }
     }
 
@@ -66,8 +68,8 @@ impl Cpu {
         self.program_counter += 1;
 
         if let Some(op) = &INSTRUCTIONS_LOOKUP[op_code as usize] {
-            let addr = (op.addressing_mode)(self);
-            self.op_memory = self.read(addr);
+            self.op_memory_address = (op.addressing_mode)(self);
+            self.op_memory = self.read(self.op_memory_address);
 
             (op.operation)(self)
         } else {

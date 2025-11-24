@@ -22,7 +22,10 @@ pub const INSTRUCTIONS_LOOKUP: [Option<Instruction>; 256] = [
         addressing_mode: Cpu::zero_page,
         operation: Cpu::ora,
     }), // 0x05
-    None, // 0x06
+    Some(Instruction {
+        addressing_mode: Cpu::zero_page,
+        operation: Cpu::asl,
+    }), // 0x06
     None, // 0x07
     None, // 0x08
     None, // 0x09
