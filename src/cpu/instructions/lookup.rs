@@ -11,7 +11,10 @@ pub const INSTRUCTIONS_LOOKUP: [Option<Instruction>; 256] = [
         addressing_mode: Cpu::immediate,
         operation: Cpu::brk,
     }), // 0x00
-    None, // 0x01
+    Some(Instruction {
+        addressing_mode: Cpu::indirect_x,
+        operation: Cpu::ora,
+    }), // 0x01
     None, // 0x02
     None, // 0x03
     None, // 0x04

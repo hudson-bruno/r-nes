@@ -6,21 +6,12 @@ use crate::{
 pub mod lookup;
 
 pub trait Instructions {
-    fn lda(&mut self) -> Option<ExitStatus>;
     fn brk(&mut self) -> Option<ExitStatus>;
+    fn ora(&mut self) -> Option<ExitStatus>;
+    fn lda(&mut self) -> Option<ExitStatus>;
 }
 
 impl Instructions for Cpu {
-    fn lda(&mut self) -> Option<ExitStatus> {
-        self.a_register = self.op_memory;
-
-        self.status_register.set(Status::ZERO, self.a_register == 0);
-        self.status_register
-            .set(Status::NEGATIVE, self.a_register.get_bit(7));
-
-        None
-    }
-
     fn brk(&mut self) -> Option<ExitStatus> {
         self.stack_push_address(self.program_counter);
         self.stack_push(self.status_register.union(Status::BREAK).bits());
@@ -29,5 +20,25 @@ impl Instructions for Cpu {
         self.program_counter = 0x0000;
 
         Some(ExitStatus::Brk)
+    }
+
+    fn ora(&mut self) -> Option<ExitStatus> {
+        self.a_register |= self.op_memory;
+
+        self.status_register.set(Status::ZERO, self.a_register == 0);
+        self.status_register
+            .set(Status::NEGATIVE, self.a_register.get_bit(7));
+
+        None
+    }
+
+    fn lda(&mut self) -> Option<ExitStatus> {
+        self.a_register = self.op_memory;
+
+        self.status_register.set(Status::ZERO, self.a_register == 0);
+        self.status_register
+            .set(Status::NEGATIVE, self.a_register.get_bit(7));
+
+        None
     }
 }
