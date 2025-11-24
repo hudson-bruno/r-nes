@@ -48,7 +48,10 @@ pub const INSTRUCTIONS_LOOKUP: [Option<Instruction>; 256] = [
         addressing_mode: Cpu::absolute,
         operation: Cpu::ora,
     }), // 0x0D
-    None, // 0x0E
+    Some(Instruction {
+        addressing_mode: Cpu::absolute,
+        operation: Cpu::asl,
+    }), // 0x0E
     None, // 0x0F
     None, // 0x10
     None, // 0x11

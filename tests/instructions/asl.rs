@@ -21,3 +21,15 @@ fn test_asl_zero_page() {
     assert_eq!(result, ExitStatus::Brk);
     assert_eq!(cpu.memory[0x03], 0x00);
 }
+
+#[test]
+fn test_asl_absolute() {
+    let mut cpu = Cpu::new();
+    cpu.memory[0..3].copy_from_slice(&[0x0E, 0xFF, 0x07]);
+    cpu.memory[0x07FF] = 0x80;
+
+    let result = cpu.run();
+
+    assert_eq!(result, ExitStatus::Brk);
+    assert_eq!(cpu.memory[0x07FF], 0x00);
+}
