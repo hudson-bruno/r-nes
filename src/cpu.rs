@@ -1,4 +1,4 @@
-use crate::cpu::{addressing_modes::AddressingModes, instructions::Instructions, memory::Memory};
+use crate::cpu::{instructions::lookup::INSTRUCTIONS_LOOKUP, memory::Memory};
 use bitflags::bitflags;
 
 mod addressing_modes;
@@ -15,6 +15,8 @@ pub struct Cpu {
     pub stack_pointer: u8,
     pub x_index_register: u8,
     pub y_index_register: u8,
+
+    pub op_memory: u8,
 }
 
 bitflags! {
@@ -47,6 +49,7 @@ impl Cpu {
             stack_pointer: 0,
             x_index_register: 0,
             y_index_register: 0,
+            op_memory: 0,
         }
     }
 
@@ -62,73 +65,13 @@ impl Cpu {
         let op_code = self.read(self.program_counter);
         self.program_counter += 1;
 
-        match op_code {
-            0xA9 => {
-                let addr = self.immediate();
-                let value = self.read(addr);
+        if let Some(op) = &INSTRUCTIONS_LOOKUP[op_code as usize] {
+            let addr = (op.addressing_mode)(self);
+            self.op_memory = self.read(addr);
 
-                self.lda(value);
-
-                None
-            }
-            0xA5 => {
-                let addr = self.zero_page();
-                let value = self.read(addr);
-
-                self.lda(value);
-
-                None
-            }
-            0xB5 => {
-                let addr = self.zero_page_x();
-                let value = self.read(addr);
-
-                self.lda(value);
-
-                None
-            }
-            0xAD => {
-                let addr = self.absolute();
-                let value = self.read(addr);
-
-                self.lda(value);
-
-                None
-            }
-            0xBD => {
-                let addr = self.absolute_x();
-                let value = self.read(addr);
-
-                self.lda(value);
-
-                None
-            }
-            0xB9 => {
-                let addr = self.absolute_y();
-                let value = self.read(addr);
-
-                self.lda(value);
-
-                None
-            }
-            0xA1 => {
-                let addr = self.indirect_x();
-                let value = self.read(addr);
-
-                self.lda(value);
-
-                None
-            }
-            0xB1 => {
-                let addr = self.indirect_y();
-                let value = self.read(addr);
-
-                self.lda(value);
-
-                None
-            }
-            0x00 => Some(ExitStatus::Brk),
-            _ => Some(ExitStatus::UnknownOpCode),
+            (op.operation)(self)
+        } else {
+            Some(ExitStatus::UnknownOpCode)
         }
     }
 }
