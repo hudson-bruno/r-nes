@@ -2,6 +2,7 @@ use crate::cpu::{Cpu, memory::Memory, operand::OperandLocation};
 
 pub trait AddressingModes {
     fn implicit(&mut self) -> OperandLocation;
+    fn accumulator(&mut self) -> OperandLocation;
     fn immediate(&mut self) -> OperandLocation;
     fn zero_page(&mut self) -> OperandLocation;
     fn zero_page_x(&mut self) -> OperandLocation;
@@ -15,6 +16,10 @@ pub trait AddressingModes {
 impl AddressingModes for Cpu {
     fn implicit(&mut self) -> OperandLocation {
         OperandLocation::Implicit
+    }
+
+    fn accumulator(&mut self) -> OperandLocation {
+        OperandLocation::Accumulator
     }
 
     fn immediate(&mut self) -> OperandLocation {
