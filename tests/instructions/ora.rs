@@ -25,6 +25,19 @@ fn test_ora_zero_page() {
 }
 
 #[test]
+fn test_ora_absolute() {
+    let mut cpu = Cpu::new();
+    cpu.a_register = 0xAB;
+    cpu.memory[0..3].copy_from_slice(&[0x0D, 0xFF, 0x07]);
+    cpu.memory[0x07FF] = 0xBA;
+
+    let result = cpu.run();
+
+    assert_eq!(result, ExitStatus::Brk);
+    assert_eq!(cpu.a_register, 0xAB | 0xBA);
+}
+
+#[test]
 fn test_ora_indirect_x() {
     let mut cpu = Cpu::new();
     cpu.a_register = 0xAB;
