@@ -18,7 +18,10 @@ pub const INSTRUCTIONS_LOOKUP: [Option<Instruction>; 256] = [
     None, // 0x02
     None, // 0x03
     None, // 0x04
-    None, // 0x05
+    Some(Instruction {
+        addressing_mode: Cpu::zero_page,
+        operation: Cpu::ora,
+    }), // 0x05
     None, // 0x06
     None, // 0x07
     None, // 0x08
