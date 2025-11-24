@@ -45,7 +45,7 @@ impl Cpu {
         Cpu {
             memory: [0; 2 * 1024],
             a_register: 0,
-            status_register: Status::empty(),
+            status_register: Status::UNUSED,
             program_counter: 0,
             stack_pointer: 0xFF,
             x_index_register: 0,

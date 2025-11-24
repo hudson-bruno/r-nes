@@ -12,6 +12,7 @@ pub trait Instructions {
     fn brk(&mut self) -> Option<ExitStatus>;
     fn ora(&mut self) -> Option<ExitStatus>;
     fn asl(&mut self) -> Option<ExitStatus>;
+    fn php(&mut self) -> Option<ExitStatus>;
     fn lda(&mut self) -> Option<ExitStatus>;
 }
 
@@ -46,6 +47,13 @@ impl Instructions for Cpu {
         self.status_register.set(Status::ZERO, result == 0);
         self.status_register
             .set(Status::NEGATIVE, result.get_bit(7));
+
+        None
+    }
+
+    fn php(&mut self) -> Option<ExitStatus> {
+        let status_to_stack = self.status_register.union(Status::BREAK | Status::UNUSED);
+        self.stack_push(status_to_stack.bits());
 
         None
     }

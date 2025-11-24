@@ -1,6 +1,7 @@
 use crate::cpu::{Cpu, memory::Memory};
 
 pub trait AddressingModes {
+    fn implicit(&mut self) -> u16;
     fn immediate(&mut self) -> u16;
     fn zero_page(&mut self) -> u16;
     fn zero_page_x(&mut self) -> u16;
@@ -12,6 +13,10 @@ pub trait AddressingModes {
 }
 
 impl AddressingModes for Cpu {
+    fn implicit(&mut self) -> u16 {
+        0
+    }
+
     fn immediate(&mut self) -> u16 {
         let addr = self.program_counter;
         self.program_counter += 1;
