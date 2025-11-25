@@ -6,6 +6,7 @@ mod bmi;
 mod bpl;
 mod brk;
 mod bvc;
+mod bvs;
 mod clc;
 mod cli;
 mod eor;
