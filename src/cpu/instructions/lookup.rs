@@ -202,7 +202,10 @@ pub const INSTRUCTIONS_LOOKUP: [Option<Instruction>; 256] = [
         operation: Cpu::lsr,
     }), // 0x46
     None, // 0x47
-    None, // 0x48
+    Some(Instruction {
+        addressing_mode: Cpu::implicit,
+        operation: Cpu::pha,
+    }), // 0x48
     Some(Instruction {
         addressing_mode: Cpu::immediate,
         operation: Cpu::eor,

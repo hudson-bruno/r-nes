@@ -10,6 +10,7 @@ mod jsr;
 mod lda;
 mod lsr;
 mod ora;
+mod pha;
 mod php;
 mod plp;
 mod rol;

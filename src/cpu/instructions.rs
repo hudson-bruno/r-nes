@@ -26,6 +26,7 @@ pub trait Instructions {
     fn rti(&mut self) -> Option<ExitStatus>;
     fn eor(&mut self) -> Option<ExitStatus>;
     fn lsr(&mut self) -> Option<ExitStatus>;
+    fn pha(&mut self) -> Option<ExitStatus>;
     fn lda(&mut self) -> Option<ExitStatus>;
 }
 
@@ -219,6 +220,12 @@ impl Instructions for Cpu {
         self.status_register.set(Status::CARRY, operand.get_bit(0));
         self.status_register.set(Status::ZERO, result == 0);
         self.status_register.remove(Status::NEGATIVE);
+
+        None
+    }
+
+    fn pha(&mut self) -> Option<ExitStatus> {
+        self.stack_push(self.a_register);
 
         None
     }
