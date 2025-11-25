@@ -52,6 +52,7 @@ pub trait Instructions {
     fn bcs(&mut self) -> Option<ExitStatus>;
     fn clv(&mut self) -> Option<ExitStatus>;
     fn tsx(&mut self) -> Option<ExitStatus>;
+    fn cpy(&mut self) -> Option<ExitStatus>;
 }
 
 impl Instructions for Cpu {
@@ -516,6 +517,23 @@ impl Instructions for Cpu {
             .set(Status::ZERO, self.x_index_register == 0);
         self.status_register
             .set(Status::NEGATIVE, self.x_index_register.get_bit(7));
+
+        None
+    }
+
+    fn cpy(&mut self) -> Option<ExitStatus> {
+        let OperandValue::U8(operand) = self.get_operand() else {
+            return Some(ExitStatus::MissingOperand);
+        };
+
+        let result: u8 = self.y_index_register.wrapping_sub(operand);
+
+        self.status_register
+            .set(Status::CARRY, self.y_index_register >= operand);
+        self.status_register
+            .set(Status::ZERO, self.y_index_register == operand);
+        self.status_register
+            .set(Status::NEGATIVE, result.get_bit(7));
 
         None
     }

@@ -541,11 +541,17 @@ pub const INSTRUCTIONS_LOOKUP: [Option<Instruction>; 256] = [
         operation: Cpu::ldx,
     }), // 0xBE
     None, // 0xBF
-    None, // 0xC0
+    Some(Instruction {
+        addressing_mode: Cpu::immediate,
+        operation: Cpu::cpy,
+    }), // 0xC0
     None, // 0xC1
     None, // 0xC2
     None, // 0xC3
-    None, // 0xC4
+    Some(Instruction {
+        addressing_mode: Cpu::zero_page,
+        operation: Cpu::cpy,
+    }), // 0xC4
     None, // 0xC5
     None, // 0xC6
     None, // 0xC7
@@ -553,7 +559,10 @@ pub const INSTRUCTIONS_LOOKUP: [Option<Instruction>; 256] = [
     None, // 0xC9
     None, // 0xCA
     None, // 0xCB
-    None, // 0xCC
+    Some(Instruction {
+        addressing_mode: Cpu::absolute,
+        operation: Cpu::cpy,
+    }), // 0xCC
     None, // 0xCD
     None, // 0xCE
     None, // 0xCF

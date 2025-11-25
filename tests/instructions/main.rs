@@ -12,6 +12,7 @@ mod bvs;
 mod clc;
 mod cli;
 mod clv;
+mod cpy;
 mod dey;
 mod eor;
 mod jmp;
