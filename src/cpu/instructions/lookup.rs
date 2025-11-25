@@ -420,7 +420,10 @@ pub const INSTRUCTIONS_LOOKUP: [Option<Instruction>; 256] = [
         operation: Cpu::stx,
     }), // 0x96
     None, // 0x97
-    None, // 0x98
+    Some(Instruction {
+        addressing_mode: Cpu::implicit,
+        operation: Cpu::tya,
+    }), // 0x98
     Some(Instruction {
         addressing_mode: Cpu::absolute_y,
         operation: Cpu::sta,

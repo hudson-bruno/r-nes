@@ -42,6 +42,7 @@ pub trait Instructions {
     fn dey(&mut self) -> Option<ExitStatus>;
     fn txa(&mut self) -> Option<ExitStatus>;
     fn bcc(&mut self) -> Option<ExitStatus>;
+    fn tya(&mut self) -> Option<ExitStatus>;
     fn lda(&mut self) -> Option<ExitStatus>;
 }
 
@@ -396,6 +397,16 @@ impl Instructions for Cpu {
         if !self.status_register.contains(Status::CARRY) {
             self.program_counter = self.program_counter.wrapping_add_signed(operand as i16);
         }
+
+        None
+    }
+
+    fn tya(&mut self) -> Option<ExitStatus> {
+        self.a_register = self.y_index_register;
+
+        self.status_register.set(Status::ZERO, self.a_register == 0);
+        self.status_register
+            .set(Status::NEGATIVE, self.a_register.get_bit(7));
 
         None
     }
