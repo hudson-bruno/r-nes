@@ -73,7 +73,10 @@ pub const INSTRUCTIONS_LOOKUP: [Option<Instruction>; 256] = [
         operation: Cpu::asl,
     }), // 0x16
     None, // 0x17
-    None, // 0x18
+    Some(Instruction {
+        addressing_mode: Cpu::implicit,
+        operation: Cpu::clc,
+    }), // 0x18
     Some(Instruction {
         addressing_mode: Cpu::absolute_y,
         operation: Cpu::ora,

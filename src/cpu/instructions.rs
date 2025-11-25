@@ -15,6 +15,7 @@ pub trait Instructions {
     fn asl(&mut self) -> Option<ExitStatus>;
     fn php(&mut self) -> Option<ExitStatus>;
     fn bpl(&mut self) -> Option<ExitStatus>;
+    fn clc(&mut self) -> Option<ExitStatus>;
     fn lda(&mut self) -> Option<ExitStatus>;
 }
 
@@ -75,6 +76,12 @@ impl Instructions for Cpu {
         if !self.status_register.contains(Status::NEGATIVE) {
             self.program_counter = self.program_counter.wrapping_add_signed(operand as i16);
         }
+
+        None
+    }
+
+    fn clc(&mut self) -> Option<ExitStatus> {
+        self.status_register.remove(Status::CARRY);
 
         None
     }
