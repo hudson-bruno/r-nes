@@ -22,6 +22,7 @@ pub trait Instructions {
     fn rol(&mut self) -> Option<ExitStatus>;
     fn plp(&mut self) -> Option<ExitStatus>;
     fn bmi(&mut self) -> Option<ExitStatus>;
+    fn sec(&mut self) -> Option<ExitStatus>;
     fn lda(&mut self) -> Option<ExitStatus>;
 }
 
@@ -167,6 +168,12 @@ impl Instructions for Cpu {
         if self.status_register.contains(Status::NEGATIVE) {
             self.program_counter = self.program_counter.wrapping_add_signed(operand as i16);
         }
+
+        None
+    }
+
+    fn sec(&mut self) -> Option<ExitStatus> {
+        self.status_register.insert(Status::CARRY);
 
         None
     }

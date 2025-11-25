@@ -162,7 +162,10 @@ pub const INSTRUCTIONS_LOOKUP: [Option<Instruction>; 256] = [
         operation: Cpu::rol,
     }), // 0x36
     None, // 0x37
-    None, // 0x38
+    Some(Instruction {
+        addressing_mode: Cpu::implicit,
+        operation: Cpu::sec,
+    }), // 0x38
     Some(Instruction {
         addressing_mode: Cpu::absolute_y,
         operation: Cpu::and,
