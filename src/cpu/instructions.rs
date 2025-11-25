@@ -62,6 +62,7 @@ pub trait Instructions {
     fn cpx(&mut self) -> Option<ExitStatus>;
     fn inc(&mut self) -> Option<ExitStatus>;
     fn inx(&mut self) -> Option<ExitStatus>;
+    fn nop(&mut self) -> Option<ExitStatus>;
 }
 
 impl Instructions for Cpu {
@@ -661,6 +662,10 @@ impl Instructions for Cpu {
         self.status_register
             .set(Status::NEGATIVE, self.x_index_register.get_bit(7));
 
+        None
+    }
+
+    fn nop(&mut self) -> Option<ExitStatus> {
         None
     }
 }

@@ -30,6 +30,7 @@ mod lda;
 mod ldx;
 mod ldy;
 mod lsr;
+mod nop;
 mod ora;
 mod pha;
 mod php;

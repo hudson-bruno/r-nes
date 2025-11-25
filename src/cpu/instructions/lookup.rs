@@ -652,7 +652,10 @@ pub const INSTRUCTIONS_LOOKUP: [Option<Instruction>; 256] = [
         operation: Cpu::inx,
     }), // 0xE8
     None, // 0xE9
-    None, // 0xEA
+    Some(Instruction {
+        addressing_mode: Cpu::implicit,
+        operation: Cpu::nop,
+    }), // 0xEA
     None, // 0xEB
     Some(Instruction {
         addressing_mode: Cpu::absolute,
