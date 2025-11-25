@@ -10,6 +10,7 @@ pub trait AddressingModes {
     fn absolute(&mut self) -> OperandLocation;
     fn absolute_x(&mut self) -> OperandLocation;
     fn absolute_y(&mut self) -> OperandLocation;
+    fn indirect(&mut self) -> OperandLocation;
     fn indirect_x(&mut self) -> OperandLocation;
     fn indirect_y(&mut self) -> OperandLocation;
 }
@@ -54,7 +55,7 @@ impl AddressingModes for Cpu {
     }
 
     fn absolute(&mut self) -> OperandLocation {
-        let addr = self.read_as_address(self.program_counter);
+        let addr = self.read_as_address(self.program_counter, self.program_counter + 1);
         self.program_counter += 2;
 
         OperandLocation::Memory(addr)
@@ -62,7 +63,7 @@ impl AddressingModes for Cpu {
 
     fn absolute_x(&mut self) -> OperandLocation {
         let addr = self
-            .read_as_address(self.program_counter)
+            .read_as_address(self.program_counter, self.program_counter + 1)
             .wrapping_add(self.x_index_register as u16);
         self.program_counter += 2;
 
@@ -71,10 +72,24 @@ impl AddressingModes for Cpu {
 
     fn absolute_y(&mut self) -> OperandLocation {
         let addr = self
-            .read_as_address(self.program_counter)
+            .read_as_address(self.program_counter, self.program_counter + 1)
             .wrapping_add(self.y_index_register as u16);
         self.program_counter += 2;
 
+        OperandLocation::Memory(addr)
+    }
+
+    fn indirect(&mut self) -> OperandLocation {
+        let indirect_addr = self.read_as_address(self.program_counter, self.program_counter + 1);
+        self.program_counter += 2;
+
+        let indirect_high_addr = if indirect_addr & 0x00FF == 0x00FF {
+            indirect_addr & 0xFF00
+        } else {
+            indirect_addr + 1
+        };
+
+        let addr = self.read_as_address(indirect_addr, indirect_high_addr);
         OperandLocation::Memory(addr)
     }
 
@@ -84,7 +99,7 @@ impl AddressingModes for Cpu {
             .wrapping_add(self.x_index_register) as u16;
         self.program_counter += 1;
 
-        OperandLocation::Memory(self.read_as_address(indirect_addr))
+        OperandLocation::Memory(self.read_as_address(indirect_addr, indirect_addr + 1))
     }
 
     fn indirect_y(&mut self) -> OperandLocation {
@@ -92,7 +107,7 @@ impl AddressingModes for Cpu {
         self.program_counter += 1;
 
         OperandLocation::Memory(
-            self.read_as_address(indirect_addr)
+            self.read_as_address(indirect_addr, indirect_addr + 1)
                 .wrapping_add(self.y_index_register as u16),
         )
     }

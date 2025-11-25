@@ -215,7 +215,10 @@ pub const INSTRUCTIONS_LOOKUP: [Option<Instruction>; 256] = [
         operation: Cpu::lsr,
     }), // 0x4A
     None, // 0x4B
-    None, // 0x4C
+    Some(Instruction {
+        addressing_mode: Cpu::absolute,
+        operation: Cpu::jmp,
+    }), // 0x4C
     Some(Instruction {
         addressing_mode: Cpu::absolute,
         operation: Cpu::eor,
@@ -271,7 +274,10 @@ pub const INSTRUCTIONS_LOOKUP: [Option<Instruction>; 256] = [
     None, // 0x69
     None, // 0x6A
     None, // 0x6B
-    None, // 0x6C
+    Some(Instruction {
+        addressing_mode: Cpu::indirect,
+        operation: Cpu::jmp,
+    }), // 0x6C
     None, // 0x6D
     None, // 0x6E
     None, // 0x6F

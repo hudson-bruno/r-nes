@@ -27,6 +27,7 @@ pub trait Instructions {
     fn eor(&mut self) -> Option<ExitStatus>;
     fn lsr(&mut self) -> Option<ExitStatus>;
     fn pha(&mut self) -> Option<ExitStatus>;
+    fn jmp(&mut self) -> Option<ExitStatus>;
     fn lda(&mut self) -> Option<ExitStatus>;
 }
 
@@ -226,6 +227,16 @@ impl Instructions for Cpu {
 
     fn pha(&mut self) -> Option<ExitStatus> {
         self.stack_push(self.a_register);
+
+        None
+    }
+
+    fn jmp(&mut self) -> Option<ExitStatus> {
+        let OperandLocation::Memory(addr) = self.operand_location else {
+            return Some(ExitStatus::MissingOperand);
+        };
+
+        self.program_counter = addr;
 
         None
     }
