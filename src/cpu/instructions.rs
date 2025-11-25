@@ -43,6 +43,7 @@ pub trait Instructions {
     fn txa(&mut self) -> Option<ExitStatus>;
     fn bcc(&mut self) -> Option<ExitStatus>;
     fn tya(&mut self) -> Option<ExitStatus>;
+    fn txs(&mut self) -> Option<ExitStatus>;
     fn lda(&mut self) -> Option<ExitStatus>;
 }
 
@@ -407,6 +408,12 @@ impl Instructions for Cpu {
         self.status_register.set(Status::ZERO, self.a_register == 0);
         self.status_register
             .set(Status::NEGATIVE, self.a_register.get_bit(7));
+
+        None
+    }
+
+    fn txs(&mut self) -> Option<ExitStatus> {
+        self.stack_pointer = self.x_index_register;
 
         None
     }

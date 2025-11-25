@@ -31,4 +31,5 @@ mod sta;
 mod stx;
 mod sty;
 mod txa;
+mod txs;
 mod tya;
