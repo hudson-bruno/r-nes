@@ -33,6 +33,7 @@ pub trait Instructions {
     fn rts(&mut self) -> Option<ExitStatus>;
     fn adc(&mut self) -> Option<ExitStatus>;
     fn ror(&mut self) -> Option<ExitStatus>;
+    fn pla(&mut self) -> Option<ExitStatus>;
     fn lda(&mut self) -> Option<ExitStatus>;
 }
 
@@ -308,6 +309,16 @@ impl Instructions for Cpu {
         self.status_register.set(Status::ZERO, result == 0);
         self.status_register
             .set(Status::NEGATIVE, result.get_bit(7));
+
+        None
+    }
+
+    fn pla(&mut self) -> Option<ExitStatus> {
+        self.a_register = self.stack_pop();
+
+        self.status_register.set(Status::ZERO, self.a_register == 0);
+        self.status_register
+            .set(Status::NEGATIVE, self.a_register.get_bit(7));
 
         None
     }
