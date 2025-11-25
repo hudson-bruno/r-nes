@@ -51,6 +51,7 @@ pub trait Instructions {
     fn tax(&mut self) -> Option<ExitStatus>;
     fn bcs(&mut self) -> Option<ExitStatus>;
     fn clv(&mut self) -> Option<ExitStatus>;
+    fn tsx(&mut self) -> Option<ExitStatus>;
 }
 
 impl Instructions for Cpu {
@@ -504,6 +505,17 @@ impl Instructions for Cpu {
 
     fn clv(&mut self) -> Option<ExitStatus> {
         self.status_register.remove(Status::OVERFLOW);
+
+        None
+    }
+
+    fn tsx(&mut self) -> Option<ExitStatus> {
+        self.x_index_register = self.stack_pointer;
+
+        self.status_register
+            .set(Status::ZERO, self.x_index_register == 0);
+        self.status_register
+            .set(Status::NEGATIVE, self.x_index_register.get_bit(7));
 
         None
     }
