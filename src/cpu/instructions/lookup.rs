@@ -440,14 +440,20 @@ pub const INSTRUCTIONS_LOOKUP: [Option<Instruction>; 256] = [
     }), // 0x9D
     None, // 0x9E
     None, // 0x9F
-    None, // 0xA0
+    Some(Instruction {
+        addressing_mode: Cpu::immediate,
+        operation: Cpu::ldy,
+    }), // 0xA0
     Some(Instruction {
         addressing_mode: Cpu::indirect_x,
         operation: Cpu::lda,
     }), // 0xA1
     None, // 0xA2
     None, // 0xA3
-    None, // 0xA4
+    Some(Instruction {
+        addressing_mode: Cpu::zero_page,
+        operation: Cpu::ldy,
+    }), // 0xA4
     Some(Instruction {
         addressing_mode: Cpu::zero_page,
         operation: Cpu::lda,
@@ -461,7 +467,10 @@ pub const INSTRUCTIONS_LOOKUP: [Option<Instruction>; 256] = [
     }), // 0xA9
     None, // 0xAA
     None, // 0xAB
-    None, // 0xAC
+    Some(Instruction {
+        addressing_mode: Cpu::absolute,
+        operation: Cpu::ldy,
+    }), // 0xAC
     Some(Instruction {
         addressing_mode: Cpu::absolute,
         operation: Cpu::lda,
@@ -475,7 +484,10 @@ pub const INSTRUCTIONS_LOOKUP: [Option<Instruction>; 256] = [
     }), // 0xB1
     None, // 0xB2
     None, // 0xB3
-    None, // 0xB4
+    Some(Instruction {
+        addressing_mode: Cpu::zero_page_x,
+        operation: Cpu::ldy,
+    }), // 0xB4
     Some(Instruction {
         addressing_mode: Cpu::zero_page_x,
         operation: Cpu::lda,
@@ -489,7 +501,10 @@ pub const INSTRUCTIONS_LOOKUP: [Option<Instruction>; 256] = [
     }), // 0xB9
     None, // 0xBA
     None, // 0xBB
-    None, // 0xBC
+    Some(Instruction {
+        addressing_mode: Cpu::absolute_x,
+        operation: Cpu::ldy,
+    }), // 0xBC
     Some(Instruction {
         addressing_mode: Cpu::absolute_x,
         operation: Cpu::lda,

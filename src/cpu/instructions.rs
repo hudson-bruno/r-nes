@@ -44,6 +44,7 @@ pub trait Instructions {
     fn bcc(&mut self) -> Option<ExitStatus>;
     fn tya(&mut self) -> Option<ExitStatus>;
     fn txs(&mut self) -> Option<ExitStatus>;
+    fn ldy(&mut self) -> Option<ExitStatus>;
     fn lda(&mut self) -> Option<ExitStatus>;
 }
 
@@ -414,6 +415,21 @@ impl Instructions for Cpu {
 
     fn txs(&mut self) -> Option<ExitStatus> {
         self.stack_pointer = self.x_index_register;
+
+        None
+    }
+
+    fn ldy(&mut self) -> Option<ExitStatus> {
+        let OperandValue::U8(operand) = self.get_operand() else {
+            return Some(ExitStatus::MissingOperand);
+        };
+
+        self.y_index_register = operand;
+
+        self.status_register
+            .set(Status::ZERO, self.y_index_register == 0);
+        self.status_register
+            .set(Status::NEGATIVE, self.y_index_register.get_bit(7));
 
         None
     }
