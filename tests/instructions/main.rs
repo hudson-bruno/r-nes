@@ -1,6 +1,7 @@
 mod and;
 mod asl;
 mod bit;
+mod bmi;
 mod bpl;
 mod brk;
 mod clc;

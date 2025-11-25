@@ -21,6 +21,7 @@ pub trait Instructions {
     fn bit(&mut self) -> Option<ExitStatus>;
     fn rol(&mut self) -> Option<ExitStatus>;
     fn plp(&mut self) -> Option<ExitStatus>;
+    fn bmi(&mut self) -> Option<ExitStatus>;
     fn lda(&mut self) -> Option<ExitStatus>;
 }
 
@@ -154,6 +155,18 @@ impl Instructions for Cpu {
             Status::from_bits_retain(status_in_stack),
             Status::UNUSED | Status::BREAK,
         );
+
+        None
+    }
+
+    fn bmi(&mut self) -> Option<ExitStatus> {
+        let OperandValue::I8(operand) = self.get_operand() else {
+            return Some(ExitStatus::MissingOperand);
+        };
+
+        if self.status_register.contains(Status::NEGATIVE) {
+            self.program_counter = self.program_counter.wrapping_add_signed(operand as i16);
+        }
 
         None
     }

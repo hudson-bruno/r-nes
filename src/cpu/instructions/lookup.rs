@@ -142,7 +142,10 @@ pub const INSTRUCTIONS_LOOKUP: [Option<Instruction>; 256] = [
         operation: Cpu::rol,
     }), // 0x2E
     None, // 0x2F
-    None, // 0x30
+    Some(Instruction {
+        addressing_mode: Cpu::relative,
+        operation: Cpu::bmi,
+    }), // 0x30
     Some(Instruction {
         addressing_mode: Cpu::indirect_y,
         operation: Cpu::and,
