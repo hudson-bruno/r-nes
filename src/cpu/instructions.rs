@@ -4,7 +4,7 @@ use crate::{
         memory::stack::Stack,
         operand::{Operand, OperandLocation, OperandValue},
     },
-    utils::BitsExt,
+    utils::{BitFlagExt, BitsExt},
 };
 
 pub mod lookup;
@@ -20,6 +20,7 @@ pub trait Instructions {
     fn and(&mut self) -> Option<ExitStatus>;
     fn bit(&mut self) -> Option<ExitStatus>;
     fn rol(&mut self) -> Option<ExitStatus>;
+    fn plp(&mut self) -> Option<ExitStatus>;
     fn lda(&mut self) -> Option<ExitStatus>;
 }
 
@@ -143,6 +144,16 @@ impl Instructions for Cpu {
         self.status_register.set(Status::ZERO, result == 0);
         self.status_register
             .set(Status::NEGATIVE, result.get_bit(7));
+
+        None
+    }
+
+    fn plp(&mut self) -> Option<ExitStatus> {
+        let status_in_stack = self.stack_pop();
+        self.status_register.update_with_except(
+            Status::from_bits_retain(status_in_stack),
+            Status::UNUSED | Status::BREAK,
+        );
 
         None
     }
