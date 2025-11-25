@@ -23,6 +23,7 @@ pub trait Instructions {
     fn plp(&mut self) -> Option<ExitStatus>;
     fn bmi(&mut self) -> Option<ExitStatus>;
     fn sec(&mut self) -> Option<ExitStatus>;
+    fn rti(&mut self) -> Option<ExitStatus>;
     fn lda(&mut self) -> Option<ExitStatus>;
 }
 
@@ -174,6 +175,19 @@ impl Instructions for Cpu {
 
     fn sec(&mut self) -> Option<ExitStatus> {
         self.status_register.insert(Status::CARRY);
+
+        None
+    }
+
+    fn rti(&mut self) -> Option<ExitStatus> {
+        let status_in_stack = self.stack_pop();
+        let program_counter_in_stack = self.stack_pop_address();
+
+        self.status_register.update_with_except(
+            Status::from_bits_retain(status_in_stack),
+            Status::UNUSED | Status::BREAK,
+        );
+        self.program_counter = program_counter_in_stack;
 
         None
     }
