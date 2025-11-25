@@ -283,14 +283,20 @@ pub const INSTRUCTIONS_LOOKUP: [Option<Instruction>; 256] = [
         addressing_mode: Cpu::zero_page,
         operation: Cpu::adc,
     }), // 0x65
-    None, // 0x66
+    Some(Instruction {
+        addressing_mode: Cpu::zero_page,
+        operation: Cpu::ror,
+    }), // 0x66
     None, // 0x67
     None, // 0x68
     Some(Instruction {
         addressing_mode: Cpu::immediate,
         operation: Cpu::adc,
     }), // 0x69
-    None, // 0x6A
+    Some(Instruction {
+        addressing_mode: Cpu::accumulator,
+        operation: Cpu::ror,
+    }), // 0x6A
     None, // 0x6B
     Some(Instruction {
         addressing_mode: Cpu::indirect,
@@ -300,7 +306,10 @@ pub const INSTRUCTIONS_LOOKUP: [Option<Instruction>; 256] = [
         addressing_mode: Cpu::absolute,
         operation: Cpu::adc,
     }), // 0x6D
-    None, // 0x6E
+    Some(Instruction {
+        addressing_mode: Cpu::absolute,
+        operation: Cpu::ror,
+    }), // 0x6E
     None, // 0x6F
     None, // 0x70
     Some(Instruction {
@@ -314,7 +323,10 @@ pub const INSTRUCTIONS_LOOKUP: [Option<Instruction>; 256] = [
         addressing_mode: Cpu::zero_page_x,
         operation: Cpu::adc,
     }), // 0x75
-    None, // 0x76
+    Some(Instruction {
+        addressing_mode: Cpu::zero_page_x,
+        operation: Cpu::ror,
+    }), // 0x76
     None, // 0x77
     None, // 0x78
     Some(Instruction {
@@ -328,7 +340,10 @@ pub const INSTRUCTIONS_LOOKUP: [Option<Instruction>; 256] = [
         addressing_mode: Cpu::absolute_x,
         operation: Cpu::adc,
     }), // 0x7D
-    None, // 0x7E
+    Some(Instruction {
+        addressing_mode: Cpu::absolute_x,
+        operation: Cpu::ror,
+    }), // 0x7E
     None, // 0x7F
     None, // 0x80
     None, // 0x81

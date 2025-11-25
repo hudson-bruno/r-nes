@@ -18,6 +18,7 @@ mod pha;
 mod php;
 mod plp;
 mod rol;
+mod ror;
 mod rti;
 mod rts;
 mod sec;
