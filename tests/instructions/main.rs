@@ -15,6 +15,7 @@ mod eor;
 mod jmp;
 mod jsr;
 mod lda;
+mod ldx;
 mod ldy;
 mod lsr;
 mod ora;
