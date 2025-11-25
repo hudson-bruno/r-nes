@@ -32,6 +32,7 @@ mod sei;
 mod sta;
 mod stx;
 mod sty;
+mod tay;
 mod txa;
 mod txs;
 mod tya;

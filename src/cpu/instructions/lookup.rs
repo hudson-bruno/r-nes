@@ -466,7 +466,10 @@ pub const INSTRUCTIONS_LOOKUP: [Option<Instruction>; 256] = [
         operation: Cpu::ldx,
     }), // 0xA6
     None, // 0xA7
-    None, // 0xA8
+    Some(Instruction {
+        addressing_mode: Cpu::implicit,
+        operation: Cpu::tay,
+    }), // 0xA8
     Some(Instruction {
         addressing_mode: Cpu::immediate,
         operation: Cpu::lda,
