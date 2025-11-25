@@ -25,6 +25,7 @@ pub trait Instructions {
     fn sec(&mut self) -> Option<ExitStatus>;
     fn rti(&mut self) -> Option<ExitStatus>;
     fn eor(&mut self) -> Option<ExitStatus>;
+    fn lsr(&mut self) -> Option<ExitStatus>;
     fn lda(&mut self) -> Option<ExitStatus>;
 }
 
@@ -203,6 +204,21 @@ impl Instructions for Cpu {
         self.status_register.set(Status::ZERO, self.a_register == 0);
         self.status_register
             .set(Status::NEGATIVE, self.a_register.get_bit(7));
+
+        None
+    }
+
+    fn lsr(&mut self) -> Option<ExitStatus> {
+        let OperandValue::U8(operand) = self.get_operand() else {
+            return Some(ExitStatus::MissingOperand);
+        };
+
+        let result = operand >> 1;
+        self.update_operand(result);
+
+        self.status_register.set(Status::CARRY, operand.get_bit(0));
+        self.status_register.set(Status::ZERO, result == 0);
+        self.status_register.remove(Status::NEGATIVE);
 
         None
     }

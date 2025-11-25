@@ -8,6 +8,7 @@ mod clc;
 mod eor;
 mod jsr;
 mod lda;
+mod lsr;
 mod ora;
 mod php;
 mod plp;

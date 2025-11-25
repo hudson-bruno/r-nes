@@ -197,21 +197,30 @@ pub const INSTRUCTIONS_LOOKUP: [Option<Instruction>; 256] = [
         addressing_mode: Cpu::zero_page,
         operation: Cpu::eor,
     }), // 0x45
-    None, // 0x46
+    Some(Instruction {
+        addressing_mode: Cpu::zero_page,
+        operation: Cpu::lsr,
+    }), // 0x46
     None, // 0x47
     None, // 0x48
     Some(Instruction {
         addressing_mode: Cpu::immediate,
         operation: Cpu::eor,
     }), // 0x49
-    None, // 0x4A
+    Some(Instruction {
+        addressing_mode: Cpu::accumulator,
+        operation: Cpu::lsr,
+    }), // 0x4A
     None, // 0x4B
     None, // 0x4C
     Some(Instruction {
         addressing_mode: Cpu::absolute,
         operation: Cpu::eor,
     }), // 0x4D
-    None, // 0x4E
+    Some(Instruction {
+        addressing_mode: Cpu::absolute,
+        operation: Cpu::lsr,
+    }), // 0x4E
     None, // 0x4F
     None, // 0x50
     Some(Instruction {
@@ -225,7 +234,10 @@ pub const INSTRUCTIONS_LOOKUP: [Option<Instruction>; 256] = [
         addressing_mode: Cpu::zero_page_x,
         operation: Cpu::eor,
     }), // 0x55
-    None, // 0x56
+    Some(Instruction {
+        addressing_mode: Cpu::zero_page_x,
+        operation: Cpu::lsr,
+    }), // 0x56
     None, // 0x57
     None, // 0x58
     Some(Instruction {
@@ -239,7 +251,10 @@ pub const INSTRUCTIONS_LOOKUP: [Option<Instruction>; 256] = [
         addressing_mode: Cpu::absolute_x,
         operation: Cpu::eor,
     }), // 0x5D
-    None, // 0x5E
+    Some(Instruction {
+        addressing_mode: Cpu::absolute_x,
+        operation: Cpu::lsr,
+    }), // 0x5E
     None, // 0x5F
     None, // 0x60
     None, // 0x61
