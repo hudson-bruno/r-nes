@@ -36,6 +36,7 @@ pub trait Instructions {
     fn pla(&mut self) -> Option<ExitStatus>;
     fn bvs(&mut self) -> Option<ExitStatus>;
     fn sei(&mut self) -> Option<ExitStatus>;
+    fn sta(&mut self) -> Option<ExitStatus>;
     fn lda(&mut self) -> Option<ExitStatus>;
 }
 
@@ -339,6 +340,12 @@ impl Instructions for Cpu {
 
     fn sei(&mut self) -> Option<ExitStatus> {
         self.status_register.insert(Status::INTERRUPT);
+
+        None
+    }
+
+    fn sta(&mut self) -> Option<ExitStatus> {
+        self.update_operand(self.a_register);
 
         None
     }
