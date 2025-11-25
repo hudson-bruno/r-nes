@@ -65,7 +65,7 @@ impl Cpu {
         }
     }
 
-    fn clock(&mut self) -> Option<ExitStatus> {
+    pub fn clock(&mut self) -> Option<ExitStatus> {
         let op_code = self.read(self.program_counter);
         self.program_counter += 1;
 

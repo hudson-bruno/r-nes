@@ -53,7 +53,10 @@ pub const INSTRUCTIONS_LOOKUP: [Option<Instruction>; 256] = [
         operation: Cpu::asl,
     }), // 0x0E
     None, // 0x0F
-    None, // 0x10
+    Some(Instruction {
+        addressing_mode: Cpu::relative,
+        operation: Cpu::bpl,
+    }), // 0x10
     Some(Instruction {
         addressing_mode: Cpu::indirect_y,
         operation: Cpu::ora,

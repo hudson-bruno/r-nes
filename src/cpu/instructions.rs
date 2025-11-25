@@ -1,5 +1,9 @@
 use crate::{
-    cpu::{Cpu, ExitStatus, Status, memory::stack::Stack, operand::Operand},
+    cpu::{
+        Cpu, ExitStatus, Status,
+        memory::stack::Stack,
+        operand::{Operand, OperandValue},
+    },
     utils::BitsExt,
 };
 
@@ -10,6 +14,7 @@ pub trait Instructions {
     fn ora(&mut self) -> Option<ExitStatus>;
     fn asl(&mut self) -> Option<ExitStatus>;
     fn php(&mut self) -> Option<ExitStatus>;
+    fn bpl(&mut self) -> Option<ExitStatus>;
     fn lda(&mut self) -> Option<ExitStatus>;
 }
 
@@ -25,7 +30,7 @@ impl Instructions for Cpu {
     }
 
     fn ora(&mut self) -> Option<ExitStatus> {
-        let Some(operand) = self.get_operand() else {
+        let OperandValue::U8(operand) = self.get_operand() else {
             return Some(ExitStatus::MissingOperand);
         };
 
@@ -39,7 +44,7 @@ impl Instructions for Cpu {
     }
 
     fn asl(&mut self) -> Option<ExitStatus> {
-        let Some(operand) = self.get_operand() else {
+        let OperandValue::U8(operand) = self.get_operand() else {
             return Some(ExitStatus::MissingOperand);
         };
 
@@ -62,8 +67,20 @@ impl Instructions for Cpu {
         None
     }
 
+    fn bpl(&mut self) -> Option<ExitStatus> {
+        let OperandValue::I8(operand) = self.get_operand() else {
+            return Some(ExitStatus::MissingOperand);
+        };
+
+        if !self.status_register.contains(Status::NEGATIVE) {
+            self.program_counter = self.program_counter.wrapping_add_signed(operand as i16);
+        }
+
+        None
+    }
+
     fn lda(&mut self) -> Option<ExitStatus> {
-        let Some(operand) = self.get_operand() else {
+        let OperandValue::U8(operand) = self.get_operand() else {
             return Some(ExitStatus::MissingOperand);
         };
 
