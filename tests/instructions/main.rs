@@ -9,6 +9,7 @@ mod bvc;
 mod bvs;
 mod clc;
 mod cli;
+mod dey;
 mod eor;
 mod jmp;
 mod jsr;

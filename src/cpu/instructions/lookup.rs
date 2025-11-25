@@ -374,7 +374,10 @@ pub const INSTRUCTIONS_LOOKUP: [Option<Instruction>; 256] = [
         operation: Cpu::stx,
     }), // 0x86
     None, // 0x87
-    None, // 0x88
+    Some(Instruction {
+        addressing_mode: Cpu::implicit,
+        operation: Cpu::dey,
+    }), // 0x88
     None, // 0x89
     None, // 0x8A
     None, // 0x8B
