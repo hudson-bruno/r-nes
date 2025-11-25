@@ -93,7 +93,10 @@ pub const INSTRUCTIONS_LOOKUP: [Option<Instruction>; 256] = [
         operation: Cpu::asl,
     }), // 0x1E
     None, // 0x1F
-    None, // 0x20
+    Some(Instruction {
+        addressing_mode: Cpu::absolute,
+        operation: Cpu::jsr,
+    }), // 0x20
     None, // 0x21
     None, // 0x22
     None, // 0x23

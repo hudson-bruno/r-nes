@@ -2,7 +2,7 @@ use crate::{
     cpu::{
         Cpu, ExitStatus, Status,
         memory::stack::Stack,
-        operand::{Operand, OperandValue},
+        operand::{Operand, OperandLocation, OperandValue},
     },
     utils::BitsExt,
 };
@@ -16,6 +16,7 @@ pub trait Instructions {
     fn php(&mut self) -> Option<ExitStatus>;
     fn bpl(&mut self) -> Option<ExitStatus>;
     fn clc(&mut self) -> Option<ExitStatus>;
+    fn jsr(&mut self) -> Option<ExitStatus>;
     fn lda(&mut self) -> Option<ExitStatus>;
 }
 
@@ -82,6 +83,17 @@ impl Instructions for Cpu {
 
     fn clc(&mut self) -> Option<ExitStatus> {
         self.status_register.remove(Status::CARRY);
+
+        None
+    }
+
+    fn jsr(&mut self) -> Option<ExitStatus> {
+        let OperandLocation::Memory(addr) = self.operand_location else {
+            return Some(ExitStatus::MissingOperand);
+        };
+
+        self.stack_push_address(self.program_counter);
+        self.program_counter = addr;
 
         None
     }
