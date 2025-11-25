@@ -59,6 +59,7 @@ pub trait Instructions {
     fn dex(&mut self) -> Option<ExitStatus>;
     fn bne(&mut self) -> Option<ExitStatus>;
     fn cld(&mut self) -> Option<ExitStatus>;
+    fn cpx(&mut self) -> Option<ExitStatus>;
 }
 
 impl Instructions for Cpu {
@@ -613,6 +614,23 @@ impl Instructions for Cpu {
 
     fn cld(&mut self) -> Option<ExitStatus> {
         self.status_register.remove(Status::DECIMAL);
+
+        None
+    }
+
+    fn cpx(&mut self) -> Option<ExitStatus> {
+        let OperandValue::U8(operand) = self.get_operand() else {
+            return Some(ExitStatus::MissingOperand);
+        };
+
+        let result: u8 = self.x_index_register.wrapping_sub(operand);
+
+        self.status_register
+            .set(Status::CARRY, self.x_index_register >= operand);
+        self.status_register
+            .set(Status::ZERO, self.x_index_register == operand);
+        self.status_register
+            .set(Status::NEGATIVE, result.get_bit(7));
 
         None
     }

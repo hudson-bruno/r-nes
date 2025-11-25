@@ -630,11 +630,17 @@ pub const INSTRUCTIONS_LOOKUP: [Option<Instruction>; 256] = [
         operation: Cpu::dec,
     }), // 0xDE
     None, // 0xDF
-    None, // 0xE0
+    Some(Instruction {
+        addressing_mode: Cpu::immediate,
+        operation: Cpu::cpx,
+    }), // 0xE0
     None, // 0xE1
     None, // 0xE2
     None, // 0xE3
-    None, // 0xE4
+    Some(Instruction {
+        addressing_mode: Cpu::zero_page,
+        operation: Cpu::cpx,
+    }), // 0xE4
     None, // 0xE5
     None, // 0xE6
     None, // 0xE7
@@ -642,7 +648,10 @@ pub const INSTRUCTIONS_LOOKUP: [Option<Instruction>; 256] = [
     None, // 0xE9
     None, // 0xEA
     None, // 0xEB
-    None, // 0xEC
+    Some(Instruction {
+        addressing_mode: Cpu::absolute,
+        operation: Cpu::cpx,
+    }), // 0xEC
     None, // 0xED
     None, // 0xEE
     None, // 0xEF
