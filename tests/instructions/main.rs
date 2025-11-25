@@ -11,6 +11,7 @@ mod brk;
 mod bvc;
 mod bvs;
 mod clc;
+mod cld;
 mod cli;
 mod clv;
 mod cmp;

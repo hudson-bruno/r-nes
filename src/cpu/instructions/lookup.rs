@@ -610,7 +610,10 @@ pub const INSTRUCTIONS_LOOKUP: [Option<Instruction>; 256] = [
         operation: Cpu::dec,
     }), // 0xD6
     None, // 0xD7
-    None, // 0xD8
+    Some(Instruction {
+        addressing_mode: Cpu::implicit,
+        operation: Cpu::cld,
+    }), // 0xD8
     Some(Instruction {
         addressing_mode: Cpu::absolute_y,
         operation: Cpu::cmp,
