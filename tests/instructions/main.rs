@@ -24,3 +24,4 @@ mod ror;
 mod rti;
 mod rts;
 mod sec;
+mod sei;

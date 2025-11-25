@@ -35,6 +35,7 @@ pub trait Instructions {
     fn ror(&mut self) -> Option<ExitStatus>;
     fn pla(&mut self) -> Option<ExitStatus>;
     fn bvs(&mut self) -> Option<ExitStatus>;
+    fn sei(&mut self) -> Option<ExitStatus>;
     fn lda(&mut self) -> Option<ExitStatus>;
 }
 
@@ -332,6 +333,12 @@ impl Instructions for Cpu {
         if self.status_register.contains(Status::OVERFLOW) {
             self.program_counter = self.program_counter.wrapping_add_signed(operand as i16);
         }
+
+        None
+    }
+
+    fn sei(&mut self) -> Option<ExitStatus> {
+        self.status_register.insert(Status::INTERRUPT);
 
         None
     }
