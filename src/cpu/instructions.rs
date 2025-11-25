@@ -28,6 +28,7 @@ pub trait Instructions {
     fn lsr(&mut self) -> Option<ExitStatus>;
     fn pha(&mut self) -> Option<ExitStatus>;
     fn jmp(&mut self) -> Option<ExitStatus>;
+    fn bvc(&mut self) -> Option<ExitStatus>;
     fn lda(&mut self) -> Option<ExitStatus>;
 }
 
@@ -237,6 +238,18 @@ impl Instructions for Cpu {
         };
 
         self.program_counter = addr;
+
+        None
+    }
+
+    fn bvc(&mut self) -> Option<ExitStatus> {
+        let OperandValue::I8(operand) = self.get_operand() else {
+            return Some(ExitStatus::MissingOperand);
+        };
+
+        if !self.status_register.contains(Status::OVERFLOW) {
+            self.program_counter = self.program_counter.wrapping_add_signed(operand as i16);
+        }
 
         None
     }

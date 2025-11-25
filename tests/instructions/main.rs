@@ -4,6 +4,7 @@ mod bit;
 mod bmi;
 mod bpl;
 mod brk;
+mod bvc;
 mod clc;
 mod eor;
 mod jmp;
