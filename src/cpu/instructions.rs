@@ -49,6 +49,7 @@ pub trait Instructions {
     fn ldx(&mut self) -> Option<ExitStatus>;
     fn tay(&mut self) -> Option<ExitStatus>;
     fn tax(&mut self) -> Option<ExitStatus>;
+    fn bcs(&mut self) -> Option<ExitStatus>;
 }
 
 impl Instructions for Cpu {
@@ -484,6 +485,18 @@ impl Instructions for Cpu {
             .set(Status::ZERO, self.x_index_register == 0);
         self.status_register
             .set(Status::NEGATIVE, self.x_index_register.get_bit(7));
+
+        None
+    }
+
+    fn bcs(&mut self) -> Option<ExitStatus> {
+        let OperandValue::I8(operand) = self.get_operand() else {
+            return Some(ExitStatus::MissingOperand);
+        };
+
+        if self.status_register.contains(Status::CARRY) {
+            self.program_counter = self.program_counter.wrapping_add_signed(operand as i16);
+        }
 
         None
     }
