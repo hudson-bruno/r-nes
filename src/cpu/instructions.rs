@@ -57,6 +57,7 @@ pub trait Instructions {
     fn dec(&mut self) -> Option<ExitStatus>;
     fn iny(&mut self) -> Option<ExitStatus>;
     fn dex(&mut self) -> Option<ExitStatus>;
+    fn bne(&mut self) -> Option<ExitStatus>;
 }
 
 impl Instructions for Cpu {
@@ -593,6 +594,18 @@ impl Instructions for Cpu {
             .set(Status::ZERO, self.x_index_register == 0);
         self.status_register
             .set(Status::NEGATIVE, self.x_index_register.get_bit(7));
+
+        None
+    }
+
+    fn bne(&mut self) -> Option<ExitStatus> {
+        let OperandValue::I8(operand) = self.get_operand() else {
+            return Some(ExitStatus::MissingOperand);
+        };
+
+        if !self.status_register.contains(Status::ZERO) {
+            self.program_counter = self.program_counter.wrapping_add_signed(operand as i16);
+        }
 
         None
     }

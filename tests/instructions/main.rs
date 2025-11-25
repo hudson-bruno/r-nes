@@ -5,6 +5,7 @@ mod bcc;
 mod bcs;
 mod bit;
 mod bmi;
+mod bne;
 mod bpl;
 mod brk;
 mod bvc;
