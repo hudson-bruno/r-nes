@@ -37,6 +37,7 @@ pub trait Instructions {
     fn bvs(&mut self) -> Option<ExitStatus>;
     fn sei(&mut self) -> Option<ExitStatus>;
     fn sta(&mut self) -> Option<ExitStatus>;
+    fn sty(&mut self) -> Option<ExitStatus>;
     fn lda(&mut self) -> Option<ExitStatus>;
 }
 
@@ -346,6 +347,12 @@ impl Instructions for Cpu {
 
     fn sta(&mut self) -> Option<ExitStatus> {
         self.update_operand(self.a_register);
+
+        None
+    }
+
+    fn sty(&mut self) -> Option<ExitStatus> {
+        self.update_operand(self.y_index_register);
 
         None
     }
