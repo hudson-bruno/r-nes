@@ -50,6 +50,7 @@ pub trait Instructions {
     fn tay(&mut self) -> Option<ExitStatus>;
     fn tax(&mut self) -> Option<ExitStatus>;
     fn bcs(&mut self) -> Option<ExitStatus>;
+    fn clv(&mut self) -> Option<ExitStatus>;
 }
 
 impl Instructions for Cpu {
@@ -497,6 +498,12 @@ impl Instructions for Cpu {
         if self.status_register.contains(Status::CARRY) {
             self.program_counter = self.program_counter.wrapping_add_signed(operand as i16);
         }
+
+        None
+    }
+
+    fn clv(&mut self) -> Option<ExitStatus> {
+        self.status_register.remove(Status::OVERFLOW);
 
         None
     }
