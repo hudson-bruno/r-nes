@@ -30,6 +30,7 @@ pub trait Instructions {
     fn jmp(&mut self) -> Option<ExitStatus>;
     fn bvc(&mut self) -> Option<ExitStatus>;
     fn cli(&mut self) -> Option<ExitStatus>;
+    fn rts(&mut self) -> Option<ExitStatus>;
     fn lda(&mut self) -> Option<ExitStatus>;
 }
 
@@ -257,6 +258,14 @@ impl Instructions for Cpu {
 
     fn cli(&mut self) -> Option<ExitStatus> {
         self.status_register.remove(Status::INTERRUPT);
+
+        None
+    }
+
+    fn rts(&mut self) -> Option<ExitStatus> {
+        let program_counter_in_stack = self.stack_pop_address();
+
+        self.program_counter = program_counter_in_stack + 1;
 
         None
     }

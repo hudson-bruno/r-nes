@@ -18,4 +18,5 @@ mod php;
 mod plp;
 mod rol;
 mod rti;
+mod rts;
 mod sec;
