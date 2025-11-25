@@ -31,6 +31,7 @@ pub trait Instructions {
     fn bvc(&mut self) -> Option<ExitStatus>;
     fn cli(&mut self) -> Option<ExitStatus>;
     fn rts(&mut self) -> Option<ExitStatus>;
+    fn adc(&mut self) -> Option<ExitStatus>;
     fn lda(&mut self) -> Option<ExitStatus>;
 }
 
@@ -266,6 +267,30 @@ impl Instructions for Cpu {
         let program_counter_in_stack = self.stack_pop_address();
 
         self.program_counter = program_counter_in_stack + 1;
+
+        None
+    }
+
+    fn adc(&mut self) -> Option<ExitStatus> {
+        let OperandValue::U8(operand) = self.get_operand() else {
+            return Some(ExitStatus::MissingOperand);
+        };
+
+        let result: u16 = self.a_register as u16
+            + operand as u16
+            + (self.status_register.contains(Status::CARRY) as u16);
+        let result_u8 = result as u8;
+
+        self.status_register.set(Status::CARRY, result > 0xFF);
+        self.status_register.set(Status::ZERO, result_u8 == 0);
+        self.status_register.set(
+            Status::OVERFLOW,
+            ((result_u8 ^ self.a_register) & (result_u8 ^ operand) & 0x80) != 0,
+        );
+        self.status_register
+            .set(Status::NEGATIVE, result_u8.get_bit(7));
+
+        self.a_register = result_u8;
 
         None
     }

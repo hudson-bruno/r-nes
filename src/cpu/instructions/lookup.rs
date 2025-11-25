@@ -272,38 +272,62 @@ pub const INSTRUCTIONS_LOOKUP: [Option<Instruction>; 256] = [
         addressing_mode: Cpu::implicit,
         operation: Cpu::rts,
     }), // 0x60
-    None, // 0x61
+    Some(Instruction {
+        addressing_mode: Cpu::indirect_x,
+        operation: Cpu::adc,
+    }), // 0x61
     None, // 0x62
     None, // 0x63
     None, // 0x64
-    None, // 0x65
+    Some(Instruction {
+        addressing_mode: Cpu::zero_page,
+        operation: Cpu::adc,
+    }), // 0x65
     None, // 0x66
     None, // 0x67
     None, // 0x68
-    None, // 0x69
+    Some(Instruction {
+        addressing_mode: Cpu::immediate,
+        operation: Cpu::adc,
+    }), // 0x69
     None, // 0x6A
     None, // 0x6B
     Some(Instruction {
         addressing_mode: Cpu::indirect,
         operation: Cpu::jmp,
     }), // 0x6C
-    None, // 0x6D
+    Some(Instruction {
+        addressing_mode: Cpu::absolute,
+        operation: Cpu::adc,
+    }), // 0x6D
     None, // 0x6E
     None, // 0x6F
     None, // 0x70
-    None, // 0x71
+    Some(Instruction {
+        addressing_mode: Cpu::indirect_y,
+        operation: Cpu::adc,
+    }), // 0x71
     None, // 0x72
     None, // 0x73
     None, // 0x74
-    None, // 0x75
+    Some(Instruction {
+        addressing_mode: Cpu::zero_page_x,
+        operation: Cpu::adc,
+    }), // 0x75
     None, // 0x76
     None, // 0x77
     None, // 0x78
-    None, // 0x79
+    Some(Instruction {
+        addressing_mode: Cpu::absolute_y,
+        operation: Cpu::adc,
+    }), // 0x79
     None, // 0x7A
     None, // 0x7B
     None, // 0x7C
-    None, // 0x7D
+    Some(Instruction {
+        addressing_mode: Cpu::absolute_x,
+        operation: Cpu::adc,
+    }), // 0x7D
     None, // 0x7E
     None, // 0x7F
     None, // 0x80
