@@ -21,6 +21,7 @@ mod dec;
 mod dex;
 mod dey;
 mod eor;
+mod inc;
 mod iny;
 mod jmp;
 mod jsr;

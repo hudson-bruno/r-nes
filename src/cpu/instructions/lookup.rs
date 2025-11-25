@@ -642,7 +642,10 @@ pub const INSTRUCTIONS_LOOKUP: [Option<Instruction>; 256] = [
         operation: Cpu::cpx,
     }), // 0xE4
     None, // 0xE5
-    None, // 0xE6
+    Some(Instruction {
+        addressing_mode: Cpu::zero_page,
+        operation: Cpu::inc,
+    }), // 0xE6
     None, // 0xE7
     None, // 0xE8
     None, // 0xE9
@@ -653,7 +656,10 @@ pub const INSTRUCTIONS_LOOKUP: [Option<Instruction>; 256] = [
         operation: Cpu::cpx,
     }), // 0xEC
     None, // 0xED
-    None, // 0xEE
+    Some(Instruction {
+        addressing_mode: Cpu::absolute,
+        operation: Cpu::inc,
+    }), // 0xEE
     None, // 0xEF
     None, // 0xF0
     None, // 0xF1
@@ -661,7 +667,10 @@ pub const INSTRUCTIONS_LOOKUP: [Option<Instruction>; 256] = [
     None, // 0xF3
     None, // 0xF4
     None, // 0xF5
-    None, // 0xF6
+    Some(Instruction {
+        addressing_mode: Cpu::zero_page_x,
+        operation: Cpu::inc,
+    }), // 0xF6
     None, // 0xF7
     None, // 0xF8
     None, // 0xF9
@@ -669,6 +678,9 @@ pub const INSTRUCTIONS_LOOKUP: [Option<Instruction>; 256] = [
     None, // 0xFB
     None, // 0xFC
     None, // 0xFD
-    None, // 0xFE
+    Some(Instruction {
+        addressing_mode: Cpu::absolute_x,
+        operation: Cpu::inc,
+    }), // 0xFE
     None, // 0xFF
 ];
