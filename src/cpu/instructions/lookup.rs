@@ -667,7 +667,10 @@ pub const INSTRUCTIONS_LOOKUP: [Option<Instruction>; 256] = [
         operation: Cpu::inc,
     }), // 0xEE
     None, // 0xEF
-    None, // 0xF0
+    Some(Instruction {
+        addressing_mode: Cpu::relative,
+        operation: Cpu::beq,
+    }), // 0xF0
     None, // 0xF1
     None, // 0xF2
     None, // 0xF3
@@ -678,7 +681,10 @@ pub const INSTRUCTIONS_LOOKUP: [Option<Instruction>; 256] = [
         operation: Cpu::inc,
     }), // 0xF6
     None, // 0xF7
-    None, // 0xF8
+    Some(Instruction {
+        addressing_mode: Cpu::implicit,
+        operation: Cpu::sed,
+    }), // 0xF8
     None, // 0xF9
     None, // 0xFA
     None, // 0xFB

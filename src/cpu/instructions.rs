@@ -63,6 +63,8 @@ pub trait Instructions {
     fn inc(&mut self) -> Option<ExitStatus>;
     fn inx(&mut self) -> Option<ExitStatus>;
     fn nop(&mut self) -> Option<ExitStatus>;
+    fn beq(&mut self) -> Option<ExitStatus>;
+    fn sed(&mut self) -> Option<ExitStatus>;
 }
 
 impl Instructions for Cpu {
@@ -666,6 +668,24 @@ impl Instructions for Cpu {
     }
 
     fn nop(&mut self) -> Option<ExitStatus> {
+        None
+    }
+
+    fn beq(&mut self) -> Option<ExitStatus> {
+        let OperandValue::I8(operand) = self.get_operand() else {
+            return Some(ExitStatus::MissingOperand);
+        };
+
+        if self.status_register.contains(Status::ZERO) {
+            self.program_counter = self.program_counter.wrapping_add_signed(operand as i16);
+        }
+
+        None
+    }
+
+    fn sed(&mut self) -> Option<ExitStatus> {
+        self.status_register.insert(Status::DECIMAL);
+
         None
     }
 }
