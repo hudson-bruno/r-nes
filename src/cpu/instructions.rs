@@ -40,6 +40,7 @@ pub trait Instructions {
     fn sty(&mut self) -> Option<ExitStatus>;
     fn stx(&mut self) -> Option<ExitStatus>;
     fn dey(&mut self) -> Option<ExitStatus>;
+    fn txa(&mut self) -> Option<ExitStatus>;
     fn lda(&mut self) -> Option<ExitStatus>;
 }
 
@@ -372,6 +373,16 @@ impl Instructions for Cpu {
             .set(Status::ZERO, self.y_index_register == 0);
         self.status_register
             .set(Status::NEGATIVE, self.y_index_register.get_bit(7));
+
+        None
+    }
+
+    fn txa(&mut self) -> Option<ExitStatus> {
+        self.a_register = self.x_index_register;
+
+        self.status_register.set(Status::ZERO, self.a_register == 0);
+        self.status_register
+            .set(Status::NEGATIVE, self.a_register.get_bit(7));
 
         None
     }

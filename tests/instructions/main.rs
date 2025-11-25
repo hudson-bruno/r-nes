@@ -29,3 +29,4 @@ mod sei;
 mod sta;
 mod stx;
 mod sty;
+mod txa;
