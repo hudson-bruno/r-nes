@@ -6,6 +6,7 @@ mod bpl;
 mod brk;
 mod bvc;
 mod clc;
+mod cli;
 mod eor;
 mod jmp;
 mod jsr;

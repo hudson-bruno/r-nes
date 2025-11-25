@@ -29,6 +29,7 @@ pub trait Instructions {
     fn pha(&mut self) -> Option<ExitStatus>;
     fn jmp(&mut self) -> Option<ExitStatus>;
     fn bvc(&mut self) -> Option<ExitStatus>;
+    fn cli(&mut self) -> Option<ExitStatus>;
     fn lda(&mut self) -> Option<ExitStatus>;
 }
 
@@ -250,6 +251,12 @@ impl Instructions for Cpu {
         if !self.status_register.contains(Status::OVERFLOW) {
             self.program_counter = self.program_counter.wrapping_add_signed(operand as i16);
         }
+
+        None
+    }
+
+    fn cli(&mut self) -> Option<ExitStatus> {
+        self.status_register.remove(Status::INTERRUPT);
 
         None
     }
