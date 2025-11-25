@@ -6,6 +6,7 @@ pub trait AddressingModes {
     fn immediate(&mut self) -> OperandLocation;
     fn zero_page(&mut self) -> OperandLocation;
     fn zero_page_x(&mut self) -> OperandLocation;
+    fn zero_page_y(&mut self) -> OperandLocation;
     fn relative(&mut self) -> OperandLocation;
     fn absolute(&mut self) -> OperandLocation;
     fn absolute_x(&mut self) -> OperandLocation;
@@ -42,6 +43,15 @@ impl AddressingModes for Cpu {
         let addr = self
             .read(self.program_counter)
             .wrapping_add(self.x_index_register) as u16;
+        self.program_counter += 1;
+
+        OperandLocation::Memory(addr)
+    }
+
+    fn zero_page_y(&mut self) -> OperandLocation {
+        let addr = self
+            .read(self.program_counter)
+            .wrapping_add(self.y_index_register) as u16;
         self.program_counter += 1;
 
         OperandLocation::Memory(addr)

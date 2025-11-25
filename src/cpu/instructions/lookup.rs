@@ -369,7 +369,10 @@ pub const INSTRUCTIONS_LOOKUP: [Option<Instruction>; 256] = [
         addressing_mode: Cpu::zero_page,
         operation: Cpu::sta,
     }), // 0x85
-    None, // 0x86
+    Some(Instruction {
+        addressing_mode: Cpu::zero_page,
+        operation: Cpu::stx,
+    }), // 0x86
     None, // 0x87
     None, // 0x88
     None, // 0x89
@@ -383,7 +386,10 @@ pub const INSTRUCTIONS_LOOKUP: [Option<Instruction>; 256] = [
         addressing_mode: Cpu::absolute,
         operation: Cpu::sta,
     }), // 0x8D
-    None, // 0x8E
+    Some(Instruction {
+        addressing_mode: Cpu::absolute,
+        operation: Cpu::stx,
+    }), // 0x8E
     None, // 0x8F
     None, // 0x90
     Some(Instruction {
@@ -400,7 +406,10 @@ pub const INSTRUCTIONS_LOOKUP: [Option<Instruction>; 256] = [
         addressing_mode: Cpu::zero_page_x,
         operation: Cpu::sta,
     }), // 0x95
-    None, // 0x96
+    Some(Instruction {
+        addressing_mode: Cpu::zero_page_y,
+        operation: Cpu::stx,
+    }), // 0x96
     None, // 0x97
     None, // 0x98
     Some(Instruction {

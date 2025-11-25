@@ -26,4 +26,5 @@ mod rts;
 mod sec;
 mod sei;
 mod sta;
+mod stx;
 mod sty;
