@@ -14,6 +14,7 @@ mod cli;
 mod clv;
 mod cmp;
 mod cpy;
+mod dec;
 mod dey;
 mod eor;
 mod jmp;
