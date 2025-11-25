@@ -8,3 +8,4 @@ mod jsr;
 mod lda;
 mod ora;
 mod php;
+mod rol;
