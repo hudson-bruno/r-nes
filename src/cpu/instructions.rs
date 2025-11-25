@@ -17,6 +17,7 @@ pub trait Instructions {
     fn bpl(&mut self) -> Option<ExitStatus>;
     fn clc(&mut self) -> Option<ExitStatus>;
     fn jsr(&mut self) -> Option<ExitStatus>;
+    fn and(&mut self) -> Option<ExitStatus>;
     fn lda(&mut self) -> Option<ExitStatus>;
 }
 
@@ -94,6 +95,20 @@ impl Instructions for Cpu {
 
         self.stack_push_address(self.program_counter);
         self.program_counter = addr;
+
+        None
+    }
+
+    fn and(&mut self) -> Option<ExitStatus> {
+        let OperandValue::U8(operand) = self.get_operand() else {
+            return Some(ExitStatus::MissingOperand);
+        };
+
+        self.a_register &= operand;
+
+        self.status_register.set(Status::ZERO, self.a_register == 0);
+        self.status_register
+            .set(Status::NEGATIVE, self.a_register.get_bit(7));
 
         None
     }
