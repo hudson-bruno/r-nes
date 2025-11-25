@@ -103,7 +103,10 @@ pub const INSTRUCTIONS_LOOKUP: [Option<Instruction>; 256] = [
     }), // 0x21
     None, // 0x22
     None, // 0x23
-    None, // 0x24
+    Some(Instruction {
+        addressing_mode: Cpu::zero_page,
+        operation: Cpu::bit,
+    }), // 0x24
     Some(Instruction {
         addressing_mode: Cpu::zero_page,
         operation: Cpu::and,
@@ -117,7 +120,10 @@ pub const INSTRUCTIONS_LOOKUP: [Option<Instruction>; 256] = [
     }), // 0x29
     None, // 0x2A
     None, // 0x2B
-    None, // 0x2C
+    Some(Instruction {
+        addressing_mode: Cpu::absolute,
+        operation: Cpu::bit,
+    }), // 0x2C
     Some(Instruction {
         addressing_mode: Cpu::absolute,
         operation: Cpu::and,

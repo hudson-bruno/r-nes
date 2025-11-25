@@ -18,6 +18,7 @@ pub trait Instructions {
     fn clc(&mut self) -> Option<ExitStatus>;
     fn jsr(&mut self) -> Option<ExitStatus>;
     fn and(&mut self) -> Option<ExitStatus>;
+    fn bit(&mut self) -> Option<ExitStatus>;
     fn lda(&mut self) -> Option<ExitStatus>;
 }
 
@@ -109,6 +110,22 @@ impl Instructions for Cpu {
         self.status_register.set(Status::ZERO, self.a_register == 0);
         self.status_register
             .set(Status::NEGATIVE, self.a_register.get_bit(7));
+
+        None
+    }
+
+    fn bit(&mut self) -> Option<ExitStatus> {
+        let OperandValue::U8(operand) = self.get_operand() else {
+            return Some(ExitStatus::MissingOperand);
+        };
+
+        let result = self.a_register & operand;
+
+        self.status_register.set(Status::ZERO, result == 0);
+        self.status_register
+            .set(Status::OVERFLOW, operand.get_bit(6));
+        self.status_register
+            .set(Status::NEGATIVE, operand.get_bit(7));
 
         None
     }
