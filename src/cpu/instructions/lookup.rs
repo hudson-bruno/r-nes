@@ -186,35 +186,59 @@ pub const INSTRUCTIONS_LOOKUP: [Option<Instruction>; 256] = [
         addressing_mode: Cpu::implicit,
         operation: Cpu::rti,
     }), // 0x40
-    None, // 0x41
+    Some(Instruction {
+        addressing_mode: Cpu::indirect_x,
+        operation: Cpu::eor,
+    }), // 0x41
     None, // 0x42
     None, // 0x43
     None, // 0x44
-    None, // 0x45
+    Some(Instruction {
+        addressing_mode: Cpu::zero_page,
+        operation: Cpu::eor,
+    }), // 0x45
     None, // 0x46
     None, // 0x47
     None, // 0x48
-    None, // 0x49
+    Some(Instruction {
+        addressing_mode: Cpu::immediate,
+        operation: Cpu::eor,
+    }), // 0x49
     None, // 0x4A
     None, // 0x4B
     None, // 0x4C
-    None, // 0x4D
+    Some(Instruction {
+        addressing_mode: Cpu::absolute,
+        operation: Cpu::eor,
+    }), // 0x4D
     None, // 0x4E
     None, // 0x4F
     None, // 0x50
-    None, // 0x51
+    Some(Instruction {
+        addressing_mode: Cpu::indirect_y,
+        operation: Cpu::eor,
+    }), // 0x51
     None, // 0x52
     None, // 0x53
     None, // 0x54
-    None, // 0x55
+    Some(Instruction {
+        addressing_mode: Cpu::zero_page_x,
+        operation: Cpu::eor,
+    }), // 0x55
     None, // 0x56
     None, // 0x57
     None, // 0x58
-    None, // 0x59
+    Some(Instruction {
+        addressing_mode: Cpu::absolute_y,
+        operation: Cpu::eor,
+    }), // 0x59
     None, // 0x5A
     None, // 0x5B
     None, // 0x5C
-    None, // 0x5D
+    Some(Instruction {
+        addressing_mode: Cpu::absolute_x,
+        operation: Cpu::eor,
+    }), // 0x5D
     None, // 0x5E
     None, // 0x5F
     None, // 0x60

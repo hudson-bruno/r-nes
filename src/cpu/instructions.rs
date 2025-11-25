@@ -24,6 +24,7 @@ pub trait Instructions {
     fn bmi(&mut self) -> Option<ExitStatus>;
     fn sec(&mut self) -> Option<ExitStatus>;
     fn rti(&mut self) -> Option<ExitStatus>;
+    fn eor(&mut self) -> Option<ExitStatus>;
     fn lda(&mut self) -> Option<ExitStatus>;
 }
 
@@ -188,6 +189,20 @@ impl Instructions for Cpu {
             Status::UNUSED | Status::BREAK,
         );
         self.program_counter = program_counter_in_stack;
+
+        None
+    }
+
+    fn eor(&mut self) -> Option<ExitStatus> {
+        let OperandValue::U8(operand) = self.get_operand() else {
+            return Some(ExitStatus::MissingOperand);
+        };
+
+        self.a_register ^= operand;
+
+        self.status_register.set(Status::ZERO, self.a_register == 0);
+        self.status_register
+            .set(Status::NEGATIVE, self.a_register.get_bit(7));
 
         None
     }

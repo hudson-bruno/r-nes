@@ -5,6 +5,7 @@ mod bmi;
 mod bpl;
 mod brk;
 mod clc;
+mod eor;
 mod jsr;
 mod lda;
 mod ora;
