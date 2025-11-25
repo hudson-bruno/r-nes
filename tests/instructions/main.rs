@@ -15,6 +15,7 @@ mod clv;
 mod cmp;
 mod cpy;
 mod dec;
+mod dex;
 mod dey;
 mod eor;
 mod iny;

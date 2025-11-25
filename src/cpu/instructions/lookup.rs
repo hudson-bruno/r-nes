@@ -572,7 +572,10 @@ pub const INSTRUCTIONS_LOOKUP: [Option<Instruction>; 256] = [
         addressing_mode: Cpu::immediate,
         operation: Cpu::cmp,
     }), // 0xC9
-    None, // 0xCA
+    Some(Instruction {
+        addressing_mode: Cpu::implicit,
+        operation: Cpu::dex,
+    }), // 0xCA
     None, // 0xCB
     Some(Instruction {
         addressing_mode: Cpu::absolute,
