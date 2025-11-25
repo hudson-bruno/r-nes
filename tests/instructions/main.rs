@@ -17,6 +17,7 @@ mod cpy;
 mod dec;
 mod dey;
 mod eor;
+mod iny;
 mod jmp;
 mod jsr;
 mod lda;

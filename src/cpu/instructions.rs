@@ -55,6 +55,7 @@ pub trait Instructions {
     fn cpy(&mut self) -> Option<ExitStatus>;
     fn cmp(&mut self) -> Option<ExitStatus>;
     fn dec(&mut self) -> Option<ExitStatus>;
+    fn iny(&mut self) -> Option<ExitStatus>;
 }
 
 impl Instructions for Cpu {
@@ -569,6 +570,17 @@ impl Instructions for Cpu {
         self.status_register.set(Status::ZERO, result == 0);
         self.status_register
             .set(Status::NEGATIVE, result.get_bit(7));
+
+        None
+    }
+
+    fn iny(&mut self) -> Option<ExitStatus> {
+        self.y_index_register = self.y_index_register.wrapping_add(1);
+
+        self.status_register
+            .set(Status::ZERO, self.y_index_register == 0);
+        self.status_register
+            .set(Status::NEGATIVE, self.y_index_register.get_bit(7));
 
         None
     }
