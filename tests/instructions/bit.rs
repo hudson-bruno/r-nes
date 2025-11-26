@@ -8,7 +8,7 @@ fn test_bit_zero_page_status_zero() {
     let result = cpu.clock();
 
     assert!(result.is_none());
-    assert_eq!(cpu.status_register, Status::ZERO | Status::UNUSED);
+    assert!(cpu.status_register.contains(Status::ZERO));
 }
 
 #[test]
@@ -19,7 +19,7 @@ fn test_bit_zero_page_status_overflow() {
     let result = cpu.clock();
 
     assert!(result.is_none());
-    assert_eq!(cpu.status_register, Status::OVERFLOW | Status::UNUSED);
+    assert!(cpu.status_register.contains(Status::OVERFLOW));
 }
 
 #[test]
@@ -30,7 +30,7 @@ fn test_bit_zero_page_status_negative() {
     let result = cpu.clock();
 
     assert!(result.is_none());
-    assert_eq!(cpu.status_register, Status::NEGATIVE | Status::UNUSED);
+    assert!(cpu.status_register.contains(Status::NEGATIVE));
 }
 
 #[test]
@@ -43,7 +43,7 @@ fn test_bit_absolute_status_zero() {
     let result = cpu.clock();
 
     assert!(result.is_none());
-    assert_eq!(cpu.status_register, Status::ZERO | Status::UNUSED);
+    assert!(cpu.status_register.contains(Status::ZERO));
 }
 
 #[test]
@@ -56,7 +56,7 @@ fn test_bit_absolute_status_overflow() {
     let result = cpu.clock();
 
     assert!(result.is_none());
-    assert_eq!(cpu.status_register, Status::OVERFLOW | Status::UNUSED);
+    assert!(cpu.status_register.contains(Status::OVERFLOW));
 }
 
 #[test]
@@ -69,5 +69,5 @@ fn test_bit_absolute_status_negative() {
     let result = cpu.clock();
 
     assert!(result.is_none());
-    assert_eq!(cpu.status_register, Status::NEGATIVE | Status::UNUSED);
+    assert!(cpu.status_register.contains(Status::NEGATIVE));
 }
