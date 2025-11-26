@@ -634,14 +634,20 @@ pub const INSTRUCTIONS_LOOKUP: [Option<Instruction>; 256] = [
         addressing_mode: Cpu::immediate,
         operation: Cpu::cpx,
     }), // 0xE0
-    None, // 0xE1
+    Some(Instruction {
+        addressing_mode: Cpu::indirect_x,
+        operation: Cpu::sbc,
+    }), // 0xE1
     None, // 0xE2
     None, // 0xE3
     Some(Instruction {
         addressing_mode: Cpu::zero_page,
         operation: Cpu::cpx,
     }), // 0xE4
-    None, // 0xE5
+    Some(Instruction {
+        addressing_mode: Cpu::zero_page,
+        operation: Cpu::sbc,
+    }), // 0xE5
     Some(Instruction {
         addressing_mode: Cpu::zero_page,
         operation: Cpu::inc,
@@ -651,7 +657,10 @@ pub const INSTRUCTIONS_LOOKUP: [Option<Instruction>; 256] = [
         addressing_mode: Cpu::implicit,
         operation: Cpu::inx,
     }), // 0xE8
-    None, // 0xE9
+    Some(Instruction {
+        addressing_mode: Cpu::immediate,
+        operation: Cpu::sbc,
+    }), // 0xE9
     Some(Instruction {
         addressing_mode: Cpu::implicit,
         operation: Cpu::nop,
@@ -661,7 +670,10 @@ pub const INSTRUCTIONS_LOOKUP: [Option<Instruction>; 256] = [
         addressing_mode: Cpu::absolute,
         operation: Cpu::cpx,
     }), // 0xEC
-    None, // 0xED
+    Some(Instruction {
+        addressing_mode: Cpu::absolute,
+        operation: Cpu::sbc,
+    }), // 0xED
     Some(Instruction {
         addressing_mode: Cpu::absolute,
         operation: Cpu::inc,
@@ -671,11 +683,17 @@ pub const INSTRUCTIONS_LOOKUP: [Option<Instruction>; 256] = [
         addressing_mode: Cpu::relative,
         operation: Cpu::beq,
     }), // 0xF0
-    None, // 0xF1
+    Some(Instruction {
+        addressing_mode: Cpu::indirect_y,
+        operation: Cpu::sbc,
+    }), // 0xF1
     None, // 0xF2
     None, // 0xF3
     None, // 0xF4
-    None, // 0xF5
+    Some(Instruction {
+        addressing_mode: Cpu::zero_page_x,
+        operation: Cpu::sbc,
+    }), // 0xF5
     Some(Instruction {
         addressing_mode: Cpu::zero_page_x,
         operation: Cpu::inc,
@@ -685,11 +703,17 @@ pub const INSTRUCTIONS_LOOKUP: [Option<Instruction>; 256] = [
         addressing_mode: Cpu::implicit,
         operation: Cpu::sed,
     }), // 0xF8
-    None, // 0xF9
+    Some(Instruction {
+        addressing_mode: Cpu::absolute_y,
+        operation: Cpu::sbc,
+    }), // 0xF9
     None, // 0xFA
     None, // 0xFB
     None, // 0xFC
-    None, // 0xFD
+    Some(Instruction {
+        addressing_mode: Cpu::absolute_x,
+        operation: Cpu::sbc,
+    }), // 0xFD
     Some(Instruction {
         addressing_mode: Cpu::absolute_x,
         operation: Cpu::inc,

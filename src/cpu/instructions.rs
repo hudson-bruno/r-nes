@@ -60,6 +60,7 @@ pub trait Instructions {
     fn bne(&mut self) -> Option<ExitStatus>;
     fn cld(&mut self) -> Option<ExitStatus>;
     fn cpx(&mut self) -> Option<ExitStatus>;
+    fn sbc(&mut self) -> Option<ExitStatus>;
     fn inc(&mut self) -> Option<ExitStatus>;
     fn inx(&mut self) -> Option<ExitStatus>;
     fn nop(&mut self) -> Option<ExitStatus>;
@@ -636,6 +637,30 @@ impl Instructions for Cpu {
             .set(Status::ZERO, self.x_index_register == operand);
         self.status_register
             .set(Status::NEGATIVE, result.get_bit(7));
+
+        None
+    }
+
+    fn sbc(&mut self) -> Option<ExitStatus> {
+        let OperandValue::U8(operand) = self.get_operand() else {
+            return Some(ExitStatus::MissingOperand);
+        };
+
+        let result = (self.a_register as u16)
+            .wrapping_add(!(operand as u16))
+            .wrapping_add(self.status_register.contains(Status::CARRY) as u16);
+        let result_u8 = result as u8;
+
+        self.status_register.set(Status::CARRY, result <= 0xFF);
+        self.status_register.set(Status::ZERO, result_u8 == 0);
+        self.status_register.set(
+            Status::OVERFLOW,
+            ((result_u8 ^ self.a_register) & (result_u8 ^ !operand) & 0x80) != 0,
+        );
+        self.status_register
+            .set(Status::NEGATIVE, result_u8.get_bit(7));
+
+        self.a_register = result_u8;
 
         None
     }
