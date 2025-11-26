@@ -1,5 +1,7 @@
 use crate::cpu::{
-    instructions::lookup::INSTRUCTIONS_LOOKUP, memory::Memory, operand::OperandLocation,
+    instructions::lookup::INSTRUCTIONS_LOOKUP,
+    memory::{Memory, stack::Stack},
+    operand::OperandLocation,
 };
 use bitflags::bitflags;
 
@@ -9,7 +11,7 @@ pub mod memory;
 pub mod operand;
 
 pub struct Cpu {
-    pub memory: [u8; 2 * 1024],
+    pub memory: [u8; 64 * 1024],
 
     // Registers
     pub a_register: u8,
@@ -45,16 +47,19 @@ pub enum ExitStatus {
 
 impl Cpu {
     pub fn new() -> Self {
-        Cpu {
-            memory: [0; 2 * 1024],
+        let mut cpu = Cpu {
+            memory: [0; 64 * 1024],
             a_register: 0,
             status_register: Status::UNUSED,
             program_counter: 0,
-            stack_pointer: 0xFF,
+            stack_pointer: 0,
             x_index_register: 0,
             y_index_register: 0,
             operand_location: OperandLocation::Implicit,
-        }
+        };
+        cpu.reset();
+
+        cpu
     }
 
     pub fn run(&mut self) -> ExitStatus {
@@ -76,6 +81,28 @@ impl Cpu {
         } else {
             Some(ExitStatus::UnknownOpCode)
         }
+    }
+
+    pub fn reset(&mut self) {
+        self.program_counter = self.read_as_address(0xFFFC, 0xFFFD);
+        self.stack_pointer = self.stack_pointer.wrapping_sub(3);
+        self.status_register.insert(Status::INTERRUPT);
+    }
+
+    pub fn irq(&mut self) {
+        if self.status_register.contains(Status::INTERRUPT) {
+            return;
+        }
+
+        self.stack_push_address(self.program_counter);
+        self.stack_push(self.status_register.union(Status::BREAK).bits());
+        self.program_counter = self.read_as_address(0xFFFE, 0xFFFF);
+    }
+
+    pub fn nmi(&mut self) {
+        self.stack_push_address(self.program_counter);
+        self.stack_push(self.status_register.union(Status::BREAK).bits());
+        self.program_counter = self.read_as_address(0xFFFA, 0xFFFB);
     }
 }
 
