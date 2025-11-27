@@ -108,13 +108,13 @@ impl Cpu {
         }
 
         self.stack_push_address(mem, self.program_counter);
-        self.stack_push(mem, self.status_register.union(Status::BREAK).bits());
+        self.stack_push(mem, self.status_register.difference(Status::BREAK).bits());
         self.program_counter = mem.read_as_address(0xFFFE, 0xFFFF);
     }
 
     pub fn nmi(&mut self, mem: &mut impl Memory) {
         self.stack_push_address(mem, self.program_counter);
-        self.stack_push(mem, self.status_register.union(Status::BREAK).bits());
+        self.stack_push(mem, self.status_register.difference(Status::BREAK).bits());
         self.program_counter = mem.read_as_address(0xFFFA, 0xFFFB);
     }
 }

@@ -30,7 +30,7 @@ fn test_irq() {
 
     assert_eq!(program_counter_in_stack, 0xFF);
     assert_eq!(
-        nes.cpu.status_register.union(Status::BREAK),
+        nes.cpu.status_register.difference(Status::BREAK),
         status_in_stack
     );
     assert_eq!(nes.cpu.program_counter, 0x07FF);
@@ -61,7 +61,7 @@ fn test_nmi() {
 
     assert_eq!(program_counter_in_stack, 0xFF);
     assert_eq!(
-        nes.cpu.status_register.union(Status::BREAK),
+        nes.cpu.status_register.difference(Status::BREAK),
         status_in_stack
     );
     assert_eq!(nes.cpu.program_counter, 0x07FF);
