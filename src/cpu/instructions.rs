@@ -74,7 +74,7 @@ impl Instructions for Cpu {
         self.stack_push(mem, self.status_register.union(Status::BREAK).bits());
 
         self.status_register.insert(Status::INTERRUPT);
-        self.program_counter = 0x0000;
+        self.program_counter = mem.read_as_address(0xFFFE, 0xFFFF);
 
         Some(ExitStatus::Brk)
     }
