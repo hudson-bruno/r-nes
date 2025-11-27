@@ -1,5 +1,6 @@
 use crate::{
     bus::Bus,
+    cartridge::Cartridge,
     cpu::{Cpu, ExitStatus},
 };
 
@@ -11,6 +12,16 @@ pub struct Nes {
 impl Nes {
     pub fn new() -> Self {
         let mut bus = Bus::new();
+
+        Nes {
+            cpu: Cpu::new(&mut bus),
+            bus,
+        }
+    }
+
+    pub fn new_with_cartridge(cartridge: Cartridge) -> Self {
+        let mut bus = Bus::new();
+        bus.cartridge = Some(cartridge);
 
         Nes {
             cpu: Cpu::new(&mut bus),

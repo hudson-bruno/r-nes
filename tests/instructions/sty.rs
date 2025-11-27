@@ -1,48 +1,60 @@
-use r_nes::nes::Nes;
+use r_nes::{cartridge::Cartridge, nes::Nes};
 
 #[test]
 fn test_sty_zero_page() {
-    let mut nes = Nes::new();
+    let mut cartridge = Cartridge::new();
+    cartridge.program_memory[0x0000..=0x0001].copy_from_slice(&[0x84, 0x03]);
+    cartridge.program_memory[0x7FFC..=0x7FFD].copy_from_slice(&[0x00, 0x80]);
+
+    let mut nes = Nes::new_with_cartridge(cartridge);
     nes.cpu.y_index_register = 0xFF;
-    nes.bus.cpu_memory[0..2].copy_from_slice(&[0x84, 0x03]);
 
     let result = nes.clock();
 
     assert!(result.is_none());
-    assert_eq!(nes.bus.cpu_memory[0x03], 0xFF);
+    assert_eq!(nes.bus.cpu_memory[0x0003], 0xFF);
 }
 
 #[test]
 fn test_sty_zero_page_x() {
-    let mut nes = Nes::new();
+    let mut cartridge = Cartridge::new();
+    cartridge.program_memory[0x0000..=0x0001].copy_from_slice(&[0x94, 0xFE]);
+    cartridge.program_memory[0x7FFC..=0x7FFD].copy_from_slice(&[0x00, 0x80]);
+
+    let mut nes = Nes::new_with_cartridge(cartridge);
     nes.cpu.y_index_register = 0xFF;
     nes.cpu.x_index_register = 0x01;
-    nes.bus.cpu_memory[0..2].copy_from_slice(&[0x94, 0xFE]);
 
     let result = nes.clock();
 
     assert!(result.is_none());
-    assert_eq!(nes.bus.cpu_memory[0xFF], 0xFF);
+    assert_eq!(nes.bus.cpu_memory[0x00FF], 0xFF);
 }
 
 #[test]
 fn test_sty_zero_page_x_overflow() {
-    let mut nes = Nes::new();
+    let mut cartridge = Cartridge::new();
+    cartridge.program_memory[0x0000..=0x0001].copy_from_slice(&[0x94, 0xFF]);
+    cartridge.program_memory[0x7FFC..=0x7FFD].copy_from_slice(&[0x00, 0x80]);
+
+    let mut nes = Nes::new_with_cartridge(cartridge);
     nes.cpu.y_index_register = 0xFF;
     nes.cpu.x_index_register = 0x04;
-    nes.bus.cpu_memory[0..2].copy_from_slice(&[0x94, 0xFF]);
 
     let result = nes.clock();
 
     assert!(result.is_none());
-    assert_eq!(nes.bus.cpu_memory[0x03], 0xFF);
+    assert_eq!(nes.bus.cpu_memory[0x0003], 0xFF);
 }
 
 #[test]
 fn test_sty_absolute() {
-    let mut nes = Nes::new();
+    let mut cartridge = Cartridge::new();
+    cartridge.program_memory[0x0000..=0x0002].copy_from_slice(&[0x8C, 0xFF, 0x07]);
+    cartridge.program_memory[0x7FFC..=0x7FFD].copy_from_slice(&[0x00, 0x80]);
+
+    let mut nes = Nes::new_with_cartridge(cartridge);
     nes.cpu.y_index_register = 0xFF;
-    nes.bus.cpu_memory[0..3].copy_from_slice(&[0x8C, 0xFF, 0x07]);
 
     let result = nes.clock();
 

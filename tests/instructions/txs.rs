@@ -1,10 +1,13 @@
-use r_nes::nes::Nes;
+use r_nes::{cartridge::Cartridge, nes::Nes};
 
 #[test]
 fn test_txs() {
-    let mut nes = Nes::new();
+    let mut cartridge = Cartridge::new();
+    cartridge.program_memory[0x0000..=0x0000].copy_from_slice(&[0x9A]);
+    cartridge.program_memory[0x7FFC..=0x7FFD].copy_from_slice(&[0x00, 0x80]);
+
+    let mut nes = Nes::new_with_cartridge(cartridge);
     nes.cpu.x_index_register = 0x01;
-    nes.bus.cpu_memory[0] = 0x9A;
 
     let result = nes.clock();
 

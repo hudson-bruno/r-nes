@@ -1,13 +1,13 @@
-use r_nes::{
-    cpu::Status,
-    nes::Nes,
-};
+use r_nes::{cartridge::Cartridge, cpu::Status, nes::Nes};
 
 #[test]
 fn test_iny() {
-    let mut nes = Nes::new();
+    let mut cartridge = Cartridge::new();
+    cartridge.program_memory[0x0000..=0x0000].copy_from_slice(&[0xC8]);
+    cartridge.program_memory[0x7FFC..=0x7FFD].copy_from_slice(&[0x00, 0x80]);
+
+    let mut nes = Nes::new_with_cartridge(cartridge);
     nes.cpu.y_index_register = 0x01;
-    nes.bus.cpu_memory[0] = 0xC8;
 
     let result = nes.clock();
 
@@ -17,9 +17,12 @@ fn test_iny() {
 
 #[test]
 fn test_iny_status_zero() {
-    let mut nes = Nes::new();
+    let mut cartridge = Cartridge::new();
+    cartridge.program_memory[0x0000..=0x0000].copy_from_slice(&[0xC8]);
+    cartridge.program_memory[0x7FFC..=0x7FFD].copy_from_slice(&[0x00, 0x80]);
+
+    let mut nes = Nes::new_with_cartridge(cartridge);
     nes.cpu.y_index_register = 0xFF;
-    nes.bus.cpu_memory[0] = 0xC8;
 
     let result = nes.clock();
 
@@ -30,9 +33,12 @@ fn test_iny_status_zero() {
 
 #[test]
 fn test_iny_status_negative() {
-    let mut nes = Nes::new();
+    let mut cartridge = Cartridge::new();
+    cartridge.program_memory[0x0000..=0x0000].copy_from_slice(&[0xC8]);
+    cartridge.program_memory[0x7FFC..=0x7FFD].copy_from_slice(&[0x00, 0x80]);
+
+    let mut nes = Nes::new_with_cartridge(cartridge);
     nes.cpu.y_index_register = 0xFE;
-    nes.bus.cpu_memory[0] = 0xC8;
 
     let result = nes.clock();
 

@@ -1,14 +1,18 @@
 use r_nes::{
-    cpu::{Status, memory::stack::Stack},
+    cartridge::Cartridge,
+    cpu::{memory::stack::Stack, Status},
     nes::Nes,
 };
 
 #[test]
 fn test_php_implicit() {
-    let mut nes = Nes::new();
+    let mut cartridge = Cartridge::new();
+    cartridge.program_memory[0x0000..=0x0000].copy_from_slice(&[0x08]);
+    cartridge.program_memory[0x7FFC..=0x7FFD].copy_from_slice(&[0x00, 0x80]);
+
+    let mut nes = Nes::new_with_cartridge(cartridge);
     nes.cpu.status_register = Status::all();
     nes.cpu.status_register.remove(Status::BREAK);
-    nes.bus.cpu_memory[0] = 0x08;
 
     let result = nes.clock();
     let status_from_php = nes.cpu.stack_pop(&mut nes.bus);

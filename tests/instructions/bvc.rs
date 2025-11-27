@@ -1,11 +1,14 @@
-use r_nes::nes::Nes;
+use r_nes::{cartridge::Cartridge, nes::Nes};
 
 #[test]
 fn test_bvc() {
-    let mut nes = Nes::new();
-    nes.bus.cpu_memory[0..2].copy_from_slice(&[0x50, 0x7F]);
+    let mut cartridge = Cartridge::new();
+    cartridge.program_memory[0x0000..=0x0001].copy_from_slice(&[0x50, 0x7F]);
+    cartridge.program_memory[0x7FFC..=0x7FFD].copy_from_slice(&[0x00, 0x80]);
+
+    let mut nes = Nes::new_with_cartridge(cartridge);
     let result = nes.clock();
 
     assert!(result.is_none());
-    assert_eq!(nes.cpu.program_counter, 0x81);
+    assert_eq!(nes.cpu.program_counter, 0x8002 + 0x7F);
 }

@@ -1,12 +1,16 @@
 use r_nes::{
-    cpu::{Status, memory::stack::Stack},
+    cartridge::Cartridge,
+    cpu::{memory::stack::Stack, Status},
     nes::Nes,
 };
 
 #[test]
 fn test_pla() {
-    let mut nes = Nes::new();
-    nes.bus.cpu_memory[0] = 0x68;
+    let mut cartridge = Cartridge::new();
+    cartridge.program_memory[0x0000..=0x0000].copy_from_slice(&[0x68]);
+    cartridge.program_memory[0x7FFC..=0x7FFD].copy_from_slice(&[0x00, 0x80]);
+
+    let mut nes = Nes::new_with_cartridge(cartridge);
     nes.cpu.stack_push(&mut nes.bus, 0xFF);
 
     let result = nes.clock();
@@ -17,8 +21,11 @@ fn test_pla() {
 
 #[test]
 fn test_pla_status_zero() {
-    let mut nes = Nes::new();
-    nes.bus.cpu_memory[0] = 0x68;
+    let mut cartridge = Cartridge::new();
+    cartridge.program_memory[0x0000..=0x0000].copy_from_slice(&[0x68]);
+    cartridge.program_memory[0x7FFC..=0x7FFD].copy_from_slice(&[0x00, 0x80]);
+
+    let mut nes = Nes::new_with_cartridge(cartridge);
     nes.cpu.stack_push(&mut nes.bus, 0x00);
 
     let result = nes.clock();
@@ -30,8 +37,11 @@ fn test_pla_status_zero() {
 
 #[test]
 fn test_pla_status_negative() {
-    let mut nes = Nes::new();
-    nes.bus.cpu_memory[0] = 0x68;
+    let mut cartridge = Cartridge::new();
+    cartridge.program_memory[0x0000..=0x0000].copy_from_slice(&[0x68]);
+    cartridge.program_memory[0x7FFC..=0x7FFD].copy_from_slice(&[0x00, 0x80]);
+
+    let mut nes = Nes::new_with_cartridge(cartridge);
     nes.cpu.stack_push(&mut nes.bus, 0x80);
 
     let result = nes.clock();

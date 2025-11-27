@@ -1,13 +1,17 @@
 use r_nes::{
+    cartridge::Cartridge,
     cpu::Status,
     nes::Nes,
 };
 
 #[test]
 fn test_sbc_immediate() {
-    let mut nes = Nes::new();
+    let mut cartridge = Cartridge::new();
+    cartridge.program_memory[0x0000..=0x0001].copy_from_slice(&[0xE9, 0x04]);
+    cartridge.program_memory[0x7FFC..=0x7FFD].copy_from_slice(&[0x00, 0x80]);
+
+    let mut nes = Nes::new_with_cartridge(cartridge);
     nes.cpu.a_register = 0x06;
-    nes.bus.cpu_memory[0..2].copy_from_slice(&[0xE9, 0x04]);
 
     let result = nes.clock();
 
@@ -17,9 +21,12 @@ fn test_sbc_immediate() {
 
 #[test]
 fn test_sbc_immediate_status_carry() {
-    let mut nes = Nes::new();
+    let mut cartridge = Cartridge::new();
+    cartridge.program_memory[0x0000..=0x0001].copy_from_slice(&[0xE9, 0x01]);
+    cartridge.program_memory[0x7FFC..=0x7FFD].copy_from_slice(&[0x00, 0x80]);
+
+    let mut nes = Nes::new_with_cartridge(cartridge);
     nes.cpu.a_register = 0x00;
-    nes.bus.cpu_memory[0..2].copy_from_slice(&[0xE9, 0x01]);
 
     let result = nes.clock();
 
@@ -30,10 +37,13 @@ fn test_sbc_immediate_status_carry() {
 
 #[test]
 fn test_sbc_immediate_status_carry_with_carry_set() {
-    let mut nes = Nes::new();
+    let mut cartridge = Cartridge::new();
+    cartridge.program_memory[0x0000..=0x0001].copy_from_slice(&[0xE9, 0x04]);
+    cartridge.program_memory[0x7FFC..=0x7FFD].copy_from_slice(&[0x00, 0x80]);
+
+    let mut nes = Nes::new_with_cartridge(cartridge);
     nes.cpu.a_register = 0x06;
     nes.cpu.status_register.insert(Status::CARRY);
-    nes.bus.cpu_memory[0..2].copy_from_slice(&[0xE9, 0x04]);
     let result = nes.clock();
 
     assert!(result.is_none());
@@ -43,9 +53,12 @@ fn test_sbc_immediate_status_carry_with_carry_set() {
 
 #[test]
 fn test_sbc_immediate_status_zero() {
-    let mut nes = Nes::new();
+    let mut cartridge = Cartridge::new();
+    cartridge.program_memory[0x0000..=0x0001].copy_from_slice(&[0xE9, 0x01]);
+    cartridge.program_memory[0x7FFC..=0x7FFD].copy_from_slice(&[0x00, 0x80]);
+
+    let mut nes = Nes::new_with_cartridge(cartridge);
     nes.cpu.a_register = 0x02;
-    nes.bus.cpu_memory[0..2].copy_from_slice(&[0xE9, 0x01]);
     let result = nes.clock();
 
     assert!(result.is_none());
@@ -58,10 +71,13 @@ fn test_sbc_immediate_status_overflow() {
     // Case 1: Positive - Negative = Positive (Overflow)
     // A = 0x70 (112), M = 0xF0 (-16), Carry = 1 (no borrow)
     // SBC: 0x70 - (-0x10) - 0 = 0x80 (128). Overflow.
-    let mut nes = Nes::new();
+    let mut cartridge = Cartridge::new();
+    cartridge.program_memory[0x0000..=0x0001].copy_from_slice(&[0xE9, 0xF0]); // SBC immediate 0xF0
+    cartridge.program_memory[0x7FFC..=0x7FFD].copy_from_slice(&[0x00, 0x80]);
+
+    let mut nes = Nes::new_with_cartridge(cartridge);
     nes.cpu.a_register = 0x70;
     nes.cpu.status_register.insert(Status::CARRY); // C=1 for no borrow
-    nes.bus.cpu_memory[0..2].copy_from_slice(&[0xE9, 0xF0]); // SBC immediate 0xF0
     let result = nes.clock();
 
     assert!(result.is_none());
@@ -73,10 +89,13 @@ fn test_sbc_immediate_status_overflow() {
     // Case 2: Negative - Positive = Positive (Overflow)
     // A = 0x80 (-128), M = 0x10 (16), Carry = 1 (no borrow)
     // SBC: 0x80 - 0x10 - 0 = 0x70 (112). Result -144 (underflow).
-    let mut nes = Nes::new();
+    let mut cartridge = Cartridge::new();
+    cartridge.program_memory[0x0000..=0x0001].copy_from_slice(&[0xE9, 0x10]); // SBC immediate 0x10
+    cartridge.program_memory[0x7FFC..=0x7FFD].copy_from_slice(&[0x00, 0x80]);
+
+    let mut nes = Nes::new_with_cartridge(cartridge);
     nes.cpu.a_register = 0x80;
     nes.cpu.status_register.insert(Status::CARRY); // C=1 for no borrow
-    nes.bus.cpu_memory[0..2].copy_from_slice(&[0xE9, 0x10]); // SBC immediate 0x10
     let result = nes.clock();
 
     assert!(result.is_none());
@@ -88,10 +107,13 @@ fn test_sbc_immediate_status_overflow() {
     // Case 3: Positive - Positive = Positive (No Overflow)
     // A = 0x40 (64), M = 0x10 (16), Carry = 1 (no borrow)
     // SBC: 0x40 - 0x10 - 0 = 0x30 (48). No overflow.
-    let mut nes = Nes::new();
+    let mut cartridge = Cartridge::new();
+    cartridge.program_memory[0x0000..=0x0001].copy_from_slice(&[0xE9, 0x10]); // SBC immediate 0x10
+    cartridge.program_memory[0x7FFC..=0x7FFD].copy_from_slice(&[0x00, 0x80]);
+
+    let mut nes = Nes::new_with_cartridge(cartridge);
     nes.cpu.a_register = 0x40;
     nes.cpu.status_register.insert(Status::CARRY); // C=1 for no borrow
-    nes.bus.cpu_memory[0..2].copy_from_slice(&[0xE9, 0x10]); // SBC immediate 0x10
     let result = nes.clock();
 
     assert!(result.is_none());
@@ -103,10 +125,13 @@ fn test_sbc_immediate_status_overflow() {
     // Case 4: Positive - Positive = Negative (No Overflow, but borrow occurs)
     // A = 0x10 (16), M = 0x40 (64), Carry = 0 (borrow intended)
     // SBC: 0x10 - 0x40 - 1 = 0xCF (-49). No overflow.
-    let mut nes = Nes::new();
+    let mut cartridge = Cartridge::new();
+    cartridge.program_memory[0x0000..=0x0001].copy_from_slice(&[0xE9, 0x40]); // SBC immediate 0x40
+    cartridge.program_memory[0x7FFC..=0x7FFD].copy_from_slice(&[0x00, 0x80]);
+
+    let mut nes = Nes::new_with_cartridge(cartridge);
     nes.cpu.a_register = 0x10;
     nes.cpu.status_register.remove(Status::CARRY); // C=0 for borrow
-    nes.bus.cpu_memory[0..2].copy_from_slice(&[0xE9, 0x40]); // SBC immediate 0x40
     let result = nes.clock();
 
     assert!(result.is_none());
@@ -118,9 +143,12 @@ fn test_sbc_immediate_status_overflow() {
 
 #[test]
 fn test_sbc_immediate_status_negative() {
-    let mut nes = Nes::new();
+    let mut cartridge = Cartridge::new();
+    cartridge.program_memory[0x0000..=0x0001].copy_from_slice(&[0xE9, 0x01]);
+    cartridge.program_memory[0x7FFC..=0x7FFD].copy_from_slice(&[0x00, 0x80]);
+
+    let mut nes = Nes::new_with_cartridge(cartridge);
     nes.cpu.a_register = 0x00;
-    nes.bus.cpu_memory[0..2].copy_from_slice(&[0xE9, 0x01]);
     let result = nes.clock();
 
     assert!(result.is_none());
@@ -130,9 +158,13 @@ fn test_sbc_immediate_status_negative() {
 
 #[test]
 fn test_sbc_zero_page() {
-    let mut nes = Nes::new();
+    let mut cartridge = Cartridge::new();
+    cartridge.program_memory[0x0000..=0x0001].copy_from_slice(&[0xE5, 0x03]);
+    cartridge.program_memory[0x7FFC..=0x7FFD].copy_from_slice(&[0x00, 0x80]);
+
+    let mut nes = Nes::new_with_cartridge(cartridge);
     nes.cpu.a_register = 0x06;
-    nes.bus.cpu_memory[0..4].copy_from_slice(&[0xE5, 0x03, 0x00, 0x04]);
+    nes.bus.cpu_memory[0x0003] = 0x04;
     let result = nes.clock();
 
     assert!(result.is_none());
@@ -141,11 +173,14 @@ fn test_sbc_zero_page() {
 
 #[test]
 fn test_sbc_zero_page_x() {
-    let mut nes = Nes::new();
+    let mut cartridge = Cartridge::new();
+    cartridge.program_memory[0x0000..=0x0001].copy_from_slice(&[0xF5, 0xFE]);
+    cartridge.program_memory[0x7FFC..=0x7FFD].copy_from_slice(&[0x00, 0x80]);
+
+    let mut nes = Nes::new_with_cartridge(cartridge);
     nes.cpu.a_register = 0x06;
     nes.cpu.x_index_register = 0x01;
-    nes.bus.cpu_memory[0..2].copy_from_slice(&[0xF5, 0xFE]);
-    nes.bus.cpu_memory[0xFF] = 0x04;
+    nes.bus.cpu_memory[0x00FF] = 0x04;
 
     let result = nes.clock();
 
@@ -155,10 +190,14 @@ fn test_sbc_zero_page_x() {
 
 #[test]
 fn test_sbc_zero_page_x_overflow() {
-    let mut nes = Nes::new();
+    let mut cartridge = Cartridge::new();
+    cartridge.program_memory[0x0000..=0x0001].copy_from_slice(&[0xF5, 0xFF]);
+    cartridge.program_memory[0x7FFC..=0x7FFD].copy_from_slice(&[0x00, 0x80]);
+
+    let mut nes = Nes::new_with_cartridge(cartridge);
     nes.cpu.a_register = 0x06;
     nes.cpu.x_index_register = 0x04;
-    nes.bus.cpu_memory[0..4].copy_from_slice(&[0xF5, 0xFF, 0x00, 0x04]);
+    nes.bus.cpu_memory[0x0003] = 0x04;
 
     let result = nes.clock();
 
@@ -168,9 +207,12 @@ fn test_sbc_zero_page_x_overflow() {
 
 #[test]
 fn test_sbc_absolute() {
-    let mut nes = Nes::new();
+    let mut cartridge = Cartridge::new();
+    cartridge.program_memory[0x0000..=0x0002].copy_from_slice(&[0xED, 0xFF, 0x07]);
+    cartridge.program_memory[0x7FFC..=0x7FFD].copy_from_slice(&[0x00, 0x80]);
+
+    let mut nes = Nes::new_with_cartridge(cartridge);
     nes.cpu.a_register = 0x06;
-    nes.bus.cpu_memory[0..3].copy_from_slice(&[0xED, 0xFF, 0x07]);
     nes.bus.cpu_memory[0x07FF] = 0x04;
 
     let result = nes.clock();
@@ -181,10 +223,13 @@ fn test_sbc_absolute() {
 
 #[test]
 fn test_sbc_absolute_x() {
-    let mut nes = Nes::new();
+    let mut cartridge = Cartridge::new();
+    cartridge.program_memory[0x0000..=0x0002].copy_from_slice(&[0xFD, 0xFE, 0x07]);
+    cartridge.program_memory[0x7FFC..=0x7FFD].copy_from_slice(&[0x00, 0x80]);
+
+    let mut nes = Nes::new_with_cartridge(cartridge);
     nes.cpu.a_register = 0x06;
     nes.cpu.x_index_register = 0x01;
-    nes.bus.cpu_memory[0..3].copy_from_slice(&[0xFD, 0xFE, 0x07]);
     nes.bus.cpu_memory[0x07FF] = 0x04;
 
     let result = nes.clock();
@@ -195,10 +240,13 @@ fn test_sbc_absolute_x() {
 
 #[test]
 fn test_sbc_absolute_y() {
-    let mut nes = Nes::new();
+    let mut cartridge = Cartridge::new();
+    cartridge.program_memory[0x0000..=0x0002].copy_from_slice(&[0xF9, 0xFE, 0x07]);
+    cartridge.program_memory[0x7FFC..=0x7FFD].copy_from_slice(&[0x00, 0x80]);
+
+    let mut nes = Nes::new_with_cartridge(cartridge);
     nes.cpu.a_register = 0x06;
     nes.cpu.y_index_register = 0x01;
-    nes.bus.cpu_memory[0..3].copy_from_slice(&[0xF9, 0xFE, 0x07]);
     nes.bus.cpu_memory[0x07FF] = 0x04;
 
     let result = nes.clock();
@@ -209,10 +257,14 @@ fn test_sbc_absolute_y() {
 
 #[test]
 fn test_sbc_indirect_x() {
-    let mut nes = Nes::new();
+    let mut cartridge = Cartridge::new();
+    cartridge.program_memory[0x0000..=0x0001].copy_from_slice(&[0xE1, 0x02]);
+    cartridge.program_memory[0x7FFC..=0x7FFD].copy_from_slice(&[0x00, 0x80]);
+
+    let mut nes = Nes::new_with_cartridge(cartridge);
     nes.cpu.a_register = 0x06;
     nes.cpu.x_index_register = 0x01;
-    nes.bus.cpu_memory[0..5].copy_from_slice(&[0xE1, 0x02, 0x00, 0xFF, 0x07]);
+    nes.bus.cpu_memory[0x0003..=0x0004].copy_from_slice(&[0xFF, 0x07]);
     nes.bus.cpu_memory[0x07FF] = 0x04;
 
     let result = nes.clock();
@@ -223,10 +275,14 @@ fn test_sbc_indirect_x() {
 
 #[test]
 fn test_sbc_indirect_x_overflow() {
-    let mut nes = Nes::new();
+    let mut cartridge = Cartridge::new();
+    cartridge.program_memory[0x0000..=0x0001].copy_from_slice(&[0xE1, 0xFF]);
+    cartridge.program_memory[0x7FFC..=0x7FFD].copy_from_slice(&[0x00, 0x80]);
+
+    let mut nes = Nes::new_with_cartridge(cartridge);
     nes.cpu.a_register = 0x06;
     nes.cpu.x_index_register = 0x04;
-    nes.bus.cpu_memory[0..5].copy_from_slice(&[0xE1, 0xFF, 0x00, 0xFF, 0x07]);
+    nes.bus.cpu_memory[0x0003..=0x0004].copy_from_slice(&[0xFF, 0x07]);
     nes.bus.cpu_memory[0x07FF] = 0x04;
 
     let result = nes.clock();
@@ -237,10 +293,14 @@ fn test_sbc_indirect_x_overflow() {
 
 #[test]
 fn test_sbc_indirect_y() {
-    let mut nes = Nes::new();
+    let mut cartridge = Cartridge::new();
+    cartridge.program_memory[0x0000..=0x0001].copy_from_slice(&[0xF1, 0x03]);
+    cartridge.program_memory[0x7FFC..=0x7FFD].copy_from_slice(&[0x00, 0x80]);
+
+    let mut nes = Nes::new_with_cartridge(cartridge);
     nes.cpu.a_register = 0x06;
     nes.cpu.y_index_register = 0x01;
-    nes.bus.cpu_memory[0..5].copy_from_slice(&[0xF1, 0x03, 0x00, 0xFE, 0x07]);
+    nes.bus.cpu_memory[0x0003..=0x0004].copy_from_slice(&[0xFE, 0x07]);
     nes.bus.cpu_memory[0x07FF] = 0x04;
 
     let result = nes.clock();

@@ -1,25 +1,32 @@
 use r_nes::{
+    cartridge::Cartridge,
     cpu::{Status, memory::stack::Stack},
     nes::Nes,
 };
 
 #[test]
 fn test_reset() {
-    let mut nes = Nes::new();
+    let mut cartridge = Cartridge::new();
+    cartridge.program_memory[0x7FFC..=0x7FFD].copy_from_slice(&[0x00, 0x80]);
+
+    let mut nes = Nes::new_with_cartridge(cartridge);
     nes.cpu.status_register.remove(Status::INTERRUPT);
     let old_stack_pointer = nes.cpu.stack_pointer;
 
     nes.reset();
 
-    assert_eq!(nes.cpu.program_counter, 0x0000);
-    assert_eq!(nes.cpu.stack_pointer, old_stack_pointer - 3);
+    assert_eq!(nes.cpu.program_counter, 0x8000);
+    assert_eq!(nes.cpu.stack_pointer, old_stack_pointer.wrapping_sub(3));
     assert!(nes.cpu.status_register.contains(Status::INTERRUPT));
 }
 
 #[test]
 fn test_irq() {
-    let mut nes = Nes::new();
-    nes.bus.cpu_memory[0xFFFE..=0xFFFF].copy_from_slice(&[0xFF, 0x07]);
+    let mut cartridge = Cartridge::new();
+    cartridge.program_memory[0x7FFE..=0x7FFF].copy_from_slice(&[0xFF, 0x87]); // IRQ vector to 0x87FF
+    cartridge.program_memory[0x7FFC..=0x7FFD].copy_from_slice(&[0x00, 0x80]);
+
+    let mut nes = Nes::new_with_cartridge(cartridge);
     nes.cpu.program_counter = 0xFF;
     nes.cpu.status_register.remove(Status::INTERRUPT);
 
@@ -33,13 +40,16 @@ fn test_irq() {
         nes.cpu.status_register.difference(Status::BREAK),
         status_in_stack
     );
-    assert_eq!(nes.cpu.program_counter, 0x07FF);
+    assert_eq!(nes.cpu.program_counter, 0x87FF);
 }
 
 #[test]
 fn test_irq_status_interrupt_disable() {
-    let mut nes = Nes::new();
-    nes.bus.cpu_memory[0xFFFE..=0xFFFF].copy_from_slice(&[0xFF, 0x07]);
+    let mut cartridge = Cartridge::new();
+    cartridge.program_memory[0x7FFE..=0x7FFF].copy_from_slice(&[0xFF, 0x87]);
+    cartridge.program_memory[0x7FFC..=0x7FFD].copy_from_slice(&[0x00, 0x80]);
+
+    let mut nes = Nes::new_with_cartridge(cartridge);
     nes.cpu.program_counter = 0xFF;
     nes.cpu.status_register.insert(Status::INTERRUPT);
 
@@ -50,8 +60,11 @@ fn test_irq_status_interrupt_disable() {
 
 #[test]
 fn test_nmi() {
-    let mut nes = Nes::new();
-    nes.bus.cpu_memory[0xFFFA..=0xFFFB].copy_from_slice(&[0xFF, 0x07]);
+    let mut cartridge = Cartridge::new();
+    cartridge.program_memory[0x7FFA..=0x7FFB].copy_from_slice(&[0xFF, 0x87]);
+    cartridge.program_memory[0x7FFC..=0x7FFD].copy_from_slice(&[0x00, 0x80]);
+
+    let mut nes = Nes::new_with_cartridge(cartridge);
     nes.cpu.program_counter = 0xFF;
 
     nes.nmi();
@@ -64,5 +77,5 @@ fn test_nmi() {
         nes.cpu.status_register.difference(Status::BREAK),
         status_in_stack
     );
-    assert_eq!(nes.cpu.program_counter, 0x07FF);
+    assert_eq!(nes.cpu.program_counter, 0x87FF);
 }

@@ -1,13 +1,17 @@
 use r_nes::{
+    cartridge::Cartridge,
     cpu::Status,
     nes::Nes,
 };
 
 #[test]
 fn test_tay() {
-    let mut nes = Nes::new();
+    let mut cartridge = Cartridge::new();
+    cartridge.program_memory[0x0000..=0x0000].copy_from_slice(&[0xA8]);
+    cartridge.program_memory[0x7FFC..=0x7FFD].copy_from_slice(&[0x00, 0x80]);
+
+    let mut nes = Nes::new_with_cartridge(cartridge);
     nes.cpu.a_register = 0x01;
-    nes.bus.cpu_memory[0] = 0xA8;
 
     let result = nes.clock();
 
@@ -17,9 +21,12 @@ fn test_tay() {
 
 #[test]
 fn test_tay_status_zero() {
-    let mut nes = Nes::new();
+    let mut cartridge = Cartridge::new();
+    cartridge.program_memory[0x0000..=0x0000].copy_from_slice(&[0xA8]);
+    cartridge.program_memory[0x7FFC..=0x7FFD].copy_from_slice(&[0x00, 0x80]);
+
+    let mut nes = Nes::new_with_cartridge(cartridge);
     nes.cpu.a_register = 0x00;
-    nes.bus.cpu_memory[0] = 0xA8;
 
     let result = nes.clock();
 
@@ -30,9 +37,12 @@ fn test_tay_status_zero() {
 
 #[test]
 fn test_tay_status_negative() {
-    let mut nes = Nes::new();
+    let mut cartridge = Cartridge::new();
+    cartridge.program_memory[0x0000..=0x0000].copy_from_slice(&[0xA8]);
+    cartridge.program_memory[0x7FFC..=0x7FFD].copy_from_slice(&[0x00, 0x80]);
+
+    let mut nes = Nes::new_with_cartridge(cartridge);
     nes.cpu.a_register = 0xFF;
-    nes.bus.cpu_memory[0] = 0xA8;
 
     let result = nes.clock();
 
