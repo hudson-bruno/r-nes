@@ -1,39 +1,42 @@
-use r_nes::cpu::{Cpu, Status};
+use r_nes::{
+    cpu::Status,
+    nes::Nes,
+};
 
 #[test]
 fn test_tya() {
-    let mut cpu = Cpu::new();
-    cpu.y_index_register = 0x01;
-    cpu.memory[0] = 0x98;
+    let mut nes = Nes::new();
+    nes.cpu.y_index_register = 0x01;
+    nes.bus.cpu_memory[0] = 0x98;
 
-    let result = cpu.clock();
+    let result = nes.clock();
 
     assert!(result.is_none());
-    assert_eq!(cpu.a_register, 0x01);
+    assert_eq!(nes.cpu.a_register, 0x01);
 }
 
 #[test]
 fn test_tya_status_zero() {
-    let mut cpu = Cpu::new();
-    cpu.y_index_register = 0x00;
-    cpu.memory[0] = 0x98;
+    let mut nes = Nes::new();
+    nes.cpu.y_index_register = 0x00;
+    nes.bus.cpu_memory[0] = 0x98;
 
-    let result = cpu.clock();
+    let result = nes.clock();
 
     assert!(result.is_none());
-    assert!(cpu.status_register.contains(Status::ZERO));
-    assert_eq!(cpu.a_register, 0x00);
+    assert!(nes.cpu.status_register.contains(Status::ZERO));
+    assert_eq!(nes.cpu.a_register, 0x00);
 }
 
 #[test]
 fn test_tya_status_negative() {
-    let mut cpu = Cpu::new();
-    cpu.y_index_register = 0xFF;
-    cpu.memory[0] = 0x98;
+    let mut nes = Nes::new();
+    nes.cpu.y_index_register = 0xFF;
+    nes.bus.cpu_memory[0] = 0x98;
 
-    let result = cpu.clock();
+    let result = nes.clock();
 
     assert!(result.is_none());
-    assert!(cpu.status_register.contains(Status::NEGATIVE));
-    assert_eq!(cpu.y_index_register, 0xFF);
+    assert!(nes.cpu.status_register.contains(Status::NEGATIVE));
+    assert_eq!(nes.cpu.y_index_register, 0xFF);
 }

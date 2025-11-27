@@ -1,7 +1,12 @@
-use crate::cpu::{
-    instructions::lookup::INSTRUCTIONS_LOOKUP,
-    memory::{Memory, stack::Stack},
-    operand::OperandLocation,
+use crate::{
+    bus::Bus,
+    cpu::{
+        instructions::lookup::{
+            INSTRUCTIONS_LOOKUP, InstructionAddressingMode, InstructionOperation,
+        },
+        memory::{Memory, stack::Stack},
+        operand::OperandLocation,
+    },
 };
 use bitflags::bitflags;
 
@@ -11,8 +16,6 @@ pub mod memory;
 pub mod operand;
 
 pub struct Cpu {
-    pub memory: [u8; 64 * 1024],
-
     // Registers
     pub a_register: u8,
     pub status_register: Status,
@@ -46,9 +49,8 @@ pub enum ExitStatus {
 }
 
 impl Cpu {
-    pub fn new() -> Self {
+    pub fn new(mem: &mut impl Memory) -> Self {
         let mut cpu = Cpu {
-            memory: [0; 64 * 1024],
             a_register: 0,
             status_register: Status::UNUSED,
             program_counter: 0,
@@ -57,57 +59,62 @@ impl Cpu {
             y_index_register: 0,
             operand_location: OperandLocation::Implicit,
         };
-        cpu.reset();
+        cpu.reset(mem);
 
         cpu
     }
 
-    pub fn run(&mut self) -> ExitStatus {
+    pub fn run(&mut self, mem: &mut Bus) -> ExitStatus {
         loop {
-            if let Some(err) = self.clock() {
+            if let Some(err) = self.clock(mem) {
                 return err;
             }
         }
     }
 
-    pub fn clock(&mut self) -> Option<ExitStatus> {
-        let op_code = self.read(self.program_counter);
+    pub fn clock(&mut self, mem: &mut Bus) -> Option<ExitStatus> {
+        let op_code = mem.read(self.program_counter);
         self.program_counter += 1;
 
         if let Some(op) = &INSTRUCTIONS_LOOKUP[op_code as usize] {
-            self.operand_location = (op.addressing_mode)(self);
+            self.operand_location = match op.addressing_mode {
+                InstructionAddressingMode::NoMemoryNeeded(addressing_mode) => {
+                    (addressing_mode)(self)
+                }
+                InstructionAddressingMode::MemoryNeeded(addressing_mode) => {
+                    (addressing_mode)(self, mem)
+                }
+            };
 
-            (op.operation)(self)
+            match op.operation {
+                InstructionOperation::NoMemoryNeeded(operation) => (operation)(self),
+                InstructionOperation::MemoryNeeded(operation) => (operation)(self, mem),
+                InstructionOperation::MutableMemoryNeeded(operation) => (operation)(self, mem),
+            }
         } else {
             Some(ExitStatus::UnknownOpCode)
         }
     }
 
-    pub fn reset(&mut self) {
-        self.program_counter = self.read_as_address(0xFFFC, 0xFFFD);
+    pub fn reset(&mut self, mem: &mut impl Memory) {
+        self.program_counter = mem.read_as_address(0xFFFC, 0xFFFD);
         self.stack_pointer = self.stack_pointer.wrapping_sub(3);
         self.status_register.insert(Status::INTERRUPT);
     }
 
-    pub fn irq(&mut self) {
+    pub fn irq(&mut self, mem: &mut impl Memory) {
         if self.status_register.contains(Status::INTERRUPT) {
             return;
         }
 
-        self.stack_push_address(self.program_counter);
-        self.stack_push(self.status_register.union(Status::BREAK).bits());
-        self.program_counter = self.read_as_address(0xFFFE, 0xFFFF);
+        self.stack_push_address(mem, self.program_counter);
+        self.stack_push(mem, self.status_register.union(Status::BREAK).bits());
+        self.program_counter = mem.read_as_address(0xFFFE, 0xFFFF);
     }
 
-    pub fn nmi(&mut self) {
-        self.stack_push_address(self.program_counter);
-        self.stack_push(self.status_register.union(Status::BREAK).bits());
-        self.program_counter = self.read_as_address(0xFFFA, 0xFFFB);
-    }
-}
-
-impl Default for Cpu {
-    fn default() -> Self {
-        Self::new()
+    pub fn nmi(&mut self, mem: &mut impl Memory) {
+        self.stack_push_address(mem, self.program_counter);
+        self.stack_push(mem, self.status_register.union(Status::BREAK).bits());
+        self.program_counter = mem.read_as_address(0xFFFA, 0xFFFB);
     }
 }

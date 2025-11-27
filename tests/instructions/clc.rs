@@ -1,12 +1,12 @@
-use r_nes::cpu::{Cpu, Status};
+use r_nes::{cpu::Status, nes::Nes};
 
 #[test]
 fn test_clc() {
-    let mut cpu = Cpu::new();
-    cpu.status_register.insert(Status::CARRY);
-    cpu.memory[0] = 0x18;
-    let result = cpu.clock();
+    let mut nes = Nes::new();
+    nes.cpu.status_register.insert(Status::CARRY);
+    nes.bus.cpu_memory[0] = 0x18;
+    let result = nes.clock();
 
     assert!(result.is_none());
-    assert!(!cpu.status_register.contains(Status::CARRY));
+    assert!(!nes.cpu.status_register.contains(Status::CARRY));
 }

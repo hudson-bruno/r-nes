@@ -1,13 +1,16 @@
-use r_nes::cpu::{Cpu, memory::stack::Stack};
+use r_nes::{
+    cpu::memory::stack::Stack,
+    nes::Nes,
+};
 
 #[test]
 fn test_rts() {
-    let mut cpu = Cpu::new();
-    cpu.memory[0] = 0x60;
-    cpu.stack_push_address(0x07FF);
+    let mut nes = Nes::new();
+    nes.bus.cpu_memory[0] = 0x60;
+    nes.cpu.stack_push_address(&mut nes.bus, 0x07FF);
 
-    let result = cpu.clock();
+    let result = nes.clock();
 
     assert!(result.is_none());
-    assert_eq!(cpu.program_counter, 0x07FF + 1);
+    assert_eq!(nes.cpu.program_counter, 0x07FF + 1);
 }

@@ -4,16 +4,16 @@ pub trait AddressingModes {
     fn implicit(&mut self) -> OperandLocation;
     fn accumulator(&mut self) -> OperandLocation;
     fn immediate(&mut self) -> OperandLocation;
-    fn zero_page(&mut self) -> OperandLocation;
-    fn zero_page_x(&mut self) -> OperandLocation;
-    fn zero_page_y(&mut self) -> OperandLocation;
+    fn zero_page(&mut self, mem: &impl Memory) -> OperandLocation;
+    fn zero_page_x(&mut self, mem: &impl Memory) -> OperandLocation;
+    fn zero_page_y(&mut self, mem: &impl Memory) -> OperandLocation;
     fn relative(&mut self) -> OperandLocation;
-    fn absolute(&mut self) -> OperandLocation;
-    fn absolute_x(&mut self) -> OperandLocation;
-    fn absolute_y(&mut self) -> OperandLocation;
-    fn indirect(&mut self) -> OperandLocation;
-    fn indirect_x(&mut self) -> OperandLocation;
-    fn indirect_y(&mut self) -> OperandLocation;
+    fn absolute(&mut self, mem: &impl Memory) -> OperandLocation;
+    fn absolute_x(&mut self, mem: &impl Memory) -> OperandLocation;
+    fn absolute_y(&mut self, mem: &impl Memory) -> OperandLocation;
+    fn indirect(&mut self, mem: &impl Memory) -> OperandLocation;
+    fn indirect_x(&mut self, mem: &impl Memory) -> OperandLocation;
+    fn indirect_y(&mut self, mem: &impl Memory) -> OperandLocation;
 }
 
 impl AddressingModes for Cpu {
@@ -32,15 +32,15 @@ impl AddressingModes for Cpu {
         OperandLocation::Memory(addr)
     }
 
-    fn zero_page(&mut self) -> OperandLocation {
-        let addr = self.read(self.program_counter) as u16;
+    fn zero_page(&mut self, mem: &impl Memory) -> OperandLocation {
+        let addr = mem.read(self.program_counter) as u16;
         self.program_counter += 1;
 
         OperandLocation::Memory(addr)
     }
 
-    fn zero_page_x(&mut self) -> OperandLocation {
-        let addr = self
+    fn zero_page_x(&mut self, mem: &impl Memory) -> OperandLocation {
+        let addr = mem
             .read(self.program_counter)
             .wrapping_add(self.x_index_register) as u16;
         self.program_counter += 1;
@@ -48,8 +48,8 @@ impl AddressingModes for Cpu {
         OperandLocation::Memory(addr)
     }
 
-    fn zero_page_y(&mut self) -> OperandLocation {
-        let addr = self
+    fn zero_page_y(&mut self, mem: &impl Memory) -> OperandLocation {
+        let addr = mem
             .read(self.program_counter)
             .wrapping_add(self.y_index_register) as u16;
         self.program_counter += 1;
@@ -64,15 +64,15 @@ impl AddressingModes for Cpu {
         OperandLocation::Relative(addr)
     }
 
-    fn absolute(&mut self) -> OperandLocation {
-        let addr = self.read_as_address(self.program_counter, self.program_counter + 1);
+    fn absolute(&mut self, mem: &impl Memory) -> OperandLocation {
+        let addr = mem.read_as_address(self.program_counter, self.program_counter + 1);
         self.program_counter += 2;
 
         OperandLocation::Memory(addr)
     }
 
-    fn absolute_x(&mut self) -> OperandLocation {
-        let addr = self
+    fn absolute_x(&mut self, mem: &impl Memory) -> OperandLocation {
+        let addr = mem
             .read_as_address(self.program_counter, self.program_counter + 1)
             .wrapping_add(self.x_index_register as u16);
         self.program_counter += 2;
@@ -80,8 +80,8 @@ impl AddressingModes for Cpu {
         OperandLocation::Memory(addr)
     }
 
-    fn absolute_y(&mut self) -> OperandLocation {
-        let addr = self
+    fn absolute_y(&mut self, mem: &impl Memory) -> OperandLocation {
+        let addr = mem
             .read_as_address(self.program_counter, self.program_counter + 1)
             .wrapping_add(self.y_index_register as u16);
         self.program_counter += 2;
@@ -89,8 +89,8 @@ impl AddressingModes for Cpu {
         OperandLocation::Memory(addr)
     }
 
-    fn indirect(&mut self) -> OperandLocation {
-        let indirect_addr = self.read_as_address(self.program_counter, self.program_counter + 1);
+    fn indirect(&mut self, mem: &impl Memory) -> OperandLocation {
+        let indirect_addr = mem.read_as_address(self.program_counter, self.program_counter + 1);
         self.program_counter += 2;
 
         let indirect_high_addr = if indirect_addr & 0x00FF == 0x00FF {
@@ -99,25 +99,25 @@ impl AddressingModes for Cpu {
             indirect_addr + 1
         };
 
-        let addr = self.read_as_address(indirect_addr, indirect_high_addr);
+        let addr = mem.read_as_address(indirect_addr, indirect_high_addr);
         OperandLocation::Memory(addr)
     }
 
-    fn indirect_x(&mut self) -> OperandLocation {
-        let indirect_addr = self
+    fn indirect_x(&mut self, mem: &impl Memory) -> OperandLocation {
+        let indirect_addr = mem
             .read(self.program_counter)
             .wrapping_add(self.x_index_register) as u16;
         self.program_counter += 1;
 
-        OperandLocation::Memory(self.read_as_address(indirect_addr, indirect_addr + 1))
+        OperandLocation::Memory(mem.read_as_address(indirect_addr, indirect_addr + 1))
     }
 
-    fn indirect_y(&mut self) -> OperandLocation {
-        let indirect_addr = self.read(self.program_counter) as u16;
+    fn indirect_y(&mut self, mem: &impl Memory) -> OperandLocation {
+        let indirect_addr = mem.read(self.program_counter) as u16;
         self.program_counter += 1;
 
         OperandLocation::Memory(
-            self.read_as_address(indirect_addr, indirect_addr + 1)
+            mem.read_as_address(indirect_addr, indirect_addr + 1)
                 .wrapping_add(self.y_index_register as u16),
         )
     }

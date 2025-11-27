@@ -1,11 +1,11 @@
-use r_nes::cpu::Cpu;
+use r_nes::nes::Nes;
 
 #[test]
 fn test_nop() {
-    let mut cpu = Cpu::new();
-    cpu.memory[0] = 0xEA;
+    let mut nes = Nes::new();
+    nes.bus.cpu_memory[0] = 0xEA;
 
-    let result = cpu.clock();
+    let result = nes.clock();
 
     assert!(result.is_none());
 }

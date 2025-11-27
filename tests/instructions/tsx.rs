@@ -1,39 +1,42 @@
-use r_nes::cpu::{Cpu, Status};
+use r_nes::{
+    cpu::Status,
+    nes::Nes,
+};
 
 #[test]
 fn test_tsx() {
-    let mut cpu = Cpu::new();
-    cpu.stack_pointer = 0x01;
-    cpu.memory[0] = 0xBA;
+    let mut nes = Nes::new();
+    nes.cpu.stack_pointer = 0x01;
+    nes.bus.cpu_memory[0] = 0xBA;
 
-    let result = cpu.clock();
+    let result = nes.clock();
 
     assert!(result.is_none());
-    assert_eq!(cpu.x_index_register, 0x01);
+    assert_eq!(nes.cpu.x_index_register, 0x01);
 }
 
 #[test]
 fn test_tsx_status_zero() {
-    let mut cpu = Cpu::new();
-    cpu.stack_pointer = 0x00;
-    cpu.memory[0] = 0xBA;
+    let mut nes = Nes::new();
+    nes.cpu.stack_pointer = 0x00;
+    nes.bus.cpu_memory[0] = 0xBA;
 
-    let result = cpu.clock();
+    let result = nes.clock();
 
     assert!(result.is_none());
-    assert!(cpu.status_register.contains(Status::ZERO));
-    assert_eq!(cpu.x_index_register, 0x00);
+    assert!(nes.cpu.status_register.contains(Status::ZERO));
+    assert_eq!(nes.cpu.x_index_register, 0x00);
 }
 
 #[test]
 fn test_tsx_status_negative() {
-    let mut cpu = Cpu::new();
-    cpu.stack_pointer = 0xFF;
-    cpu.memory[0] = 0xBA;
+    let mut nes = Nes::new();
+    nes.cpu.stack_pointer = 0xFF;
+    nes.bus.cpu_memory[0] = 0xBA;
 
-    let result = cpu.clock();
+    let result = nes.clock();
 
     assert!(result.is_none());
-    assert!(cpu.status_register.contains(Status::NEGATIVE));
-    assert_eq!(cpu.x_index_register, 0xFF);
+    assert!(nes.cpu.status_register.contains(Status::NEGATIVE));
+    assert_eq!(nes.cpu.x_index_register, 0xFF);
 }

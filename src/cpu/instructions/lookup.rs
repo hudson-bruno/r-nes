@@ -1,722 +1,735 @@
-use crate::cpu::{
-    Cpu, ExitStatus, addressing_modes::AddressingModes, instructions::Instructions,
-    operand::OperandLocation,
+use crate::{
+    bus::Bus,
+    cpu::{
+        Cpu, ExitStatus, addressing_modes::AddressingModes, instructions::Instructions,
+        operand::OperandLocation,
+    },
 };
 
-#[derive(Debug)]
 pub struct Instruction {
-    pub addressing_mode: fn(&mut Cpu) -> OperandLocation,
-    pub operation: fn(&mut Cpu) -> Option<ExitStatus>,
+    pub addressing_mode: InstructionAddressingMode,
+    pub operation: InstructionOperation,
+}
+
+pub enum InstructionAddressingMode {
+    NoMemoryNeeded(fn(&mut Cpu) -> OperandLocation),
+    MemoryNeeded(fn(&mut Cpu, &Bus) -> OperandLocation),
+}
+
+pub enum InstructionOperation {
+    NoMemoryNeeded(fn(&mut Cpu) -> Option<ExitStatus>),
+    MemoryNeeded(fn(&mut Cpu, &Bus) -> Option<ExitStatus>),
+    MutableMemoryNeeded(fn(&mut Cpu, &mut Bus) -> Option<ExitStatus>),
 }
 
 pub const INSTRUCTIONS_LOOKUP: [Option<Instruction>; 256] = [
     Some(Instruction {
-        addressing_mode: Cpu::immediate,
-        operation: Cpu::brk,
+        addressing_mode: InstructionAddressingMode::NoMemoryNeeded(Cpu::immediate),
+        operation: InstructionOperation::MutableMemoryNeeded(Cpu::brk),
     }), // 0x00
     Some(Instruction {
-        addressing_mode: Cpu::indirect_x,
-        operation: Cpu::ora,
+        addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::indirect_x),
+        operation: InstructionOperation::MemoryNeeded(Cpu::ora),
     }), // 0x01
     None, // 0x02
     None, // 0x03
     None, // 0x04
     Some(Instruction {
-        addressing_mode: Cpu::zero_page,
-        operation: Cpu::ora,
+        addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::zero_page),
+        operation: InstructionOperation::MemoryNeeded(Cpu::ora),
     }), // 0x05
     Some(Instruction {
-        addressing_mode: Cpu::zero_page,
-        operation: Cpu::asl,
+        addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::zero_page),
+        operation: InstructionOperation::MutableMemoryNeeded(Cpu::asl),
     }), // 0x06
     None, // 0x07
     Some(Instruction {
-        addressing_mode: Cpu::implicit,
-        operation: Cpu::php,
+        addressing_mode: InstructionAddressingMode::NoMemoryNeeded(Cpu::implicit),
+        operation: InstructionOperation::MutableMemoryNeeded(Cpu::php),
     }), // 0x08
     Some(Instruction {
-        addressing_mode: Cpu::immediate,
-        operation: Cpu::ora,
+        addressing_mode: InstructionAddressingMode::NoMemoryNeeded(Cpu::immediate),
+        operation: InstructionOperation::MemoryNeeded(Cpu::ora),
     }), // 0x09
     Some(Instruction {
-        addressing_mode: Cpu::accumulator,
-        operation: Cpu::asl,
+        addressing_mode: InstructionAddressingMode::NoMemoryNeeded(Cpu::accumulator),
+        operation: InstructionOperation::MutableMemoryNeeded(Cpu::asl),
     }), // 0x0A
     None, // 0x0B
     None, // 0x0C
     Some(Instruction {
-        addressing_mode: Cpu::absolute,
-        operation: Cpu::ora,
+        addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::absolute),
+        operation: InstructionOperation::MemoryNeeded(Cpu::ora),
     }), // 0x0D
     Some(Instruction {
-        addressing_mode: Cpu::absolute,
-        operation: Cpu::asl,
+        addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::absolute),
+        operation: InstructionOperation::MutableMemoryNeeded(Cpu::asl),
     }), // 0x0E
     None, // 0x0F
     Some(Instruction {
-        addressing_mode: Cpu::relative,
-        operation: Cpu::bpl,
+        addressing_mode: InstructionAddressingMode::NoMemoryNeeded(Cpu::relative),
+        operation: InstructionOperation::MemoryNeeded(Cpu::bpl),
     }), // 0x10
     Some(Instruction {
-        addressing_mode: Cpu::indirect_y,
-        operation: Cpu::ora,
+        addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::indirect_y),
+        operation: InstructionOperation::MemoryNeeded(Cpu::ora),
     }), // 0x11
     None, // 0x12
     None, // 0x13
     None, // 0x14
     Some(Instruction {
-        addressing_mode: Cpu::zero_page_x,
-        operation: Cpu::ora,
+        addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::zero_page_x),
+        operation: InstructionOperation::MemoryNeeded(Cpu::ora),
     }), // 0x15
     Some(Instruction {
-        addressing_mode: Cpu::zero_page_x,
-        operation: Cpu::asl,
+        addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::zero_page_x),
+        operation: InstructionOperation::MutableMemoryNeeded(Cpu::asl),
     }), // 0x16
     None, // 0x17
     Some(Instruction {
-        addressing_mode: Cpu::implicit,
-        operation: Cpu::clc,
+        addressing_mode: InstructionAddressingMode::NoMemoryNeeded(Cpu::implicit),
+        operation: InstructionOperation::NoMemoryNeeded(Cpu::clc),
     }), // 0x18
     Some(Instruction {
-        addressing_mode: Cpu::absolute_y,
-        operation: Cpu::ora,
+        addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::absolute_y),
+        operation: InstructionOperation::MemoryNeeded(Cpu::ora),
     }), // 0x19
     None, // 0x1A
     None, // 0x1B
     None, // 0x1C
     Some(Instruction {
-        addressing_mode: Cpu::absolute_x,
-        operation: Cpu::ora,
+        addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::absolute_x),
+        operation: InstructionOperation::MemoryNeeded(Cpu::ora),
     }), // 0x1D
     Some(Instruction {
-        addressing_mode: Cpu::absolute_x,
-        operation: Cpu::asl,
+        addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::absolute_x),
+        operation: InstructionOperation::MutableMemoryNeeded(Cpu::asl),
     }), // 0x1E
     None, // 0x1F
     Some(Instruction {
-        addressing_mode: Cpu::absolute,
-        operation: Cpu::jsr,
+        addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::absolute),
+        operation: InstructionOperation::MutableMemoryNeeded(Cpu::jsr),
     }), // 0x20
     Some(Instruction {
-        addressing_mode: Cpu::indirect_x,
-        operation: Cpu::and,
+        addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::indirect_x),
+        operation: InstructionOperation::MemoryNeeded(Cpu::and),
     }), // 0x21
     None, // 0x22
     None, // 0x23
     Some(Instruction {
-        addressing_mode: Cpu::zero_page,
-        operation: Cpu::bit,
+        addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::zero_page),
+        operation: InstructionOperation::MemoryNeeded(Cpu::bit),
     }), // 0x24
     Some(Instruction {
-        addressing_mode: Cpu::zero_page,
-        operation: Cpu::and,
+        addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::zero_page),
+        operation: InstructionOperation::MemoryNeeded(Cpu::and),
     }), // 0x25
     Some(Instruction {
-        addressing_mode: Cpu::zero_page,
-        operation: Cpu::rol,
+        addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::zero_page),
+        operation: InstructionOperation::MutableMemoryNeeded(Cpu::rol),
     }), // 0x26
     None, // 0x27
     Some(Instruction {
-        addressing_mode: Cpu::implicit,
-        operation: Cpu::plp,
+        addressing_mode: InstructionAddressingMode::NoMemoryNeeded(Cpu::implicit),
+        operation: InstructionOperation::MutableMemoryNeeded(Cpu::plp),
     }), // 0x28
     Some(Instruction {
-        addressing_mode: Cpu::immediate,
-        operation: Cpu::and,
+        addressing_mode: InstructionAddressingMode::NoMemoryNeeded(Cpu::immediate),
+        operation: InstructionOperation::MemoryNeeded(Cpu::and),
     }), // 0x29
     Some(Instruction {
-        addressing_mode: Cpu::accumulator,
-        operation: Cpu::rol,
+        addressing_mode: InstructionAddressingMode::NoMemoryNeeded(Cpu::accumulator),
+        operation: InstructionOperation::MutableMemoryNeeded(Cpu::rol),
     }), // 0x2A
     None, // 0x2B
     Some(Instruction {
-        addressing_mode: Cpu::absolute,
-        operation: Cpu::bit,
+        addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::absolute),
+        operation: InstructionOperation::MemoryNeeded(Cpu::bit),
     }), // 0x2C
     Some(Instruction {
-        addressing_mode: Cpu::absolute,
-        operation: Cpu::and,
+        addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::absolute),
+        operation: InstructionOperation::MemoryNeeded(Cpu::and),
     }), // 0x2D
     Some(Instruction {
-        addressing_mode: Cpu::absolute,
-        operation: Cpu::rol,
+        addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::absolute),
+        operation: InstructionOperation::MutableMemoryNeeded(Cpu::rol),
     }), // 0x2E
     None, // 0x2F
     Some(Instruction {
-        addressing_mode: Cpu::relative,
-        operation: Cpu::bmi,
+        addressing_mode: InstructionAddressingMode::NoMemoryNeeded(Cpu::relative),
+        operation: InstructionOperation::MutableMemoryNeeded(Cpu::bmi),
     }), // 0x30
     Some(Instruction {
-        addressing_mode: Cpu::indirect_y,
-        operation: Cpu::and,
+        addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::indirect_y),
+        operation: InstructionOperation::MemoryNeeded(Cpu::and),
     }), // 0x31
     None, // 0x32
     None, // 0x33
     None, // 0x34
     Some(Instruction {
-        addressing_mode: Cpu::zero_page_x,
-        operation: Cpu::and,
+        addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::zero_page_x),
+        operation: InstructionOperation::MemoryNeeded(Cpu::and),
     }), // 0x35
     Some(Instruction {
-        addressing_mode: Cpu::zero_page_x,
-        operation: Cpu::rol,
+        addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::zero_page_x),
+        operation: InstructionOperation::MutableMemoryNeeded(Cpu::rol),
     }), // 0x36
     None, // 0x37
     Some(Instruction {
-        addressing_mode: Cpu::implicit,
-        operation: Cpu::sec,
+        addressing_mode: InstructionAddressingMode::NoMemoryNeeded(Cpu::implicit),
+        operation: InstructionOperation::NoMemoryNeeded(Cpu::sec),
     }), // 0x38
     Some(Instruction {
-        addressing_mode: Cpu::absolute_y,
-        operation: Cpu::and,
+        addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::absolute_y),
+        operation: InstructionOperation::MemoryNeeded(Cpu::and),
     }), // 0x39
     None, // 0x3A
     None, // 0x3B
     None, // 0x3C
     Some(Instruction {
-        addressing_mode: Cpu::absolute_x,
-        operation: Cpu::and,
+        addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::absolute_x),
+        operation: InstructionOperation::MemoryNeeded(Cpu::and),
     }), // 0x3D
     Some(Instruction {
-        addressing_mode: Cpu::absolute_x,
-        operation: Cpu::rol,
+        addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::absolute_x),
+        operation: InstructionOperation::MutableMemoryNeeded(Cpu::rol),
     }), // 0x3E
     None, // 0x3F
     Some(Instruction {
-        addressing_mode: Cpu::implicit,
-        operation: Cpu::rti,
+        addressing_mode: InstructionAddressingMode::NoMemoryNeeded(Cpu::implicit),
+        operation: InstructionOperation::MutableMemoryNeeded(Cpu::rti),
     }), // 0x40
     Some(Instruction {
-        addressing_mode: Cpu::indirect_x,
-        operation: Cpu::eor,
+        addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::indirect_x),
+        operation: InstructionOperation::MemoryNeeded(Cpu::eor),
     }), // 0x41
     None, // 0x42
     None, // 0x43
     None, // 0x44
     Some(Instruction {
-        addressing_mode: Cpu::zero_page,
-        operation: Cpu::eor,
+        addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::zero_page),
+        operation: InstructionOperation::MemoryNeeded(Cpu::eor),
     }), // 0x45
     Some(Instruction {
-        addressing_mode: Cpu::zero_page,
-        operation: Cpu::lsr,
+        addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::zero_page),
+        operation: InstructionOperation::MutableMemoryNeeded(Cpu::lsr),
     }), // 0x46
     None, // 0x47
     Some(Instruction {
-        addressing_mode: Cpu::implicit,
-        operation: Cpu::pha,
+        addressing_mode: InstructionAddressingMode::NoMemoryNeeded(Cpu::implicit),
+        operation: InstructionOperation::MutableMemoryNeeded(Cpu::pha),
     }), // 0x48
     Some(Instruction {
-        addressing_mode: Cpu::immediate,
-        operation: Cpu::eor,
+        addressing_mode: InstructionAddressingMode::NoMemoryNeeded(Cpu::immediate),
+        operation: InstructionOperation::MemoryNeeded(Cpu::eor),
     }), // 0x49
     Some(Instruction {
-        addressing_mode: Cpu::accumulator,
-        operation: Cpu::lsr,
+        addressing_mode: InstructionAddressingMode::NoMemoryNeeded(Cpu::accumulator),
+        operation: InstructionOperation::MutableMemoryNeeded(Cpu::lsr),
     }), // 0x4A
     None, // 0x4B
     Some(Instruction {
-        addressing_mode: Cpu::absolute,
-        operation: Cpu::jmp,
+        addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::absolute),
+        operation: InstructionOperation::NoMemoryNeeded(Cpu::jmp),
     }), // 0x4C
     Some(Instruction {
-        addressing_mode: Cpu::absolute,
-        operation: Cpu::eor,
+        addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::absolute),
+        operation: InstructionOperation::MemoryNeeded(Cpu::eor),
     }), // 0x4D
     Some(Instruction {
-        addressing_mode: Cpu::absolute,
-        operation: Cpu::lsr,
+        addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::absolute),
+        operation: InstructionOperation::MutableMemoryNeeded(Cpu::lsr),
     }), // 0x4E
     None, // 0x4F
     Some(Instruction {
-        addressing_mode: Cpu::relative,
-        operation: Cpu::bvc,
+        addressing_mode: InstructionAddressingMode::NoMemoryNeeded(Cpu::relative),
+        operation: InstructionOperation::MemoryNeeded(Cpu::bvc),
     }), // 0x50
     Some(Instruction {
-        addressing_mode: Cpu::indirect_y,
-        operation: Cpu::eor,
+        addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::indirect_y),
+        operation: InstructionOperation::MemoryNeeded(Cpu::eor),
     }), // 0x51
     None, // 0x52
     None, // 0x53
     None, // 0x54
     Some(Instruction {
-        addressing_mode: Cpu::zero_page_x,
-        operation: Cpu::eor,
+        addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::zero_page_x),
+        operation: InstructionOperation::MemoryNeeded(Cpu::eor),
     }), // 0x55
     Some(Instruction {
-        addressing_mode: Cpu::zero_page_x,
-        operation: Cpu::lsr,
+        addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::zero_page_x),
+        operation: InstructionOperation::MutableMemoryNeeded(Cpu::lsr),
     }), // 0x56
     None, // 0x57
     Some(Instruction {
-        addressing_mode: Cpu::implicit,
-        operation: Cpu::cli,
+        addressing_mode: InstructionAddressingMode::NoMemoryNeeded(Cpu::implicit),
+        operation: InstructionOperation::NoMemoryNeeded(Cpu::cli),
     }), // 0x58
     Some(Instruction {
-        addressing_mode: Cpu::absolute_y,
-        operation: Cpu::eor,
+        addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::absolute_y),
+        operation: InstructionOperation::MemoryNeeded(Cpu::eor),
     }), // 0x59
     None, // 0x5A
     None, // 0x5B
     None, // 0x5C
     Some(Instruction {
-        addressing_mode: Cpu::absolute_x,
-        operation: Cpu::eor,
+        addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::absolute_x),
+        operation: InstructionOperation::MemoryNeeded(Cpu::eor),
     }), // 0x5D
     Some(Instruction {
-        addressing_mode: Cpu::absolute_x,
-        operation: Cpu::lsr,
+        addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::absolute_x),
+        operation: InstructionOperation::MutableMemoryNeeded(Cpu::lsr),
     }), // 0x5E
     None, // 0x5F
     Some(Instruction {
-        addressing_mode: Cpu::implicit,
-        operation: Cpu::rts,
+        addressing_mode: InstructionAddressingMode::NoMemoryNeeded(Cpu::implicit),
+        operation: InstructionOperation::MutableMemoryNeeded(Cpu::rts),
     }), // 0x60
     Some(Instruction {
-        addressing_mode: Cpu::indirect_x,
-        operation: Cpu::adc,
+        addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::indirect_x),
+        operation: InstructionOperation::MemoryNeeded(Cpu::adc),
     }), // 0x61
     None, // 0x62
     None, // 0x63
     None, // 0x64
     Some(Instruction {
-        addressing_mode: Cpu::zero_page,
-        operation: Cpu::adc,
+        addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::zero_page),
+        operation: InstructionOperation::MemoryNeeded(Cpu::adc),
     }), // 0x65
     Some(Instruction {
-        addressing_mode: Cpu::zero_page,
-        operation: Cpu::ror,
+        addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::zero_page),
+        operation: InstructionOperation::MutableMemoryNeeded(Cpu::ror),
     }), // 0x66
     None, // 0x67
     Some(Instruction {
-        addressing_mode: Cpu::implicit,
-        operation: Cpu::pla,
+        addressing_mode: InstructionAddressingMode::NoMemoryNeeded(Cpu::implicit),
+        operation: InstructionOperation::MutableMemoryNeeded(Cpu::pla),
     }), // 0x68
     Some(Instruction {
-        addressing_mode: Cpu::immediate,
-        operation: Cpu::adc,
+        addressing_mode: InstructionAddressingMode::NoMemoryNeeded(Cpu::immediate),
+        operation: InstructionOperation::MemoryNeeded(Cpu::adc),
     }), // 0x69
     Some(Instruction {
-        addressing_mode: Cpu::accumulator,
-        operation: Cpu::ror,
+        addressing_mode: InstructionAddressingMode::NoMemoryNeeded(Cpu::accumulator),
+        operation: InstructionOperation::MutableMemoryNeeded(Cpu::ror),
     }), // 0x6A
     None, // 0x6B
     Some(Instruction {
-        addressing_mode: Cpu::indirect,
-        operation: Cpu::jmp,
+        addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::indirect),
+        operation: InstructionOperation::NoMemoryNeeded(Cpu::jmp),
     }), // 0x6C
     Some(Instruction {
-        addressing_mode: Cpu::absolute,
-        operation: Cpu::adc,
+        addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::absolute),
+        operation: InstructionOperation::MemoryNeeded(Cpu::adc),
     }), // 0x6D
     Some(Instruction {
-        addressing_mode: Cpu::absolute,
-        operation: Cpu::ror,
+        addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::absolute),
+        operation: InstructionOperation::MutableMemoryNeeded(Cpu::ror),
     }), // 0x6E
     None, // 0x6F
     Some(Instruction {
-        addressing_mode: Cpu::relative,
-        operation: Cpu::bvs,
+        addressing_mode: InstructionAddressingMode::NoMemoryNeeded(Cpu::relative),
+        operation: InstructionOperation::MemoryNeeded(Cpu::bvs),
     }), // 0x70
     Some(Instruction {
-        addressing_mode: Cpu::indirect_y,
-        operation: Cpu::adc,
+        addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::indirect_y),
+        operation: InstructionOperation::MemoryNeeded(Cpu::adc),
     }), // 0x71
     None, // 0x72
     None, // 0x73
     None, // 0x74
     Some(Instruction {
-        addressing_mode: Cpu::zero_page_x,
-        operation: Cpu::adc,
+        addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::zero_page_x),
+        operation: InstructionOperation::MemoryNeeded(Cpu::adc),
     }), // 0x75
     Some(Instruction {
-        addressing_mode: Cpu::zero_page_x,
-        operation: Cpu::ror,
+        addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::zero_page_x),
+        operation: InstructionOperation::MutableMemoryNeeded(Cpu::ror),
     }), // 0x76
     None, // 0x77
     Some(Instruction {
-        addressing_mode: Cpu::implicit,
-        operation: Cpu::sei,
+        addressing_mode: InstructionAddressingMode::NoMemoryNeeded(Cpu::implicit),
+        operation: InstructionOperation::NoMemoryNeeded(Cpu::sei),
     }), // 0x78
     Some(Instruction {
-        addressing_mode: Cpu::absolute_y,
-        operation: Cpu::adc,
+        addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::absolute_y),
+        operation: InstructionOperation::MemoryNeeded(Cpu::adc),
     }), // 0x79
     None, // 0x7A
     None, // 0x7B
     None, // 0x7C
     Some(Instruction {
-        addressing_mode: Cpu::absolute_x,
-        operation: Cpu::adc,
+        addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::absolute_x),
+        operation: InstructionOperation::MemoryNeeded(Cpu::adc),
     }), // 0x7D
     Some(Instruction {
-        addressing_mode: Cpu::absolute_x,
-        operation: Cpu::ror,
+        addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::absolute_x),
+        operation: InstructionOperation::MutableMemoryNeeded(Cpu::ror),
     }), // 0x7E
     None, // 0x7F
     None, // 0x80
     Some(Instruction {
-        addressing_mode: Cpu::indirect_x,
-        operation: Cpu::sta,
+        addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::indirect_x),
+        operation: InstructionOperation::MutableMemoryNeeded(Cpu::sta),
     }), // 0x81
     None, // 0x82
     None, // 0x83
     Some(Instruction {
-        addressing_mode: Cpu::zero_page,
-        operation: Cpu::sty,
+        addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::zero_page),
+        operation: InstructionOperation::MutableMemoryNeeded(Cpu::sty),
     }), // 0x84
     Some(Instruction {
-        addressing_mode: Cpu::zero_page,
-        operation: Cpu::sta,
+        addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::zero_page),
+        operation: InstructionOperation::MutableMemoryNeeded(Cpu::sta),
     }), // 0x85
     Some(Instruction {
-        addressing_mode: Cpu::zero_page,
-        operation: Cpu::stx,
+        addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::zero_page),
+        operation: InstructionOperation::MutableMemoryNeeded(Cpu::stx),
     }), // 0x86
     None, // 0x87
     Some(Instruction {
-        addressing_mode: Cpu::implicit,
-        operation: Cpu::dey,
+        addressing_mode: InstructionAddressingMode::NoMemoryNeeded(Cpu::implicit),
+        operation: InstructionOperation::NoMemoryNeeded(Cpu::dey),
     }), // 0x88
     None, // 0x89
     Some(Instruction {
-        addressing_mode: Cpu::implicit,
-        operation: Cpu::txa,
+        addressing_mode: InstructionAddressingMode::NoMemoryNeeded(Cpu::implicit),
+        operation: InstructionOperation::NoMemoryNeeded(Cpu::txa),
     }), // 0x8A
     None, // 0x8B
     Some(Instruction {
-        addressing_mode: Cpu::absolute,
-        operation: Cpu::sty,
+        addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::absolute),
+        operation: InstructionOperation::MutableMemoryNeeded(Cpu::sty),
     }), // 0x8C
     Some(Instruction {
-        addressing_mode: Cpu::absolute,
-        operation: Cpu::sta,
+        addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::absolute),
+        operation: InstructionOperation::MutableMemoryNeeded(Cpu::sta),
     }), // 0x8D
     Some(Instruction {
-        addressing_mode: Cpu::absolute,
-        operation: Cpu::stx,
+        addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::absolute),
+        operation: InstructionOperation::MutableMemoryNeeded(Cpu::stx),
     }), // 0x8E
     None, // 0x8F
     Some(Instruction {
-        addressing_mode: Cpu::relative,
-        operation: Cpu::bcc,
+        addressing_mode: InstructionAddressingMode::NoMemoryNeeded(Cpu::relative),
+        operation: InstructionOperation::MemoryNeeded(Cpu::bcc),
     }), // 0x90
     Some(Instruction {
-        addressing_mode: Cpu::indirect_y,
-        operation: Cpu::sta,
+        addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::indirect_y),
+        operation: InstructionOperation::MutableMemoryNeeded(Cpu::sta),
     }), // 0x91
     None, // 0x92
     None, // 0x93
     Some(Instruction {
-        addressing_mode: Cpu::zero_page_x,
-        operation: Cpu::sty,
+        addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::zero_page_x),
+        operation: InstructionOperation::MutableMemoryNeeded(Cpu::sty),
     }), // 0x94
     Some(Instruction {
-        addressing_mode: Cpu::zero_page_x,
-        operation: Cpu::sta,
+        addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::zero_page_x),
+        operation: InstructionOperation::MutableMemoryNeeded(Cpu::sta),
     }), // 0x95
     Some(Instruction {
-        addressing_mode: Cpu::zero_page_y,
-        operation: Cpu::stx,
+        addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::zero_page_y),
+        operation: InstructionOperation::MutableMemoryNeeded(Cpu::stx),
     }), // 0x96
     None, // 0x97
     Some(Instruction {
-        addressing_mode: Cpu::implicit,
-        operation: Cpu::tya,
+        addressing_mode: InstructionAddressingMode::NoMemoryNeeded(Cpu::implicit),
+        operation: InstructionOperation::NoMemoryNeeded(Cpu::tya),
     }), // 0x98
     Some(Instruction {
-        addressing_mode: Cpu::absolute_y,
-        operation: Cpu::sta,
+        addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::absolute_y),
+        operation: InstructionOperation::MutableMemoryNeeded(Cpu::sta),
     }), // 0x99
     Some(Instruction {
-        addressing_mode: Cpu::implicit,
-        operation: Cpu::txs,
+        addressing_mode: InstructionAddressingMode::NoMemoryNeeded(Cpu::implicit),
+        operation: InstructionOperation::NoMemoryNeeded(Cpu::txs),
     }), // 0x9A
     None, // 0x9B
     None, // 0x9C
     Some(Instruction {
-        addressing_mode: Cpu::absolute_x,
-        operation: Cpu::sta,
+        addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::absolute_x),
+        operation: InstructionOperation::MutableMemoryNeeded(Cpu::sta),
     }), // 0x9D
     None, // 0x9E
     None, // 0x9F
     Some(Instruction {
-        addressing_mode: Cpu::immediate,
-        operation: Cpu::ldy,
+        addressing_mode: InstructionAddressingMode::NoMemoryNeeded(Cpu::immediate),
+        operation: InstructionOperation::MemoryNeeded(Cpu::ldy),
     }), // 0xA0
     Some(Instruction {
-        addressing_mode: Cpu::indirect_x,
-        operation: Cpu::lda,
+        addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::indirect_x),
+        operation: InstructionOperation::MemoryNeeded(Cpu::lda),
     }), // 0xA1
     Some(Instruction {
-        addressing_mode: Cpu::immediate,
-        operation: Cpu::ldx,
+        addressing_mode: InstructionAddressingMode::NoMemoryNeeded(Cpu::immediate),
+        operation: InstructionOperation::MemoryNeeded(Cpu::ldx),
     }), // 0xA2
     None, // 0xA3
     Some(Instruction {
-        addressing_mode: Cpu::zero_page,
-        operation: Cpu::ldy,
+        addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::zero_page),
+        operation: InstructionOperation::MemoryNeeded(Cpu::ldy),
     }), // 0xA4
     Some(Instruction {
-        addressing_mode: Cpu::zero_page,
-        operation: Cpu::lda,
+        addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::zero_page),
+        operation: InstructionOperation::MemoryNeeded(Cpu::lda),
     }), // 0xA5
     Some(Instruction {
-        addressing_mode: Cpu::zero_page,
-        operation: Cpu::ldx,
+        addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::zero_page),
+        operation: InstructionOperation::MemoryNeeded(Cpu::ldx),
     }), // 0xA6
     None, // 0xA7
     Some(Instruction {
-        addressing_mode: Cpu::implicit,
-        operation: Cpu::tay,
+        addressing_mode: InstructionAddressingMode::NoMemoryNeeded(Cpu::implicit),
+        operation: InstructionOperation::NoMemoryNeeded(Cpu::tay),
     }), // 0xA8
     Some(Instruction {
-        addressing_mode: Cpu::immediate,
-        operation: Cpu::lda,
+        addressing_mode: InstructionAddressingMode::NoMemoryNeeded(Cpu::immediate),
+        operation: InstructionOperation::MemoryNeeded(Cpu::lda),
     }), // 0xA9
     Some(Instruction {
-        addressing_mode: Cpu::implicit,
-        operation: Cpu::tax,
+        addressing_mode: InstructionAddressingMode::NoMemoryNeeded(Cpu::implicit),
+        operation: InstructionOperation::NoMemoryNeeded(Cpu::tax),
     }), // 0xAA
     None, // 0xAB
     Some(Instruction {
-        addressing_mode: Cpu::absolute,
-        operation: Cpu::ldy,
+        addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::absolute),
+        operation: InstructionOperation::MemoryNeeded(Cpu::ldy),
     }), // 0xAC
     Some(Instruction {
-        addressing_mode: Cpu::absolute,
-        operation: Cpu::lda,
+        addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::absolute),
+        operation: InstructionOperation::MemoryNeeded(Cpu::lda),
     }), // 0xAD
     Some(Instruction {
-        addressing_mode: Cpu::absolute,
-        operation: Cpu::ldx,
+        addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::absolute),
+        operation: InstructionOperation::MemoryNeeded(Cpu::ldx),
     }), // 0xAE
     None, // 0xAF
     Some(Instruction {
-        addressing_mode: Cpu::relative,
-        operation: Cpu::bcs,
+        addressing_mode: InstructionAddressingMode::NoMemoryNeeded(Cpu::relative),
+        operation: InstructionOperation::MemoryNeeded(Cpu::bcs),
     }), // 0xB0
     Some(Instruction {
-        addressing_mode: Cpu::indirect_y,
-        operation: Cpu::lda,
+        addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::indirect_y),
+        operation: InstructionOperation::MemoryNeeded(Cpu::lda),
     }), // 0xB1
     None, // 0xB2
     None, // 0xB3
     Some(Instruction {
-        addressing_mode: Cpu::zero_page_x,
-        operation: Cpu::ldy,
+        addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::zero_page_x),
+        operation: InstructionOperation::MemoryNeeded(Cpu::ldy),
     }), // 0xB4
     Some(Instruction {
-        addressing_mode: Cpu::zero_page_x,
-        operation: Cpu::lda,
+        addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::zero_page_x),
+        operation: InstructionOperation::MemoryNeeded(Cpu::lda),
     }), // 0xB5
     Some(Instruction {
-        addressing_mode: Cpu::zero_page_y,
-        operation: Cpu::ldx,
+        addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::zero_page_y),
+        operation: InstructionOperation::MemoryNeeded(Cpu::ldx),
     }), // 0xB6
     None, // 0xB7
     Some(Instruction {
-        addressing_mode: Cpu::implicit,
-        operation: Cpu::clv,
+        addressing_mode: InstructionAddressingMode::NoMemoryNeeded(Cpu::implicit),
+        operation: InstructionOperation::NoMemoryNeeded(Cpu::clv),
     }), // 0xB8
     Some(Instruction {
-        addressing_mode: Cpu::absolute_y,
-        operation: Cpu::lda,
+        addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::absolute_y),
+        operation: InstructionOperation::MemoryNeeded(Cpu::lda),
     }), // 0xB9
     Some(Instruction {
-        addressing_mode: Cpu::absolute_y,
-        operation: Cpu::tsx,
+        addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::absolute_y),
+        operation: InstructionOperation::NoMemoryNeeded(Cpu::tsx),
     }), // 0xBA
     None, // 0xBB
     Some(Instruction {
-        addressing_mode: Cpu::absolute_x,
-        operation: Cpu::ldy,
+        addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::absolute_x),
+        operation: InstructionOperation::MemoryNeeded(Cpu::ldy),
     }), // 0xBC
     Some(Instruction {
-        addressing_mode: Cpu::absolute_x,
-        operation: Cpu::lda,
+        addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::absolute_x),
+        operation: InstructionOperation::MemoryNeeded(Cpu::lda),
     }), // 0xBD
     Some(Instruction {
-        addressing_mode: Cpu::absolute_y,
-        operation: Cpu::ldx,
+        addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::absolute_y),
+        operation: InstructionOperation::MemoryNeeded(Cpu::ldx),
     }), // 0xBE
     None, // 0xBF
     Some(Instruction {
-        addressing_mode: Cpu::immediate,
-        operation: Cpu::cpy,
+        addressing_mode: InstructionAddressingMode::NoMemoryNeeded(Cpu::immediate),
+        operation: InstructionOperation::MemoryNeeded(Cpu::cpy),
     }), // 0xC0
     Some(Instruction {
-        addressing_mode: Cpu::indirect_x,
-        operation: Cpu::cmp,
+        addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::indirect_x),
+        operation: InstructionOperation::MemoryNeeded(Cpu::cmp),
     }), // 0xC1
     None, // 0xC2
     None, // 0xC3
     Some(Instruction {
-        addressing_mode: Cpu::zero_page,
-        operation: Cpu::cpy,
+        addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::zero_page),
+        operation: InstructionOperation::MemoryNeeded(Cpu::cpy),
     }), // 0xC4
     Some(Instruction {
-        addressing_mode: Cpu::zero_page,
-        operation: Cpu::cmp,
+        addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::zero_page),
+        operation: InstructionOperation::MemoryNeeded(Cpu::cmp),
     }), // 0xC5
     Some(Instruction {
-        addressing_mode: Cpu::zero_page,
-        operation: Cpu::dec,
+        addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::zero_page),
+        operation: InstructionOperation::MutableMemoryNeeded(Cpu::dec),
     }), // 0xC6
     None, // 0xC7
     Some(Instruction {
-        addressing_mode: Cpu::implicit,
-        operation: Cpu::iny,
+        addressing_mode: InstructionAddressingMode::NoMemoryNeeded(Cpu::implicit),
+        operation: InstructionOperation::NoMemoryNeeded(Cpu::iny),
     }), // 0xC8
     Some(Instruction {
-        addressing_mode: Cpu::immediate,
-        operation: Cpu::cmp,
+        addressing_mode: InstructionAddressingMode::NoMemoryNeeded(Cpu::immediate),
+        operation: InstructionOperation::MemoryNeeded(Cpu::cmp),
     }), // 0xC9
     Some(Instruction {
-        addressing_mode: Cpu::implicit,
-        operation: Cpu::dex,
+        addressing_mode: InstructionAddressingMode::NoMemoryNeeded(Cpu::implicit),
+        operation: InstructionOperation::NoMemoryNeeded(Cpu::dex),
     }), // 0xCA
     None, // 0xCB
     Some(Instruction {
-        addressing_mode: Cpu::absolute,
-        operation: Cpu::cpy,
+        addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::absolute),
+        operation: InstructionOperation::MemoryNeeded(Cpu::cpy),
     }), // 0xCC
     Some(Instruction {
-        addressing_mode: Cpu::absolute,
-        operation: Cpu::cmp,
+        addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::absolute),
+        operation: InstructionOperation::MemoryNeeded(Cpu::cmp),
     }), // 0xCD
     Some(Instruction {
-        addressing_mode: Cpu::absolute,
-        operation: Cpu::dec,
+        addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::absolute),
+        operation: InstructionOperation::MutableMemoryNeeded(Cpu::dec),
     }), // 0xCE
     None, // 0xCF
     Some(Instruction {
-        addressing_mode: Cpu::relative,
-        operation: Cpu::bne,
+        addressing_mode: InstructionAddressingMode::NoMemoryNeeded(Cpu::relative),
+        operation: InstructionOperation::MemoryNeeded(Cpu::bne),
     }), // 0xD0
     Some(Instruction {
-        addressing_mode: Cpu::indirect_y,
-        operation: Cpu::cmp,
+        addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::indirect_y),
+        operation: InstructionOperation::MemoryNeeded(Cpu::cmp),
     }), // 0xD1
     None, // 0xD2
     None, // 0xD3
     None, // 0xD4
     Some(Instruction {
-        addressing_mode: Cpu::zero_page_x,
-        operation: Cpu::cmp,
+        addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::zero_page_x),
+        operation: InstructionOperation::MemoryNeeded(Cpu::cmp),
     }), // 0xD5
     Some(Instruction {
-        addressing_mode: Cpu::zero_page_x,
-        operation: Cpu::dec,
+        addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::zero_page_x),
+        operation: InstructionOperation::MutableMemoryNeeded(Cpu::dec),
     }), // 0xD6
     None, // 0xD7
     Some(Instruction {
-        addressing_mode: Cpu::implicit,
-        operation: Cpu::cld,
+        addressing_mode: InstructionAddressingMode::NoMemoryNeeded(Cpu::implicit),
+        operation: InstructionOperation::NoMemoryNeeded(Cpu::cld),
     }), // 0xD8
     Some(Instruction {
-        addressing_mode: Cpu::absolute_y,
-        operation: Cpu::cmp,
+        addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::absolute_y),
+        operation: InstructionOperation::MemoryNeeded(Cpu::cmp),
     }), // 0xD9
     None, // 0xDA
     None, // 0xDB
     None, // 0xDC
     Some(Instruction {
-        addressing_mode: Cpu::absolute_x,
-        operation: Cpu::cmp,
+        addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::absolute_x),
+        operation: InstructionOperation::MemoryNeeded(Cpu::cmp),
     }), // 0xDD
     Some(Instruction {
-        addressing_mode: Cpu::absolute_x,
-        operation: Cpu::dec,
+        addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::absolute_x),
+        operation: InstructionOperation::MutableMemoryNeeded(Cpu::dec),
     }), // 0xDE
     None, // 0xDF
     Some(Instruction {
-        addressing_mode: Cpu::immediate,
-        operation: Cpu::cpx,
+        addressing_mode: InstructionAddressingMode::NoMemoryNeeded(Cpu::immediate),
+        operation: InstructionOperation::MemoryNeeded(Cpu::cpx),
     }), // 0xE0
     Some(Instruction {
-        addressing_mode: Cpu::indirect_x,
-        operation: Cpu::sbc,
+        addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::indirect_x),
+        operation: InstructionOperation::MemoryNeeded(Cpu::sbc),
     }), // 0xE1
     None, // 0xE2
     None, // 0xE3
     Some(Instruction {
-        addressing_mode: Cpu::zero_page,
-        operation: Cpu::cpx,
+        addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::zero_page),
+        operation: InstructionOperation::MemoryNeeded(Cpu::cpx),
     }), // 0xE4
     Some(Instruction {
-        addressing_mode: Cpu::zero_page,
-        operation: Cpu::sbc,
+        addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::zero_page),
+        operation: InstructionOperation::MemoryNeeded(Cpu::sbc),
     }), // 0xE5
     Some(Instruction {
-        addressing_mode: Cpu::zero_page,
-        operation: Cpu::inc,
+        addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::zero_page),
+        operation: InstructionOperation::MutableMemoryNeeded(Cpu::inc),
     }), // 0xE6
     None, // 0xE7
     Some(Instruction {
-        addressing_mode: Cpu::implicit,
-        operation: Cpu::inx,
+        addressing_mode: InstructionAddressingMode::NoMemoryNeeded(Cpu::implicit),
+        operation: InstructionOperation::NoMemoryNeeded(Cpu::inx),
     }), // 0xE8
     Some(Instruction {
-        addressing_mode: Cpu::immediate,
-        operation: Cpu::sbc,
+        addressing_mode: InstructionAddressingMode::NoMemoryNeeded(Cpu::immediate),
+        operation: InstructionOperation::MemoryNeeded(Cpu::sbc),
     }), // 0xE9
     Some(Instruction {
-        addressing_mode: Cpu::implicit,
-        operation: Cpu::nop,
+        addressing_mode: InstructionAddressingMode::NoMemoryNeeded(Cpu::implicit),
+        operation: InstructionOperation::NoMemoryNeeded(Cpu::nop),
     }), // 0xEA
     None, // 0xEB
     Some(Instruction {
-        addressing_mode: Cpu::absolute,
-        operation: Cpu::cpx,
+        addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::absolute),
+        operation: InstructionOperation::MemoryNeeded(Cpu::cpx),
     }), // 0xEC
     Some(Instruction {
-        addressing_mode: Cpu::absolute,
-        operation: Cpu::sbc,
+        addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::absolute),
+        operation: InstructionOperation::MemoryNeeded(Cpu::sbc),
     }), // 0xED
     Some(Instruction {
-        addressing_mode: Cpu::absolute,
-        operation: Cpu::inc,
+        addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::absolute),
+        operation: InstructionOperation::MutableMemoryNeeded(Cpu::inc),
     }), // 0xEE
     None, // 0xEF
     Some(Instruction {
-        addressing_mode: Cpu::relative,
-        operation: Cpu::beq,
+        addressing_mode: InstructionAddressingMode::NoMemoryNeeded(Cpu::relative),
+        operation: InstructionOperation::MemoryNeeded(Cpu::beq),
     }), // 0xF0
     Some(Instruction {
-        addressing_mode: Cpu::indirect_y,
-        operation: Cpu::sbc,
+        addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::indirect_y),
+        operation: InstructionOperation::MemoryNeeded(Cpu::sbc),
     }), // 0xF1
     None, // 0xF2
     None, // 0xF3
     None, // 0xF4
     Some(Instruction {
-        addressing_mode: Cpu::zero_page_x,
-        operation: Cpu::sbc,
+        addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::zero_page_x),
+        operation: InstructionOperation::MemoryNeeded(Cpu::sbc),
     }), // 0xF5
     Some(Instruction {
-        addressing_mode: Cpu::zero_page_x,
-        operation: Cpu::inc,
+        addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::zero_page_x),
+        operation: InstructionOperation::MutableMemoryNeeded(Cpu::inc),
     }), // 0xF6
     None, // 0xF7
     Some(Instruction {
-        addressing_mode: Cpu::implicit,
-        operation: Cpu::sed,
+        addressing_mode: InstructionAddressingMode::NoMemoryNeeded(Cpu::implicit),
+        operation: InstructionOperation::NoMemoryNeeded(Cpu::sed),
     }), // 0xF8
     Some(Instruction {
-        addressing_mode: Cpu::absolute_y,
-        operation: Cpu::sbc,
+        addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::absolute_y),
+        operation: InstructionOperation::MemoryNeeded(Cpu::sbc),
     }), // 0xF9
     None, // 0xFA
     None, // 0xFB
     None, // 0xFC
     Some(Instruction {
-        addressing_mode: Cpu::absolute_x,
-        operation: Cpu::sbc,
+        addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::absolute_x),
+        operation: InstructionOperation::MemoryNeeded(Cpu::sbc),
     }), // 0xFD
     Some(Instruction {
-        addressing_mode: Cpu::absolute_x,
-        operation: Cpu::inc,
+        addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::absolute_x),
+        operation: InstructionOperation::MutableMemoryNeeded(Cpu::inc),
     }), // 0xFE
     None, // 0xFF
 ];
