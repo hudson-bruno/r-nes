@@ -21,17 +21,9 @@ impl Memory for Bus {
             0x2000..=0x3FFF => todo!("PPU registers not yet implemented"),
             0x4000..=0x4017 => todo!("APU/IO registers not yet implemented"),
             0x4018..=0x401F => todo!("APU/IO testing functionality not yet implemented"),
-            cartridge_addr @ 0x4020..=0xFFFF => match cartridge_addr {
-                0x6000..=0x7FFF => todo!("Cartridge ram functionality not yet implemented"),
-                0x8000..=0xFFFF => {
-                    match self.cartridge {
-                        Some(ref cartridge) => {
-                            cartridge.program_memory[(cartridge_addr & 0x7FFF) as usize]
-                        }
-                        None => (cartridge_addr >> 8) as u8, // Open bus
-                    }
-                }
-                _ => 0,
+            0x4020..=0xFFFF => match &self.cartridge {
+                Some(cartridge) => cartridge.read(addr),
+                None => (addr >> 8) as u8, // Open bus
             },
         }
     }
@@ -42,11 +34,11 @@ impl Memory for Bus {
             0x2000..=0x3FFF => todo!("PPU registers not yet implemented"),
             0x4000..=0x4017 => todo!("APU/IO registers not yet implemented"),
             0x4018..=0x401F => todo!("APU/IO testing functionality not yet implemented"),
-            cartridge_addr @ 0x4020..=0xFFFF => match cartridge_addr {
-                0x6000..=0x7FFF => todo!("Cartridge ram functionality not yet implemented"),
-                0x8000..=0xFFFF => todo!("Cartridge rom functionality not yet implemented"),
-                _ => (),
-            },
+            0x4020..=0xFFFF => {
+                if let Some(cartridge) = &mut self.cartridge {
+                    cartridge.write(addr, value)
+                }
+            }
         }
     }
 }
