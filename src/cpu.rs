@@ -66,13 +66,13 @@ impl Cpu {
 
     pub fn run(&mut self, mem: &mut Bus) -> ExitStatus {
         loop {
-            if let Some(err) = self.clock(mem) {
+            if let Some(err) = self.step(mem) {
                 return err;
             }
         }
     }
 
-    pub fn clock(&mut self, mem: &mut Bus) -> Option<ExitStatus> {
+    pub fn step(&mut self, mem: &mut Bus) -> Option<ExitStatus> {
         let op_code = mem.read(self.program_counter);
         self.program_counter += 1;
 

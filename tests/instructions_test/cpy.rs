@@ -9,7 +9,7 @@ fn test_cpy_immediate_status_carry() {
     let mut nes = Nes::new_with_cartridge(cartridge);
     nes.cpu.y_index_register = 0x02;
 
-    let result = nes.clock();
+    let result = nes.step();
 
     assert!(result.is_none());
     assert!(nes.cpu.status_register.contains(Status::CARRY));
@@ -24,7 +24,7 @@ fn test_cpy_immediate_status_zero() {
     let mut nes = Nes::new_with_cartridge(cartridge);
     nes.cpu.y_index_register = 0x01;
 
-    let result = nes.clock();
+    let result = nes.step();
 
     assert!(result.is_none());
     assert!(nes.cpu.status_register.contains(Status::ZERO));
@@ -39,7 +39,7 @@ fn test_cpy_immediate_status_negative() {
     let mut nes = Nes::new_with_cartridge(cartridge);
     nes.cpu.y_index_register = 0xFF;
 
-    let result = nes.clock();
+    let result = nes.step();
 
     assert!(result.is_none());
     assert!(nes.cpu.status_register.contains(Status::NEGATIVE));
@@ -55,7 +55,7 @@ fn test_cpy_zero_page_carry() {
     nes.cpu.y_index_register = 0x02;
     nes.bus.cpu_memory[0x0003] = 0x01;
 
-    let result = nes.clock();
+    let result = nes.step();
 
     assert!(result.is_none());
     assert!(nes.cpu.status_register.contains(Status::CARRY));
@@ -71,7 +71,7 @@ fn test_cpy_zero_page_zero() {
     nes.cpu.y_index_register = 0x01;
     nes.bus.cpu_memory[0x0003] = 0x01;
 
-    let result = nes.clock();
+    let result = nes.step();
 
     assert!(result.is_none());
     assert!(nes.cpu.status_register.contains(Status::ZERO));
@@ -87,7 +87,7 @@ fn test_cpy_zero_page_negative() {
     nes.cpu.y_index_register = 0xFF;
     nes.bus.cpu_memory[0x0003] = 0x01;
 
-    let result = nes.clock();
+    let result = nes.step();
 
     assert!(result.is_none());
     assert!(nes.cpu.status_register.contains(Status::NEGATIVE));
@@ -103,7 +103,7 @@ fn test_cpy_absolute_carry() {
     nes.cpu.y_index_register = 0x02;
     nes.bus.cpu_memory[0x07FF] = 0x01;
 
-    let result = nes.clock();
+    let result = nes.step();
 
     assert!(result.is_none());
     assert!(nes.cpu.status_register.contains(Status::CARRY));
@@ -119,7 +119,7 @@ fn test_cpy_absolute_zero() {
     nes.cpu.y_index_register = 0x01;
     nes.bus.cpu_memory[0x07FF] = 0x01;
 
-    let result = nes.clock();
+    let result = nes.step();
 
     assert!(result.is_none());
     assert!(nes.cpu.status_register.contains(Status::ZERO));
@@ -135,7 +135,7 @@ fn test_cpy_absolute_negative() {
     nes.cpu.y_index_register = 0xFF;
     nes.bus.cpu_memory[0x07FF] = 0x01;
 
-    let result = nes.clock();
+    let result = nes.step();
 
     assert!(result.is_none());
     assert!(nes.cpu.status_register.contains(Status::NEGATIVE));

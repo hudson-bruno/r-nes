@@ -33,8 +33,8 @@ impl Nes {
         self.cpu.run(&mut self.bus)
     }
 
-    pub fn clock(&mut self) -> Option<ExitStatus> {
-        self.cpu.clock(&mut self.bus)
+    pub fn step(&mut self) -> Option<ExitStatus> {
+        self.cpu.step(&mut self.bus)
     }
 
     pub fn reset(&mut self) {

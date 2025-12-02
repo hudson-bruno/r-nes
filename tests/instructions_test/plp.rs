@@ -1,6 +1,6 @@
 use r_nes::{
     cartridge::Cartridge,
-    cpu::{memory::stack::Stack, Status},
+    cpu::{Status, memory::stack::Stack},
     nes::Nes,
 };
 
@@ -16,7 +16,7 @@ fn test_plp() {
     let mut nes = Nes::new_with_cartridge(cartridge);
     nes.cpu.stack_push(&mut nes.bus, status_in_stack.bits());
 
-    let result = nes.clock();
+    let result = nes.step();
 
     let mut expected_status = Status::all();
     expected_status.remove(Status::BREAK);

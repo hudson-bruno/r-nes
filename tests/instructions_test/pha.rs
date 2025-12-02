@@ -1,8 +1,4 @@
-use r_nes::{
-    cartridge::Cartridge,
-    cpu::memory::stack::Stack,
-    nes::Nes,
-};
+use r_nes::{cartridge::Cartridge, cpu::memory::stack::Stack, nes::Nes};
 
 #[test]
 fn test_pha_implicit() {
@@ -13,7 +9,7 @@ fn test_pha_implicit() {
     let mut nes = Nes::new_with_cartridge(cartridge);
     nes.cpu.a_register = 0xFF;
 
-    let result = nes.clock();
+    let result = nes.step();
     let a_register_from_pha = nes.cpu.stack_pop(&mut nes.bus);
 
     assert!(result.is_none());

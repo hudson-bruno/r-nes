@@ -9,7 +9,7 @@ fn test_bcs() {
     let mut nes = Nes::new_with_cartridge(cartridge);
     nes.cpu.status_register.insert(Status::CARRY);
 
-    let result = nes.clock();
+    let result = nes.step();
 
     assert!(result.is_none());
     assert_eq!(nes.cpu.program_counter, 0x8002 + 0x7F);

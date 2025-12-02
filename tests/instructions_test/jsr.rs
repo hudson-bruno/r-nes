@@ -1,8 +1,4 @@
-use r_nes::{
-    cartridge::Cartridge,
-    cpu::memory::stack::Stack,
-    nes::Nes,
-};
+use r_nes::{cartridge::Cartridge, cpu::memory::stack::Stack, nes::Nes};
 
 #[test]
 fn test_jsr() {
@@ -11,7 +7,7 @@ fn test_jsr() {
     cartridge.program_memory[0x7FFC..=0x7FFD].copy_from_slice(&[0x00, 0x80]);
 
     let mut nes = Nes::new_with_cartridge(cartridge);
-    let result = nes.clock();
+    let result = nes.step();
     let pc_before_jsr = nes.cpu.stack_pop_address(&mut nes.bus);
 
     assert!(result.is_none());

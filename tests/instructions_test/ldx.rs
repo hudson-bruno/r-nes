@@ -7,7 +7,7 @@ fn test_ldx_immediate() {
     cartridge.program_memory[0x7FFC..=0x7FFD].copy_from_slice(&[0x00, 0x80]);
 
     let mut nes = Nes::new_with_cartridge(cartridge);
-    let result = nes.clock();
+    let result = nes.step();
 
     assert!(result.is_none());
     assert_eq!(nes.cpu.x_index_register, 0x01);
@@ -22,7 +22,7 @@ fn test_ldx_zero_page() {
     let mut nes = Nes::new_with_cartridge(cartridge);
     nes.bus.cpu_memory[0x0003] = 0x01;
 
-    let result = nes.clock();
+    let result = nes.step();
 
     assert!(result.is_none());
     assert_eq!(nes.cpu.x_index_register, 0x01);
@@ -38,7 +38,7 @@ fn test_ldx_zero_page_y() {
     nes.cpu.y_index_register = 0x01;
     nes.bus.cpu_memory[0x00FF] = 0x01;
 
-    let result = nes.clock();
+    let result = nes.step();
 
     assert!(result.is_none());
     assert_eq!(nes.cpu.x_index_register, 0x01);
@@ -54,7 +54,7 @@ fn test_ldx_zero_page_y_overflow() {
     nes.cpu.y_index_register = 0x04;
     nes.bus.cpu_memory[0x0003] = 0x01;
 
-    let result = nes.clock();
+    let result = nes.step();
 
     assert!(result.is_none());
     assert_eq!(nes.cpu.x_index_register, 0x01);
@@ -69,7 +69,7 @@ fn test_ldx_absolute() {
     let mut nes = Nes::new_with_cartridge(cartridge);
     nes.bus.cpu_memory[0x07FF] = 0x01;
 
-    let result = nes.clock();
+    let result = nes.step();
 
     assert!(result.is_none());
     assert_eq!(nes.cpu.x_index_register, 0x01);
@@ -85,7 +85,7 @@ fn test_ldx_absolute_y() {
     nes.cpu.y_index_register = 0x01;
     nes.bus.cpu_memory[0x07FF] = 0x01;
 
-    let result = nes.clock();
+    let result = nes.step();
 
     assert!(result.is_none());
     assert_eq!(nes.cpu.x_index_register, 0x01);
@@ -101,7 +101,7 @@ fn test_ldx_absolute_y_overflow() {
     nes.cpu.y_index_register = 0x05;
     nes.bus.cpu_memory[0x0004] = 0x01;
 
-    let result = nes.clock();
+    let result = nes.step();
 
     assert!(result.is_none());
     assert_eq!(nes.cpu.x_index_register, 0x01);

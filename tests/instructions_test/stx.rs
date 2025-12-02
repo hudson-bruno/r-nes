@@ -9,7 +9,7 @@ fn test_stx_zero_page() {
     let mut nes = Nes::new_with_cartridge(cartridge);
     nes.cpu.x_index_register = 0xFF;
 
-    let result = nes.clock();
+    let result = nes.step();
 
     assert!(result.is_none());
     assert_eq!(nes.bus.cpu_memory[0x0003], 0xFF);
@@ -25,7 +25,7 @@ fn test_stx_zero_page_y() {
     nes.cpu.x_index_register = 0xFF;
     nes.cpu.y_index_register = 0x01;
 
-    let result = nes.clock();
+    let result = nes.step();
 
     assert!(result.is_none());
     assert_eq!(nes.bus.cpu_memory[0x00FF], 0xFF);
@@ -41,7 +41,7 @@ fn test_stx_zero_page_y_overflow() {
     nes.cpu.x_index_register = 0xFF;
     nes.cpu.y_index_register = 0x04;
 
-    let result = nes.clock();
+    let result = nes.step();
 
     assert!(result.is_none());
     assert_eq!(nes.bus.cpu_memory[0x0003], 0xFF);
@@ -56,7 +56,7 @@ fn test_stx_absolute() {
     let mut nes = Nes::new_with_cartridge(cartridge);
     nes.cpu.x_index_register = 0xFF;
 
-    let result = nes.clock();
+    let result = nes.step();
 
     assert!(result.is_none());
     assert_eq!(nes.bus.cpu_memory[0x07FF], 0xFF);

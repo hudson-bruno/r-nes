@@ -1,8 +1,4 @@
-use r_nes::{
-    cartridge::Cartridge,
-    cpu::Status,
-    nes::Nes,
-};
+use r_nes::{cartridge::Cartridge, cpu::Status, nes::Nes};
 
 #[test]
 fn test_txa() {
@@ -13,7 +9,7 @@ fn test_txa() {
     let mut nes = Nes::new_with_cartridge(cartridge);
     nes.cpu.x_index_register = 0x01;
 
-    let result = nes.clock();
+    let result = nes.step();
 
     assert!(result.is_none());
     assert_eq!(nes.cpu.a_register, 0x01);
@@ -28,7 +24,7 @@ fn test_txa_status_zero() {
     let mut nes = Nes::new_with_cartridge(cartridge);
     nes.cpu.x_index_register = 0x00;
 
-    let result = nes.clock();
+    let result = nes.step();
 
     assert!(result.is_none());
     assert!(nes.cpu.status_register.contains(Status::ZERO));
@@ -44,7 +40,7 @@ fn test_txa_status_negative() {
     let mut nes = Nes::new_with_cartridge(cartridge);
     nes.cpu.x_index_register = 0xFF;
 
-    let result = nes.clock();
+    let result = nes.step();
 
     assert!(result.is_none());
     assert!(nes.cpu.status_register.contains(Status::NEGATIVE));

@@ -9,7 +9,7 @@ fn test_and_immediate() {
     let mut nes = Nes::new_with_cartridge(cartridge);
     nes.cpu.a_register = 0xAB;
 
-    let result = nes.clock();
+    let result = nes.step();
 
     assert!(result.is_none());
     assert_eq!(nes.cpu.a_register, 0xAB & 0xBA);
@@ -25,7 +25,7 @@ fn test_and_zero_page() {
     nes.cpu.a_register = 0xAB;
     nes.bus.cpu_memory[0x0003] = 0xBA;
 
-    let result = nes.clock();
+    let result = nes.step();
 
     assert!(result.is_none());
     assert_eq!(nes.cpu.a_register, 0xAB & 0xBA);
@@ -42,7 +42,7 @@ fn test_and_zero_page_x() {
     nes.cpu.x_index_register = 0x01;
     nes.bus.cpu_memory[0x00FF] = 0xBA;
 
-    let result = nes.clock();
+    let result = nes.step();
 
     assert!(result.is_none());
     assert_eq!(nes.cpu.a_register, 0xAB & 0xBA);
@@ -59,7 +59,7 @@ fn test_and_zero_page_x_overflow() {
     nes.cpu.x_index_register = 0x04;
     nes.bus.cpu_memory[0x0003] = 0xBA;
 
-    let result = nes.clock();
+    let result = nes.step();
 
     assert!(result.is_none());
     assert_eq!(nes.cpu.a_register, 0xAB & 0xBA);
@@ -75,7 +75,7 @@ fn test_and_absolute() {
     nes.cpu.a_register = 0xAB;
     nes.bus.cpu_memory[0x07FF] = 0xBA;
 
-    let result = nes.clock();
+    let result = nes.step();
 
     assert!(result.is_none());
     assert_eq!(nes.cpu.a_register, 0xAB & 0xBA);
@@ -92,7 +92,7 @@ fn test_and_absolute_x() {
     nes.cpu.x_index_register = 0x01;
     nes.bus.cpu_memory[0x07FF] = 0xBA;
 
-    let result = nes.clock();
+    let result = nes.step();
 
     assert!(result.is_none());
     assert_eq!(nes.cpu.a_register, 0xAB & 0xBA);
@@ -109,7 +109,7 @@ fn test_and_absolute_y() {
     nes.cpu.y_index_register = 0x01;
     nes.bus.cpu_memory[0x07FF] = 0xBA;
 
-    let result = nes.clock();
+    let result = nes.step();
 
     assert!(result.is_none());
     assert_eq!(nes.cpu.a_register, 0xAB & 0xBA);
@@ -127,7 +127,7 @@ fn test_and_indirect_x() {
     nes.bus.cpu_memory[0x0003..=0x0004].copy_from_slice(&[0xFF, 0x07]);
     nes.bus.cpu_memory[0x07FF] = 0xBA;
 
-    let result = nes.clock();
+    let result = nes.step();
 
     assert!(result.is_none());
     assert_eq!(nes.cpu.a_register, 0xAB & 0xBA);
@@ -145,7 +145,7 @@ fn test_and_indirect_x_overflow() {
     nes.bus.cpu_memory[0x0003..=0x0004].copy_from_slice(&[0xFF, 0x07]);
     nes.bus.cpu_memory[0x07FF] = 0xBA;
 
-    let result = nes.clock();
+    let result = nes.step();
 
     assert!(result.is_none());
     assert_eq!(nes.cpu.a_register, 0xAB & 0xBA);
@@ -163,7 +163,7 @@ fn test_and_indirect_y() {
     nes.bus.cpu_memory[0x0003..=0x0004].copy_from_slice(&[0xFE, 0x07]);
     nes.bus.cpu_memory[0x07FF] = 0xBA;
 
-    let result = nes.clock();
+    let result = nes.step();
 
     assert!(result.is_none());
     assert_eq!(nes.cpu.a_register, 0xAB & 0xBA);

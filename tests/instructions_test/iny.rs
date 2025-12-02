@@ -9,7 +9,7 @@ fn test_iny() {
     let mut nes = Nes::new_with_cartridge(cartridge);
     nes.cpu.y_index_register = 0x01;
 
-    let result = nes.clock();
+    let result = nes.step();
 
     assert!(result.is_none());
     assert_eq!(nes.cpu.y_index_register, 0x02);
@@ -24,7 +24,7 @@ fn test_iny_status_zero() {
     let mut nes = Nes::new_with_cartridge(cartridge);
     nes.cpu.y_index_register = 0xFF;
 
-    let result = nes.clock();
+    let result = nes.step();
 
     assert!(result.is_none());
     assert!(nes.cpu.status_register.contains(Status::ZERO));
@@ -40,7 +40,7 @@ fn test_iny_status_negative() {
     let mut nes = Nes::new_with_cartridge(cartridge);
     nes.cpu.y_index_register = 0xFE;
 
-    let result = nes.clock();
+    let result = nes.step();
 
     assert!(result.is_none());
     assert!(nes.cpu.status_register.contains(Status::NEGATIVE));

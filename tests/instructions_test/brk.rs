@@ -14,7 +14,7 @@ fn test_brk() {
     let mut nes = Nes::new_with_cartridge(cartridge);
     let status_before_brk = nes.cpu.status_register;
 
-    let result = nes.clock();
+    let result = nes.step();
 
     let status_from_brk = nes.cpu.stack_pop(&mut nes.bus);
     let error_program_counter = nes.cpu.stack_pop_address(&mut nes.bus);

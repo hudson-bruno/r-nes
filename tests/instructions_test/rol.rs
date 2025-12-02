@@ -9,7 +9,7 @@ fn test_rol_accumulator() {
     let mut nes = Nes::new_with_cartridge(cartridge);
     nes.cpu.a_register = 0xFF;
 
-    let result = nes.clock();
+    let result = nes.step();
 
     assert!(result.is_none());
     assert_eq!(nes.cpu.a_register, 0xFE);
@@ -23,7 +23,7 @@ fn test_rol_zero_page() {
 
     let mut nes = Nes::new_with_cartridge(cartridge);
     nes.bus.cpu_memory[0x0003] = 0xFF;
-    let result = nes.clock();
+    let result = nes.step();
 
     assert!(result.is_none());
     assert_eq!(nes.bus.cpu_memory[0x0003], 0xFE);
@@ -38,7 +38,7 @@ fn test_rol_zero_page_x() {
     let mut nes = Nes::new_with_cartridge(cartridge);
     nes.cpu.x_index_register = 0x01;
     nes.bus.cpu_memory[0x00FF] = 0xFF;
-    let result = nes.clock();
+    let result = nes.step();
 
     assert!(result.is_none());
     assert_eq!(nes.bus.cpu_memory[0x00FF], 0xFE);
@@ -53,7 +53,7 @@ fn test_rol_zero_page_x_overflow() {
     let mut nes = Nes::new_with_cartridge(cartridge);
     nes.cpu.x_index_register = 0x04;
     nes.bus.cpu_memory[0x0003] = 0xFF;
-    let result = nes.clock();
+    let result = nes.step();
 
     assert!(result.is_none());
     assert_eq!(nes.bus.cpu_memory[0x0003], 0xFE);
@@ -68,7 +68,7 @@ fn test_rol_absolute() {
     let mut nes = Nes::new_with_cartridge(cartridge);
     nes.bus.cpu_memory[0x07FF] = 0xFF;
 
-    let result = nes.clock();
+    let result = nes.step();
 
     assert!(result.is_none());
     assert_eq!(nes.bus.cpu_memory[0x07FF], 0xFE);
@@ -83,7 +83,7 @@ fn test_rol_absolute_x() {
     let mut nes = Nes::new_with_cartridge(cartridge);
     nes.cpu.x_index_register = 0x01;
     nes.bus.cpu_memory[0x07FF] = 0xFF;
-    let result = nes.clock();
+    let result = nes.step();
 
     assert!(result.is_none());
     assert_eq!(nes.bus.cpu_memory[0x07FF], 0xFE);
@@ -98,7 +98,7 @@ fn test_rol_absolute_x_overflow() {
     let mut nes = Nes::new_with_cartridge(cartridge);
     nes.cpu.x_index_register = 0x05;
     nes.bus.cpu_memory[0x0004] = 0xFF;
-    let result = nes.clock();
+    let result = nes.step();
 
     assert!(result.is_none());
     assert_eq!(nes.bus.cpu_memory[0x0004], 0xFE);

@@ -9,7 +9,7 @@ fn test_cmp_immediate_status_carry() {
     let mut nes = Nes::new_with_cartridge(cartridge);
     nes.cpu.a_register = 0x02;
 
-    let result = nes.clock();
+    let result = nes.step();
 
     assert!(result.is_none());
     assert!(nes.cpu.status_register.contains(Status::CARRY));
@@ -24,7 +24,7 @@ fn test_cmp_immediate_status_zero() {
     let mut nes = Nes::new_with_cartridge(cartridge);
     nes.cpu.a_register = 0x01;
 
-    let result = nes.clock();
+    let result = nes.step();
 
     assert!(result.is_none());
     assert!(nes.cpu.status_register.contains(Status::ZERO));
@@ -39,7 +39,7 @@ fn test_cmp_immediate_status_negative() {
     let mut nes = Nes::new_with_cartridge(cartridge);
     nes.cpu.a_register = 0xFF;
 
-    let result = nes.clock();
+    let result = nes.step();
 
     assert!(result.is_none());
     assert!(nes.cpu.status_register.contains(Status::NEGATIVE));
@@ -55,7 +55,7 @@ fn test_cmp_zero_page_carry() {
     nes.cpu.a_register = 0x02;
     nes.bus.cpu_memory[0x0003] = 0x01;
 
-    let result = nes.clock();
+    let result = nes.step();
 
     assert!(result.is_none());
     assert!(nes.cpu.status_register.contains(Status::CARRY));
@@ -71,7 +71,7 @@ fn test_cmp_zero_page_zero() {
     nes.cpu.a_register = 0x01;
     nes.bus.cpu_memory[0x0003] = 0x01;
 
-    let result = nes.clock();
+    let result = nes.step();
 
     assert!(result.is_none());
     assert!(nes.cpu.status_register.contains(Status::ZERO));
@@ -87,7 +87,7 @@ fn test_cmp_zero_page_negative() {
     nes.cpu.a_register = 0xFF;
     nes.bus.cpu_memory[0x0003] = 0x01;
 
-    let result = nes.clock();
+    let result = nes.step();
 
     assert!(result.is_none());
     assert!(nes.cpu.status_register.contains(Status::NEGATIVE));
@@ -104,7 +104,7 @@ fn test_cmp_zero_page_x_carry() {
     nes.cpu.x_index_register = 0x01;
     nes.bus.cpu_memory[0x00FF] = 0x01;
 
-    let result = nes.clock();
+    let result = nes.step();
 
     assert!(result.is_none());
     assert!(nes.cpu.status_register.contains(Status::CARRY));
@@ -121,7 +121,7 @@ fn test_cmp_zero_page_x_zero() {
     nes.cpu.x_index_register = 0x01;
     nes.bus.cpu_memory[0x00FF] = 0x01;
 
-    let result = nes.clock();
+    let result = nes.step();
 
     assert!(result.is_none());
     assert!(nes.cpu.status_register.contains(Status::ZERO));
@@ -138,7 +138,7 @@ fn test_cmp_zero_page_x_negative() {
     nes.cpu.x_index_register = 0x01;
     nes.bus.cpu_memory[0x00FF] = 0x01;
 
-    let result = nes.clock();
+    let result = nes.step();
 
     assert!(result.is_none());
     assert!(nes.cpu.status_register.contains(Status::NEGATIVE));
@@ -154,7 +154,7 @@ fn test_cmp_absolute_carry() {
     nes.cpu.a_register = 0x02;
     nes.bus.cpu_memory[0x07FF] = 0x01;
 
-    let result = nes.clock();
+    let result = nes.step();
 
     assert!(result.is_none());
     assert!(nes.cpu.status_register.contains(Status::CARRY));
@@ -170,7 +170,7 @@ fn test_cmp_absolute_zero() {
     nes.cpu.a_register = 0x01;
     nes.bus.cpu_memory[0x07FF] = 0x01;
 
-    let result = nes.clock();
+    let result = nes.step();
 
     assert!(result.is_none());
     assert!(nes.cpu.status_register.contains(Status::ZERO));
@@ -186,7 +186,7 @@ fn test_cmp_absolute_negative() {
     nes.cpu.a_register = 0xFF;
     nes.bus.cpu_memory[0x07FF] = 0x01;
 
-    let result = nes.clock();
+    let result = nes.step();
 
     assert!(result.is_none());
     assert!(nes.cpu.status_register.contains(Status::NEGATIVE));
@@ -203,7 +203,7 @@ fn test_cmp_absolute_x_carry() {
     nes.cpu.x_index_register = 0x01;
     nes.bus.cpu_memory[0x07FF] = 0x01;
 
-    let result = nes.clock();
+    let result = nes.step();
 
     assert!(result.is_none());
     assert!(nes.cpu.status_register.contains(Status::CARRY));
@@ -220,7 +220,7 @@ fn test_cmp_absolute_x_zero() {
     nes.cpu.x_index_register = 0x01;
     nes.bus.cpu_memory[0x07FF] = 0x01;
 
-    let result = nes.clock();
+    let result = nes.step();
 
     assert!(result.is_none());
     assert!(nes.cpu.status_register.contains(Status::ZERO));
@@ -237,7 +237,7 @@ fn test_cmp_absolute_x_negative() {
     nes.cpu.x_index_register = 0x01;
     nes.bus.cpu_memory[0x07FF] = 0x01;
 
-    let result = nes.clock();
+    let result = nes.step();
 
     assert!(result.is_none());
     assert!(nes.cpu.status_register.contains(Status::NEGATIVE));
@@ -254,7 +254,7 @@ fn test_cmp_absolute_y_carry() {
     nes.cpu.y_index_register = 0x01;
     nes.bus.cpu_memory[0x07FF] = 0x01;
 
-    let result = nes.clock();
+    let result = nes.step();
 
     assert!(result.is_none());
     assert!(nes.cpu.status_register.contains(Status::CARRY));
@@ -271,7 +271,7 @@ fn test_cmp_absolute_y_zero() {
     nes.cpu.y_index_register = 0x01;
     nes.bus.cpu_memory[0x07FF] = 0x01;
 
-    let result = nes.clock();
+    let result = nes.step();
 
     assert!(result.is_none());
     assert!(nes.cpu.status_register.contains(Status::ZERO));
@@ -288,7 +288,7 @@ fn test_cmp_absolute_y_negative() {
     nes.cpu.y_index_register = 0x01;
     nes.bus.cpu_memory[0x07FF] = 0x01;
 
-    let result = nes.clock();
+    let result = nes.step();
 
     assert!(result.is_none());
     assert!(nes.cpu.status_register.contains(Status::NEGATIVE));
@@ -306,7 +306,7 @@ fn test_cmp_indirect_x_carry() {
     nes.bus.cpu_memory[0x0003..=0x0004].copy_from_slice(&[0xFF, 0x07]);
     nes.bus.cpu_memory[0x07FF] = 0x01;
 
-    let result = nes.clock();
+    let result = nes.step();
 
     assert!(result.is_none());
     assert!(nes.cpu.status_register.contains(Status::CARRY));
@@ -324,7 +324,7 @@ fn test_cmp_indirect_x_zero() {
     nes.bus.cpu_memory[0x0003..=0x0004].copy_from_slice(&[0xFF, 0x07]);
     nes.bus.cpu_memory[0x07FF] = 0x01;
 
-    let result = nes.clock();
+    let result = nes.step();
 
     assert!(result.is_none());
     assert!(nes.cpu.status_register.contains(Status::ZERO));
@@ -342,7 +342,7 @@ fn test_cmp_indirect_x_negative() {
     nes.bus.cpu_memory[0x0003..=0x0004].copy_from_slice(&[0xFF, 0x07]);
     nes.bus.cpu_memory[0x07FF] = 0x01;
 
-    let result = nes.clock();
+    let result = nes.step();
 
     assert!(result.is_none());
     assert!(nes.cpu.status_register.contains(Status::NEGATIVE));
@@ -360,7 +360,7 @@ fn test_cmp_indirect_y_carry() {
     nes.bus.cpu_memory[0x0003..=0x0004].copy_from_slice(&[0xFE, 0x07]);
     nes.bus.cpu_memory[0x07FF] = 0x01;
 
-    let result = nes.clock();
+    let result = nes.step();
 
     assert!(result.is_none());
     assert!(nes.cpu.status_register.contains(Status::CARRY));
@@ -378,7 +378,7 @@ fn test_cmp_indirect_y_zero() {
     nes.bus.cpu_memory[0x0003..=0x0004].copy_from_slice(&[0xFE, 0x07]);
     nes.bus.cpu_memory[0x07FF] = 0x01;
 
-    let result = nes.clock();
+    let result = nes.step();
 
     assert!(result.is_none());
     assert!(nes.cpu.status_register.contains(Status::ZERO));
@@ -396,7 +396,7 @@ fn test_cmp_indirect_y_negative() {
     nes.bus.cpu_memory[0x0003..=0x0004].copy_from_slice(&[0xFE, 0x07]);
     nes.bus.cpu_memory[0x07FF] = 0x01;
 
-    let result = nes.clock();
+    let result = nes.step();
 
     assert!(result.is_none());
     assert!(nes.cpu.status_register.contains(Status::NEGATIVE));

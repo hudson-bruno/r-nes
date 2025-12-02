@@ -9,7 +9,7 @@ fn test_bit_zero_page_status_zero() {
     let mut nes = Nes::new_with_cartridge(cartridge);
     nes.cpu.a_register = 0b0011_1111;
     nes.bus.cpu_memory[0x0003] = 0b0000_0000;
-    let result = nes.clock();
+    let result = nes.step();
 
     assert!(result.is_none());
     assert!(nes.cpu.status_register.contains(Status::ZERO));
@@ -24,7 +24,7 @@ fn test_bit_zero_page_status_overflow() {
     let mut nes = Nes::new_with_cartridge(cartridge);
     nes.cpu.a_register = 0b0011_1111;
     nes.bus.cpu_memory[0x0003] = 0b0100_0001;
-    let result = nes.clock();
+    let result = nes.step();
 
     assert!(result.is_none());
     assert!(nes.cpu.status_register.contains(Status::OVERFLOW));
@@ -39,7 +39,7 @@ fn test_bit_zero_page_status_negative() {
     let mut nes = Nes::new_with_cartridge(cartridge);
     nes.cpu.a_register = 0b0011_1111;
     nes.bus.cpu_memory[0x0003] = 0b1000_0001;
-    let result = nes.clock();
+    let result = nes.step();
 
     assert!(result.is_none());
     assert!(nes.cpu.status_register.contains(Status::NEGATIVE));
@@ -55,7 +55,7 @@ fn test_bit_absolute_status_zero() {
     nes.cpu.a_register = 0b0011_1111;
     nes.bus.cpu_memory[0x07FF] = 0b0000_0000;
 
-    let result = nes.clock();
+    let result = nes.step();
 
     assert!(result.is_none());
     assert!(nes.cpu.status_register.contains(Status::ZERO));
@@ -71,7 +71,7 @@ fn test_bit_absolute_status_overflow() {
     nes.cpu.a_register = 0b0011_1111;
     nes.bus.cpu_memory[0x07FF] = 0b0100_0001;
 
-    let result = nes.clock();
+    let result = nes.step();
 
     assert!(result.is_none());
     assert!(nes.cpu.status_register.contains(Status::OVERFLOW));
@@ -87,7 +87,7 @@ fn test_bit_absolute_status_negative() {
     nes.cpu.a_register = 0b0011_1111;
     nes.bus.cpu_memory[0x07FF] = 0b1000_0001;
 
-    let result = nes.clock();
+    let result = nes.step();
 
     assert!(result.is_none());
     assert!(nes.cpu.status_register.contains(Status::NEGATIVE));

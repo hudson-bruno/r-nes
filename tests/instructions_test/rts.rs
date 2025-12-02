@@ -9,7 +9,7 @@ fn test_rts() {
     let mut nes = Nes::new_with_cartridge(cartridge);
     nes.cpu.stack_push_address(&mut nes.bus, 0x87FF);
 
-    let result = nes.clock();
+    let result = nes.step();
 
     assert!(result.is_none());
     assert_eq!(nes.cpu.program_counter, 0x8800);

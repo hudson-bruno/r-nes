@@ -1,6 +1,6 @@
 use r_nes::{
     cartridge::Cartridge,
-    cpu::{memory::stack::Stack, Status},
+    cpu::{Status, memory::stack::Stack},
     nes::Nes,
 };
 
@@ -14,7 +14,7 @@ fn test_php_implicit() {
     nes.cpu.status_register = Status::all();
     nes.cpu.status_register.remove(Status::BREAK);
 
-    let result = nes.clock();
+    let result = nes.step();
     let status_from_php = nes.cpu.stack_pop(&mut nes.bus);
 
     assert!(result.is_none());

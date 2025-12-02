@@ -9,7 +9,7 @@ fn test_inc_zero_page() {
     let mut nes = Nes::new_with_cartridge(cartridge);
     nes.bus.cpu_memory[0x0003] = 0x01;
 
-    let result = nes.clock();
+    let result = nes.step();
 
     assert!(result.is_none());
     assert_eq!(nes.bus.cpu_memory[0x0003], 0x02);
@@ -25,7 +25,7 @@ fn test_inc_zero_page_x() {
     nes.cpu.x_index_register = 0x01;
     nes.bus.cpu_memory[0x00FF] = 0x01;
 
-    let result = nes.clock();
+    let result = nes.step();
 
     assert!(result.is_none());
     assert_eq!(nes.bus.cpu_memory[0x00FF], 0x02);
@@ -41,7 +41,7 @@ fn test_inc_zero_page_x_overflow() {
     nes.cpu.x_index_register = 0x04;
     nes.bus.cpu_memory[0x0003] = 0x01;
 
-    let result = nes.clock();
+    let result = nes.step();
 
     assert!(result.is_none());
     assert_eq!(nes.bus.cpu_memory[0x0003], 0x02);
@@ -56,7 +56,7 @@ fn test_inc_absolute() {
     let mut nes = Nes::new_with_cartridge(cartridge);
     nes.bus.cpu_memory[0x07FF] = 0x01;
 
-    let result = nes.clock();
+    let result = nes.step();
 
     assert!(result.is_none());
     assert_eq!(nes.bus.cpu_memory[0x07FF], 0x02);
@@ -72,7 +72,7 @@ fn test_inc_absolute_x() {
     nes.cpu.x_index_register = 0x01;
     nes.bus.cpu_memory[0x07FF] = 0x01;
 
-    let result = nes.clock();
+    let result = nes.step();
 
     assert!(result.is_none());
     assert_eq!(nes.bus.cpu_memory[0x07FF], 0x02);

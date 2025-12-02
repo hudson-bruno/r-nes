@@ -8,7 +8,7 @@ fn test_cli() {
 
     let mut nes = Nes::new_with_cartridge(cartridge);
     nes.cpu.status_register.insert(Status::INTERRUPT);
-    let result = nes.clock();
+    let result = nes.step();
 
     assert!(result.is_none());
     assert!(!nes.cpu.status_register.contains(Status::INTERRUPT));
