@@ -1,8 +1,4 @@
-use std::{
-    fs::File,
-    io::{self, BufReader, Read},
-    path::Path,
-};
+use std::io::{self, Read, Write};
 
 use thiserror::Error;
 
@@ -18,10 +14,7 @@ pub struct INes {
 }
 
 impl INes {
-    pub fn load_from_path<P: AsRef<Path>>(path: P) -> Result<Self, INesError> {
-        let file = File::open(path)?;
-        let mut reader = BufReader::new(file);
-
+    pub fn load<R: Read>(reader: &mut R) -> Result<Self, INesError> {
         let mut raw_header: [u8; 16] = [0; 16];
         reader.read_exact(&mut raw_header)?;
 
@@ -48,6 +41,20 @@ impl INes {
             prg_rom,
             chr_rom,
         })
+    }
+
+    pub fn save<W: Write>(&self, writer: &mut W) -> Result<(), INesError> {
+        let raw_header: [u8; 16] = (&self.header).into();
+        writer.write_all(&raw_header)?;
+
+        if let Some(trainer) = self.trainer {
+            writer.write_all(&trainer)?;
+        }
+
+        writer.write_all(&self.prg_rom)?;
+        writer.write_all(&self.chr_rom)?;
+
+        Ok(())
     }
 }
 

@@ -1,4 +1,4 @@
-use std::path::Path;
+use std::io::Read;
 
 use thiserror::Error;
 
@@ -26,8 +26,8 @@ impl Cartridge {
         }
     }
 
-    pub fn load_from_path<P: AsRef<Path>>(path: P) -> Result<Self, INesError> {
-        let ines = INes::load_from_path(path)?;
+    pub fn load<R: Read>(reader: &mut R) -> Result<Self, INesError> {
+        let ines = INes::load(reader)?;
 
         Ok(ines.try_into().expect("mapper not supported"))
     }
