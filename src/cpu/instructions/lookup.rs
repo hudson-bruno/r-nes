@@ -13,12 +13,11 @@ pub struct Instruction {
 
 pub enum InstructionAddressingMode {
     NoMemoryNeeded(fn(&mut Cpu) -> OperandLocation),
-    MemoryNeeded(fn(&mut Cpu, &Bus) -> OperandLocation),
+    MemoryNeeded(fn(&mut Cpu, &mut Bus) -> OperandLocation),
 }
 
 pub enum InstructionOperation {
     NoMemoryNeeded(fn(&mut Cpu) -> Option<ExitStatus>),
-    MemoryNeeded(fn(&mut Cpu, &Bus) -> Option<ExitStatus>),
     MutableMemoryNeeded(fn(&mut Cpu, &mut Bus) -> Option<ExitStatus>),
 }
 
@@ -29,14 +28,14 @@ pub const INSTRUCTIONS_LOOKUP: [Option<Instruction>; 256] = [
     }), // 0x00
     Some(Instruction {
         addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::indirect_x),
-        operation: InstructionOperation::MemoryNeeded(Cpu::ora),
+        operation: InstructionOperation::MutableMemoryNeeded(Cpu::ora),
     }), // 0x01
     None, // 0x02
     None, // 0x03
     None, // 0x04
     Some(Instruction {
         addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::zero_page),
-        operation: InstructionOperation::MemoryNeeded(Cpu::ora),
+        operation: InstructionOperation::MutableMemoryNeeded(Cpu::ora),
     }), // 0x05
     Some(Instruction {
         addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::zero_page),
@@ -49,7 +48,7 @@ pub const INSTRUCTIONS_LOOKUP: [Option<Instruction>; 256] = [
     }), // 0x08
     Some(Instruction {
         addressing_mode: InstructionAddressingMode::NoMemoryNeeded(Cpu::immediate),
-        operation: InstructionOperation::MemoryNeeded(Cpu::ora),
+        operation: InstructionOperation::MutableMemoryNeeded(Cpu::ora),
     }), // 0x09
     Some(Instruction {
         addressing_mode: InstructionAddressingMode::NoMemoryNeeded(Cpu::accumulator),
@@ -59,7 +58,7 @@ pub const INSTRUCTIONS_LOOKUP: [Option<Instruction>; 256] = [
     None, // 0x0C
     Some(Instruction {
         addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::absolute),
-        operation: InstructionOperation::MemoryNeeded(Cpu::ora),
+        operation: InstructionOperation::MutableMemoryNeeded(Cpu::ora),
     }), // 0x0D
     Some(Instruction {
         addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::absolute),
@@ -68,18 +67,18 @@ pub const INSTRUCTIONS_LOOKUP: [Option<Instruction>; 256] = [
     None, // 0x0F
     Some(Instruction {
         addressing_mode: InstructionAddressingMode::NoMemoryNeeded(Cpu::relative),
-        operation: InstructionOperation::MemoryNeeded(Cpu::bpl),
+        operation: InstructionOperation::MutableMemoryNeeded(Cpu::bpl),
     }), // 0x10
     Some(Instruction {
         addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::indirect_y),
-        operation: InstructionOperation::MemoryNeeded(Cpu::ora),
+        operation: InstructionOperation::MutableMemoryNeeded(Cpu::ora),
     }), // 0x11
     None, // 0x12
     None, // 0x13
     None, // 0x14
     Some(Instruction {
         addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::zero_page_x),
-        operation: InstructionOperation::MemoryNeeded(Cpu::ora),
+        operation: InstructionOperation::MutableMemoryNeeded(Cpu::ora),
     }), // 0x15
     Some(Instruction {
         addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::zero_page_x),
@@ -92,14 +91,14 @@ pub const INSTRUCTIONS_LOOKUP: [Option<Instruction>; 256] = [
     }), // 0x18
     Some(Instruction {
         addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::absolute_y),
-        operation: InstructionOperation::MemoryNeeded(Cpu::ora),
+        operation: InstructionOperation::MutableMemoryNeeded(Cpu::ora),
     }), // 0x19
     None, // 0x1A
     None, // 0x1B
     None, // 0x1C
     Some(Instruction {
         addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::absolute_x),
-        operation: InstructionOperation::MemoryNeeded(Cpu::ora),
+        operation: InstructionOperation::MutableMemoryNeeded(Cpu::ora),
     }), // 0x1D
     Some(Instruction {
         addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::absolute_x),
@@ -112,17 +111,17 @@ pub const INSTRUCTIONS_LOOKUP: [Option<Instruction>; 256] = [
     }), // 0x20
     Some(Instruction {
         addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::indirect_x),
-        operation: InstructionOperation::MemoryNeeded(Cpu::and),
+        operation: InstructionOperation::MutableMemoryNeeded(Cpu::and),
     }), // 0x21
     None, // 0x22
     None, // 0x23
     Some(Instruction {
         addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::zero_page),
-        operation: InstructionOperation::MemoryNeeded(Cpu::bit),
+        operation: InstructionOperation::MutableMemoryNeeded(Cpu::bit),
     }), // 0x24
     Some(Instruction {
         addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::zero_page),
-        operation: InstructionOperation::MemoryNeeded(Cpu::and),
+        operation: InstructionOperation::MutableMemoryNeeded(Cpu::and),
     }), // 0x25
     Some(Instruction {
         addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::zero_page),
@@ -135,7 +134,7 @@ pub const INSTRUCTIONS_LOOKUP: [Option<Instruction>; 256] = [
     }), // 0x28
     Some(Instruction {
         addressing_mode: InstructionAddressingMode::NoMemoryNeeded(Cpu::immediate),
-        operation: InstructionOperation::MemoryNeeded(Cpu::and),
+        operation: InstructionOperation::MutableMemoryNeeded(Cpu::and),
     }), // 0x29
     Some(Instruction {
         addressing_mode: InstructionAddressingMode::NoMemoryNeeded(Cpu::accumulator),
@@ -144,11 +143,11 @@ pub const INSTRUCTIONS_LOOKUP: [Option<Instruction>; 256] = [
     None, // 0x2B
     Some(Instruction {
         addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::absolute),
-        operation: InstructionOperation::MemoryNeeded(Cpu::bit),
+        operation: InstructionOperation::MutableMemoryNeeded(Cpu::bit),
     }), // 0x2C
     Some(Instruction {
         addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::absolute),
-        operation: InstructionOperation::MemoryNeeded(Cpu::and),
+        operation: InstructionOperation::MutableMemoryNeeded(Cpu::and),
     }), // 0x2D
     Some(Instruction {
         addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::absolute),
@@ -161,14 +160,14 @@ pub const INSTRUCTIONS_LOOKUP: [Option<Instruction>; 256] = [
     }), // 0x30
     Some(Instruction {
         addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::indirect_y),
-        operation: InstructionOperation::MemoryNeeded(Cpu::and),
+        operation: InstructionOperation::MutableMemoryNeeded(Cpu::and),
     }), // 0x31
     None, // 0x32
     None, // 0x33
     None, // 0x34
     Some(Instruction {
         addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::zero_page_x),
-        operation: InstructionOperation::MemoryNeeded(Cpu::and),
+        operation: InstructionOperation::MutableMemoryNeeded(Cpu::and),
     }), // 0x35
     Some(Instruction {
         addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::zero_page_x),
@@ -181,14 +180,14 @@ pub const INSTRUCTIONS_LOOKUP: [Option<Instruction>; 256] = [
     }), // 0x38
     Some(Instruction {
         addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::absolute_y),
-        operation: InstructionOperation::MemoryNeeded(Cpu::and),
+        operation: InstructionOperation::MutableMemoryNeeded(Cpu::and),
     }), // 0x39
     None, // 0x3A
     None, // 0x3B
     None, // 0x3C
     Some(Instruction {
         addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::absolute_x),
-        operation: InstructionOperation::MemoryNeeded(Cpu::and),
+        operation: InstructionOperation::MutableMemoryNeeded(Cpu::and),
     }), // 0x3D
     Some(Instruction {
         addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::absolute_x),
@@ -201,14 +200,14 @@ pub const INSTRUCTIONS_LOOKUP: [Option<Instruction>; 256] = [
     }), // 0x40
     Some(Instruction {
         addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::indirect_x),
-        operation: InstructionOperation::MemoryNeeded(Cpu::eor),
+        operation: InstructionOperation::MutableMemoryNeeded(Cpu::eor),
     }), // 0x41
     None, // 0x42
     None, // 0x43
     None, // 0x44
     Some(Instruction {
         addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::zero_page),
-        operation: InstructionOperation::MemoryNeeded(Cpu::eor),
+        operation: InstructionOperation::MutableMemoryNeeded(Cpu::eor),
     }), // 0x45
     Some(Instruction {
         addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::zero_page),
@@ -221,7 +220,7 @@ pub const INSTRUCTIONS_LOOKUP: [Option<Instruction>; 256] = [
     }), // 0x48
     Some(Instruction {
         addressing_mode: InstructionAddressingMode::NoMemoryNeeded(Cpu::immediate),
-        operation: InstructionOperation::MemoryNeeded(Cpu::eor),
+        operation: InstructionOperation::MutableMemoryNeeded(Cpu::eor),
     }), // 0x49
     Some(Instruction {
         addressing_mode: InstructionAddressingMode::NoMemoryNeeded(Cpu::accumulator),
@@ -234,7 +233,7 @@ pub const INSTRUCTIONS_LOOKUP: [Option<Instruction>; 256] = [
     }), // 0x4C
     Some(Instruction {
         addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::absolute),
-        operation: InstructionOperation::MemoryNeeded(Cpu::eor),
+        operation: InstructionOperation::MutableMemoryNeeded(Cpu::eor),
     }), // 0x4D
     Some(Instruction {
         addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::absolute),
@@ -243,18 +242,18 @@ pub const INSTRUCTIONS_LOOKUP: [Option<Instruction>; 256] = [
     None, // 0x4F
     Some(Instruction {
         addressing_mode: InstructionAddressingMode::NoMemoryNeeded(Cpu::relative),
-        operation: InstructionOperation::MemoryNeeded(Cpu::bvc),
+        operation: InstructionOperation::MutableMemoryNeeded(Cpu::bvc),
     }), // 0x50
     Some(Instruction {
         addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::indirect_y),
-        operation: InstructionOperation::MemoryNeeded(Cpu::eor),
+        operation: InstructionOperation::MutableMemoryNeeded(Cpu::eor),
     }), // 0x51
     None, // 0x52
     None, // 0x53
     None, // 0x54
     Some(Instruction {
         addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::zero_page_x),
-        operation: InstructionOperation::MemoryNeeded(Cpu::eor),
+        operation: InstructionOperation::MutableMemoryNeeded(Cpu::eor),
     }), // 0x55
     Some(Instruction {
         addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::zero_page_x),
@@ -267,14 +266,14 @@ pub const INSTRUCTIONS_LOOKUP: [Option<Instruction>; 256] = [
     }), // 0x58
     Some(Instruction {
         addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::absolute_y),
-        operation: InstructionOperation::MemoryNeeded(Cpu::eor),
+        operation: InstructionOperation::MutableMemoryNeeded(Cpu::eor),
     }), // 0x59
     None, // 0x5A
     None, // 0x5B
     None, // 0x5C
     Some(Instruction {
         addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::absolute_x),
-        operation: InstructionOperation::MemoryNeeded(Cpu::eor),
+        operation: InstructionOperation::MutableMemoryNeeded(Cpu::eor),
     }), // 0x5D
     Some(Instruction {
         addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::absolute_x),
@@ -287,14 +286,14 @@ pub const INSTRUCTIONS_LOOKUP: [Option<Instruction>; 256] = [
     }), // 0x60
     Some(Instruction {
         addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::indirect_x),
-        operation: InstructionOperation::MemoryNeeded(Cpu::adc),
+        operation: InstructionOperation::MutableMemoryNeeded(Cpu::adc),
     }), // 0x61
     None, // 0x62
     None, // 0x63
     None, // 0x64
     Some(Instruction {
         addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::zero_page),
-        operation: InstructionOperation::MemoryNeeded(Cpu::adc),
+        operation: InstructionOperation::MutableMemoryNeeded(Cpu::adc),
     }), // 0x65
     Some(Instruction {
         addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::zero_page),
@@ -307,7 +306,7 @@ pub const INSTRUCTIONS_LOOKUP: [Option<Instruction>; 256] = [
     }), // 0x68
     Some(Instruction {
         addressing_mode: InstructionAddressingMode::NoMemoryNeeded(Cpu::immediate),
-        operation: InstructionOperation::MemoryNeeded(Cpu::adc),
+        operation: InstructionOperation::MutableMemoryNeeded(Cpu::adc),
     }), // 0x69
     Some(Instruction {
         addressing_mode: InstructionAddressingMode::NoMemoryNeeded(Cpu::accumulator),
@@ -320,7 +319,7 @@ pub const INSTRUCTIONS_LOOKUP: [Option<Instruction>; 256] = [
     }), // 0x6C
     Some(Instruction {
         addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::absolute),
-        operation: InstructionOperation::MemoryNeeded(Cpu::adc),
+        operation: InstructionOperation::MutableMemoryNeeded(Cpu::adc),
     }), // 0x6D
     Some(Instruction {
         addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::absolute),
@@ -329,18 +328,18 @@ pub const INSTRUCTIONS_LOOKUP: [Option<Instruction>; 256] = [
     None, // 0x6F
     Some(Instruction {
         addressing_mode: InstructionAddressingMode::NoMemoryNeeded(Cpu::relative),
-        operation: InstructionOperation::MemoryNeeded(Cpu::bvs),
+        operation: InstructionOperation::MutableMemoryNeeded(Cpu::bvs),
     }), // 0x70
     Some(Instruction {
         addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::indirect_y),
-        operation: InstructionOperation::MemoryNeeded(Cpu::adc),
+        operation: InstructionOperation::MutableMemoryNeeded(Cpu::adc),
     }), // 0x71
     None, // 0x72
     None, // 0x73
     None, // 0x74
     Some(Instruction {
         addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::zero_page_x),
-        operation: InstructionOperation::MemoryNeeded(Cpu::adc),
+        operation: InstructionOperation::MutableMemoryNeeded(Cpu::adc),
     }), // 0x75
     Some(Instruction {
         addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::zero_page_x),
@@ -353,14 +352,14 @@ pub const INSTRUCTIONS_LOOKUP: [Option<Instruction>; 256] = [
     }), // 0x78
     Some(Instruction {
         addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::absolute_y),
-        operation: InstructionOperation::MemoryNeeded(Cpu::adc),
+        operation: InstructionOperation::MutableMemoryNeeded(Cpu::adc),
     }), // 0x79
     None, // 0x7A
     None, // 0x7B
     None, // 0x7C
     Some(Instruction {
         addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::absolute_x),
-        operation: InstructionOperation::MemoryNeeded(Cpu::adc),
+        operation: InstructionOperation::MutableMemoryNeeded(Cpu::adc),
     }), // 0x7D
     Some(Instruction {
         addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::absolute_x),
@@ -412,7 +411,7 @@ pub const INSTRUCTIONS_LOOKUP: [Option<Instruction>; 256] = [
     None, // 0x8F
     Some(Instruction {
         addressing_mode: InstructionAddressingMode::NoMemoryNeeded(Cpu::relative),
-        operation: InstructionOperation::MemoryNeeded(Cpu::bcc),
+        operation: InstructionOperation::MutableMemoryNeeded(Cpu::bcc),
     }), // 0x90
     Some(Instruction {
         addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::indirect_y),
@@ -455,28 +454,28 @@ pub const INSTRUCTIONS_LOOKUP: [Option<Instruction>; 256] = [
     None, // 0x9F
     Some(Instruction {
         addressing_mode: InstructionAddressingMode::NoMemoryNeeded(Cpu::immediate),
-        operation: InstructionOperation::MemoryNeeded(Cpu::ldy),
+        operation: InstructionOperation::MutableMemoryNeeded(Cpu::ldy),
     }), // 0xA0
     Some(Instruction {
         addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::indirect_x),
-        operation: InstructionOperation::MemoryNeeded(Cpu::lda),
+        operation: InstructionOperation::MutableMemoryNeeded(Cpu::lda),
     }), // 0xA1
     Some(Instruction {
         addressing_mode: InstructionAddressingMode::NoMemoryNeeded(Cpu::immediate),
-        operation: InstructionOperation::MemoryNeeded(Cpu::ldx),
+        operation: InstructionOperation::MutableMemoryNeeded(Cpu::ldx),
     }), // 0xA2
     None, // 0xA3
     Some(Instruction {
         addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::zero_page),
-        operation: InstructionOperation::MemoryNeeded(Cpu::ldy),
+        operation: InstructionOperation::MutableMemoryNeeded(Cpu::ldy),
     }), // 0xA4
     Some(Instruction {
         addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::zero_page),
-        operation: InstructionOperation::MemoryNeeded(Cpu::lda),
+        operation: InstructionOperation::MutableMemoryNeeded(Cpu::lda),
     }), // 0xA5
     Some(Instruction {
         addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::zero_page),
-        operation: InstructionOperation::MemoryNeeded(Cpu::ldx),
+        operation: InstructionOperation::MutableMemoryNeeded(Cpu::ldx),
     }), // 0xA6
     None, // 0xA7
     Some(Instruction {
@@ -485,7 +484,7 @@ pub const INSTRUCTIONS_LOOKUP: [Option<Instruction>; 256] = [
     }), // 0xA8
     Some(Instruction {
         addressing_mode: InstructionAddressingMode::NoMemoryNeeded(Cpu::immediate),
-        operation: InstructionOperation::MemoryNeeded(Cpu::lda),
+        operation: InstructionOperation::MutableMemoryNeeded(Cpu::lda),
     }), // 0xA9
     Some(Instruction {
         addressing_mode: InstructionAddressingMode::NoMemoryNeeded(Cpu::implicit),
@@ -494,38 +493,38 @@ pub const INSTRUCTIONS_LOOKUP: [Option<Instruction>; 256] = [
     None, // 0xAB
     Some(Instruction {
         addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::absolute),
-        operation: InstructionOperation::MemoryNeeded(Cpu::ldy),
+        operation: InstructionOperation::MutableMemoryNeeded(Cpu::ldy),
     }), // 0xAC
     Some(Instruction {
         addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::absolute),
-        operation: InstructionOperation::MemoryNeeded(Cpu::lda),
+        operation: InstructionOperation::MutableMemoryNeeded(Cpu::lda),
     }), // 0xAD
     Some(Instruction {
         addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::absolute),
-        operation: InstructionOperation::MemoryNeeded(Cpu::ldx),
+        operation: InstructionOperation::MutableMemoryNeeded(Cpu::ldx),
     }), // 0xAE
     None, // 0xAF
     Some(Instruction {
         addressing_mode: InstructionAddressingMode::NoMemoryNeeded(Cpu::relative),
-        operation: InstructionOperation::MemoryNeeded(Cpu::bcs),
+        operation: InstructionOperation::MutableMemoryNeeded(Cpu::bcs),
     }), // 0xB0
     Some(Instruction {
         addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::indirect_y),
-        operation: InstructionOperation::MemoryNeeded(Cpu::lda),
+        operation: InstructionOperation::MutableMemoryNeeded(Cpu::lda),
     }), // 0xB1
     None, // 0xB2
     None, // 0xB3
     Some(Instruction {
         addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::zero_page_x),
-        operation: InstructionOperation::MemoryNeeded(Cpu::ldy),
+        operation: InstructionOperation::MutableMemoryNeeded(Cpu::ldy),
     }), // 0xB4
     Some(Instruction {
         addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::zero_page_x),
-        operation: InstructionOperation::MemoryNeeded(Cpu::lda),
+        operation: InstructionOperation::MutableMemoryNeeded(Cpu::lda),
     }), // 0xB5
     Some(Instruction {
         addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::zero_page_y),
-        operation: InstructionOperation::MemoryNeeded(Cpu::ldx),
+        operation: InstructionOperation::MutableMemoryNeeded(Cpu::ldx),
     }), // 0xB6
     None, // 0xB7
     Some(Instruction {
@@ -534,7 +533,7 @@ pub const INSTRUCTIONS_LOOKUP: [Option<Instruction>; 256] = [
     }), // 0xB8
     Some(Instruction {
         addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::absolute_y),
-        operation: InstructionOperation::MemoryNeeded(Cpu::lda),
+        operation: InstructionOperation::MutableMemoryNeeded(Cpu::lda),
     }), // 0xB9
     Some(Instruction {
         addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::absolute_y),
@@ -543,34 +542,34 @@ pub const INSTRUCTIONS_LOOKUP: [Option<Instruction>; 256] = [
     None, // 0xBB
     Some(Instruction {
         addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::absolute_x),
-        operation: InstructionOperation::MemoryNeeded(Cpu::ldy),
+        operation: InstructionOperation::MutableMemoryNeeded(Cpu::ldy),
     }), // 0xBC
     Some(Instruction {
         addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::absolute_x),
-        operation: InstructionOperation::MemoryNeeded(Cpu::lda),
+        operation: InstructionOperation::MutableMemoryNeeded(Cpu::lda),
     }), // 0xBD
     Some(Instruction {
         addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::absolute_y),
-        operation: InstructionOperation::MemoryNeeded(Cpu::ldx),
+        operation: InstructionOperation::MutableMemoryNeeded(Cpu::ldx),
     }), // 0xBE
     None, // 0xBF
     Some(Instruction {
         addressing_mode: InstructionAddressingMode::NoMemoryNeeded(Cpu::immediate),
-        operation: InstructionOperation::MemoryNeeded(Cpu::cpy),
+        operation: InstructionOperation::MutableMemoryNeeded(Cpu::cpy),
     }), // 0xC0
     Some(Instruction {
         addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::indirect_x),
-        operation: InstructionOperation::MemoryNeeded(Cpu::cmp),
+        operation: InstructionOperation::MutableMemoryNeeded(Cpu::cmp),
     }), // 0xC1
     None, // 0xC2
     None, // 0xC3
     Some(Instruction {
         addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::zero_page),
-        operation: InstructionOperation::MemoryNeeded(Cpu::cpy),
+        operation: InstructionOperation::MutableMemoryNeeded(Cpu::cpy),
     }), // 0xC4
     Some(Instruction {
         addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::zero_page),
-        operation: InstructionOperation::MemoryNeeded(Cpu::cmp),
+        operation: InstructionOperation::MutableMemoryNeeded(Cpu::cmp),
     }), // 0xC5
     Some(Instruction {
         addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::zero_page),
@@ -583,7 +582,7 @@ pub const INSTRUCTIONS_LOOKUP: [Option<Instruction>; 256] = [
     }), // 0xC8
     Some(Instruction {
         addressing_mode: InstructionAddressingMode::NoMemoryNeeded(Cpu::immediate),
-        operation: InstructionOperation::MemoryNeeded(Cpu::cmp),
+        operation: InstructionOperation::MutableMemoryNeeded(Cpu::cmp),
     }), // 0xC9
     Some(Instruction {
         addressing_mode: InstructionAddressingMode::NoMemoryNeeded(Cpu::implicit),
@@ -592,11 +591,11 @@ pub const INSTRUCTIONS_LOOKUP: [Option<Instruction>; 256] = [
     None, // 0xCB
     Some(Instruction {
         addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::absolute),
-        operation: InstructionOperation::MemoryNeeded(Cpu::cpy),
+        operation: InstructionOperation::MutableMemoryNeeded(Cpu::cpy),
     }), // 0xCC
     Some(Instruction {
         addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::absolute),
-        operation: InstructionOperation::MemoryNeeded(Cpu::cmp),
+        operation: InstructionOperation::MutableMemoryNeeded(Cpu::cmp),
     }), // 0xCD
     Some(Instruction {
         addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::absolute),
@@ -605,18 +604,18 @@ pub const INSTRUCTIONS_LOOKUP: [Option<Instruction>; 256] = [
     None, // 0xCF
     Some(Instruction {
         addressing_mode: InstructionAddressingMode::NoMemoryNeeded(Cpu::relative),
-        operation: InstructionOperation::MemoryNeeded(Cpu::bne),
+        operation: InstructionOperation::MutableMemoryNeeded(Cpu::bne),
     }), // 0xD0
     Some(Instruction {
         addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::indirect_y),
-        operation: InstructionOperation::MemoryNeeded(Cpu::cmp),
+        operation: InstructionOperation::MutableMemoryNeeded(Cpu::cmp),
     }), // 0xD1
     None, // 0xD2
     None, // 0xD3
     None, // 0xD4
     Some(Instruction {
         addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::zero_page_x),
-        operation: InstructionOperation::MemoryNeeded(Cpu::cmp),
+        operation: InstructionOperation::MutableMemoryNeeded(Cpu::cmp),
     }), // 0xD5
     Some(Instruction {
         addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::zero_page_x),
@@ -629,14 +628,14 @@ pub const INSTRUCTIONS_LOOKUP: [Option<Instruction>; 256] = [
     }), // 0xD8
     Some(Instruction {
         addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::absolute_y),
-        operation: InstructionOperation::MemoryNeeded(Cpu::cmp),
+        operation: InstructionOperation::MutableMemoryNeeded(Cpu::cmp),
     }), // 0xD9
     None, // 0xDA
     None, // 0xDB
     None, // 0xDC
     Some(Instruction {
         addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::absolute_x),
-        operation: InstructionOperation::MemoryNeeded(Cpu::cmp),
+        operation: InstructionOperation::MutableMemoryNeeded(Cpu::cmp),
     }), // 0xDD
     Some(Instruction {
         addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::absolute_x),
@@ -645,21 +644,21 @@ pub const INSTRUCTIONS_LOOKUP: [Option<Instruction>; 256] = [
     None, // 0xDF
     Some(Instruction {
         addressing_mode: InstructionAddressingMode::NoMemoryNeeded(Cpu::immediate),
-        operation: InstructionOperation::MemoryNeeded(Cpu::cpx),
+        operation: InstructionOperation::MutableMemoryNeeded(Cpu::cpx),
     }), // 0xE0
     Some(Instruction {
         addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::indirect_x),
-        operation: InstructionOperation::MemoryNeeded(Cpu::sbc),
+        operation: InstructionOperation::MutableMemoryNeeded(Cpu::sbc),
     }), // 0xE1
     None, // 0xE2
     None, // 0xE3
     Some(Instruction {
         addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::zero_page),
-        operation: InstructionOperation::MemoryNeeded(Cpu::cpx),
+        operation: InstructionOperation::MutableMemoryNeeded(Cpu::cpx),
     }), // 0xE4
     Some(Instruction {
         addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::zero_page),
-        operation: InstructionOperation::MemoryNeeded(Cpu::sbc),
+        operation: InstructionOperation::MutableMemoryNeeded(Cpu::sbc),
     }), // 0xE5
     Some(Instruction {
         addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::zero_page),
@@ -672,7 +671,7 @@ pub const INSTRUCTIONS_LOOKUP: [Option<Instruction>; 256] = [
     }), // 0xE8
     Some(Instruction {
         addressing_mode: InstructionAddressingMode::NoMemoryNeeded(Cpu::immediate),
-        operation: InstructionOperation::MemoryNeeded(Cpu::sbc),
+        operation: InstructionOperation::MutableMemoryNeeded(Cpu::sbc),
     }), // 0xE9
     Some(Instruction {
         addressing_mode: InstructionAddressingMode::NoMemoryNeeded(Cpu::implicit),
@@ -681,11 +680,11 @@ pub const INSTRUCTIONS_LOOKUP: [Option<Instruction>; 256] = [
     None, // 0xEB
     Some(Instruction {
         addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::absolute),
-        operation: InstructionOperation::MemoryNeeded(Cpu::cpx),
+        operation: InstructionOperation::MutableMemoryNeeded(Cpu::cpx),
     }), // 0xEC
     Some(Instruction {
         addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::absolute),
-        operation: InstructionOperation::MemoryNeeded(Cpu::sbc),
+        operation: InstructionOperation::MutableMemoryNeeded(Cpu::sbc),
     }), // 0xED
     Some(Instruction {
         addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::absolute),
@@ -694,18 +693,18 @@ pub const INSTRUCTIONS_LOOKUP: [Option<Instruction>; 256] = [
     None, // 0xEF
     Some(Instruction {
         addressing_mode: InstructionAddressingMode::NoMemoryNeeded(Cpu::relative),
-        operation: InstructionOperation::MemoryNeeded(Cpu::beq),
+        operation: InstructionOperation::MutableMemoryNeeded(Cpu::beq),
     }), // 0xF0
     Some(Instruction {
         addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::indirect_y),
-        operation: InstructionOperation::MemoryNeeded(Cpu::sbc),
+        operation: InstructionOperation::MutableMemoryNeeded(Cpu::sbc),
     }), // 0xF1
     None, // 0xF2
     None, // 0xF3
     None, // 0xF4
     Some(Instruction {
         addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::zero_page_x),
-        operation: InstructionOperation::MemoryNeeded(Cpu::sbc),
+        operation: InstructionOperation::MutableMemoryNeeded(Cpu::sbc),
     }), // 0xF5
     Some(Instruction {
         addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::zero_page_x),
@@ -718,14 +717,14 @@ pub const INSTRUCTIONS_LOOKUP: [Option<Instruction>; 256] = [
     }), // 0xF8
     Some(Instruction {
         addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::absolute_y),
-        operation: InstructionOperation::MemoryNeeded(Cpu::sbc),
+        operation: InstructionOperation::MutableMemoryNeeded(Cpu::sbc),
     }), // 0xF9
     None, // 0xFA
     None, // 0xFB
     None, // 0xFC
     Some(Instruction {
         addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::absolute_x),
-        operation: InstructionOperation::MemoryNeeded(Cpu::sbc),
+        operation: InstructionOperation::MutableMemoryNeeded(Cpu::sbc),
     }), // 0xFD
     Some(Instruction {
         addressing_mode: InstructionAddressingMode::MemoryNeeded(Cpu::absolute_x),

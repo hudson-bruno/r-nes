@@ -4,7 +4,7 @@ use crate::{
         instructions::lookup::{
             INSTRUCTIONS_LOOKUP, InstructionAddressingMode, InstructionOperation,
         },
-        memory::{Memory, stack::Stack},
+        memory::{CpuMemory, stack::Stack},
         operand::OperandLocation,
     },
 };
@@ -49,7 +49,7 @@ pub enum ExitStatus {
 }
 
 impl Cpu {
-    pub fn new(mem: &mut impl Memory) -> Self {
+    pub fn new(mem: &mut impl CpuMemory) -> Self {
         let mut cpu = Cpu {
             a_register: 0,
             status_register: Status::UNUSED,
@@ -62,14 +62,6 @@ impl Cpu {
         cpu.reset(mem);
 
         cpu
-    }
-
-    pub fn run(&mut self, mem: &mut Bus) -> ExitStatus {
-        loop {
-            if let Some(err) = self.step(mem) {
-                return err;
-            }
-        }
     }
 
     pub fn step(&mut self, mem: &mut Bus) -> Option<ExitStatus> {
@@ -88,7 +80,6 @@ impl Cpu {
 
             match op.operation {
                 InstructionOperation::NoMemoryNeeded(operation) => (operation)(self),
-                InstructionOperation::MemoryNeeded(operation) => (operation)(self, mem),
                 InstructionOperation::MutableMemoryNeeded(operation) => (operation)(self, mem),
             }
         } else {
@@ -96,13 +87,13 @@ impl Cpu {
         }
     }
 
-    pub fn reset(&mut self, mem: &mut impl Memory) {
+    pub fn reset(&mut self, mem: &mut impl CpuMemory) {
         self.program_counter = mem.read_as_address(0xFFFC, 0xFFFD);
         self.stack_pointer = self.stack_pointer.wrapping_sub(3);
         self.status_register.insert(Status::INTERRUPT);
     }
 
-    pub fn irq(&mut self, mem: &mut impl Memory) {
+    pub fn irq(&mut self, mem: &mut impl CpuMemory) {
         if self.status_register.contains(Status::INTERRUPT) {
             return;
         }
@@ -112,7 +103,7 @@ impl Cpu {
         self.program_counter = mem.read_as_address(0xFFFE, 0xFFFF);
     }
 
-    pub fn nmi(&mut self, mem: &mut impl Memory) {
+    pub fn nmi(&mut self, mem: &mut impl CpuMemory) {
         self.stack_push_address(mem, self.program_counter);
         self.stack_push(mem, self.status_register.difference(Status::BREAK).bits());
         self.program_counter = mem.read_as_address(0xFFFA, 0xFFFB);

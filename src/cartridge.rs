@@ -3,14 +3,30 @@ use std::io::Read;
 use thiserror::Error;
 
 use crate::{
-    cpu::memory::Memory,
+    cpu::memory::CpuMemory,
     ines::{INes, INesError},
     mapper::{Mapper, mapper_000::Mapper000},
 };
 
+pub enum Mirroring {
+    Vertical = 0,
+    Horizontal = 1,
+}
+
+impl From<bool> for Mirroring {
+    fn from(value: bool) -> Self {
+        if value {
+            Mirroring::Horizontal
+        } else {
+            Mirroring::Vertical
+        }
+    }
+}
+
 pub struct Cartridge {
     pub program_memory: Vec<u8>,
     pub character_memory: Vec<u8>,
+    pub mirroring: Mirroring,
 
     pub mapper: Box<dyn Mapper>,
 }
@@ -20,6 +36,7 @@ impl Cartridge {
         Self {
             program_memory: vec![0; 32 * 1024],
             character_memory: vec![0; 8 * 1024],
+            mirroring: Mirroring::Horizontal,
             mapper: Box::new(Mapper000 {
                 program_memory_banks: 2,
             }),
@@ -50,6 +67,7 @@ impl TryFrom<INes> for Cartridge {
         Ok(Self {
             program_memory: ines.prg_rom,
             character_memory: ines.chr_rom,
+            mirroring: ines.header.nametable_arrangement.into(),
             mapper: Box::new(Mapper000 {
                 program_memory_banks: ines.header.prg_rom_size,
             }),
@@ -63,8 +81,8 @@ pub enum INesToCartridgeError {
     MapperNotSupported(u8),
 }
 
-impl Memory for Cartridge {
-    fn read(&self, addr: u16) -> u8 {
+impl CpuMemory for Cartridge {
+    fn read(&mut self, addr: u16) -> u8 {
         match addr {
             0x6000..=0x7FFF => todo!("cartridge ram functionality not yet implemented"),
             0x8000..=0xFFFF => {
