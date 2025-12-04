@@ -64,14 +64,6 @@ impl Cpu {
         cpu
     }
 
-    pub fn run(&mut self, mem: &mut Bus) -> ExitStatus {
-        loop {
-            if let Some(err) = self.step(mem) {
-                return err;
-            }
-        }
-    }
-
     pub fn step(&mut self, mem: &mut Bus) -> Option<ExitStatus> {
         let op_code = mem.read(self.program_counter);
         self.program_counter += 1;
@@ -88,7 +80,6 @@ impl Cpu {
 
             match op.operation {
                 InstructionOperation::NoMemoryNeeded(operation) => (operation)(self),
-                InstructionOperation::MemoryNeeded(operation) => (operation)(self, mem),
                 InstructionOperation::MutableMemoryNeeded(operation) => (operation)(self, mem),
             }
         } else {

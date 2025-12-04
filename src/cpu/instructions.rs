@@ -11,60 +11,60 @@ pub mod lookup;
 
 pub trait Instructions {
     fn brk(&mut self, mem: &mut impl Memory) -> Option<ExitStatus>;
-    fn ora(&mut self, mem: &impl Memory) -> Option<ExitStatus>;
+    fn ora(&mut self, mem: &mut impl Memory) -> Option<ExitStatus>;
     fn asl(&mut self, mem: &mut impl Memory) -> Option<ExitStatus>;
     fn php(&mut self, mem: &mut impl Memory) -> Option<ExitStatus>;
-    fn bpl(&mut self, mem: &impl Memory) -> Option<ExitStatus>;
+    fn bpl(&mut self, mem: &mut impl Memory) -> Option<ExitStatus>;
     fn clc(&mut self) -> Option<ExitStatus>;
     fn jsr(&mut self, mem: &mut impl Memory) -> Option<ExitStatus>;
-    fn and(&mut self, mem: &impl Memory) -> Option<ExitStatus>;
-    fn bit(&mut self, mem: &impl Memory) -> Option<ExitStatus>;
+    fn and(&mut self, mem: &mut impl Memory) -> Option<ExitStatus>;
+    fn bit(&mut self, mem: &mut impl Memory) -> Option<ExitStatus>;
     fn rol(&mut self, mem: &mut impl Memory) -> Option<ExitStatus>;
     fn plp(&mut self, mem: &mut impl Memory) -> Option<ExitStatus>;
     fn bmi(&mut self, mem: &mut impl Memory) -> Option<ExitStatus>;
     fn sec(&mut self) -> Option<ExitStatus>;
     fn rti(&mut self, mem: &mut impl Memory) -> Option<ExitStatus>;
-    fn eor(&mut self, mem: &impl Memory) -> Option<ExitStatus>;
+    fn eor(&mut self, mem: &mut impl Memory) -> Option<ExitStatus>;
     fn lsr(&mut self, mem: &mut impl Memory) -> Option<ExitStatus>;
     fn pha(&mut self, mem: &mut impl Memory) -> Option<ExitStatus>;
     fn jmp(&mut self) -> Option<ExitStatus>;
-    fn bvc(&mut self, mem: &impl Memory) -> Option<ExitStatus>;
+    fn bvc(&mut self, mem: &mut impl Memory) -> Option<ExitStatus>;
     fn cli(&mut self) -> Option<ExitStatus>;
     fn rts(&mut self, mem: &mut impl Memory) -> Option<ExitStatus>;
-    fn adc(&mut self, mem: &impl Memory) -> Option<ExitStatus>;
+    fn adc(&mut self, mem: &mut impl Memory) -> Option<ExitStatus>;
     fn ror(&mut self, mem: &mut impl Memory) -> Option<ExitStatus>;
     fn pla(&mut self, mem: &mut impl Memory) -> Option<ExitStatus>;
-    fn bvs(&mut self, mem: &impl Memory) -> Option<ExitStatus>;
+    fn bvs(&mut self, mem: &mut impl Memory) -> Option<ExitStatus>;
     fn sei(&mut self) -> Option<ExitStatus>;
     fn sta(&mut self, mem: &mut impl Memory) -> Option<ExitStatus>;
     fn sty(&mut self, mem: &mut impl Memory) -> Option<ExitStatus>;
     fn stx(&mut self, mem: &mut impl Memory) -> Option<ExitStatus>;
     fn dey(&mut self) -> Option<ExitStatus>;
     fn txa(&mut self) -> Option<ExitStatus>;
-    fn bcc(&mut self, mem: &impl Memory) -> Option<ExitStatus>;
+    fn bcc(&mut self, mem: &mut impl Memory) -> Option<ExitStatus>;
     fn tya(&mut self) -> Option<ExitStatus>;
     fn txs(&mut self) -> Option<ExitStatus>;
-    fn ldy(&mut self, mem: &impl Memory) -> Option<ExitStatus>;
-    fn lda(&mut self, mem: &impl Memory) -> Option<ExitStatus>;
-    fn ldx(&mut self, mem: &impl Memory) -> Option<ExitStatus>;
+    fn ldy(&mut self, mem: &mut impl Memory) -> Option<ExitStatus>;
+    fn lda(&mut self, mem: &mut impl Memory) -> Option<ExitStatus>;
+    fn ldx(&mut self, mem: &mut impl Memory) -> Option<ExitStatus>;
     fn tay(&mut self) -> Option<ExitStatus>;
     fn tax(&mut self) -> Option<ExitStatus>;
-    fn bcs(&mut self, mem: &impl Memory) -> Option<ExitStatus>;
+    fn bcs(&mut self, mem: &mut impl Memory) -> Option<ExitStatus>;
     fn clv(&mut self) -> Option<ExitStatus>;
     fn tsx(&mut self) -> Option<ExitStatus>;
-    fn cpy(&mut self, mem: &impl Memory) -> Option<ExitStatus>;
-    fn cmp(&mut self, mem: &impl Memory) -> Option<ExitStatus>;
+    fn cpy(&mut self, mem: &mut impl Memory) -> Option<ExitStatus>;
+    fn cmp(&mut self, mem: &mut impl Memory) -> Option<ExitStatus>;
     fn dec(&mut self, mem: &mut impl Memory) -> Option<ExitStatus>;
     fn iny(&mut self) -> Option<ExitStatus>;
     fn dex(&mut self) -> Option<ExitStatus>;
-    fn bne(&mut self, mem: &impl Memory) -> Option<ExitStatus>;
+    fn bne(&mut self, mem: &mut impl Memory) -> Option<ExitStatus>;
     fn cld(&mut self) -> Option<ExitStatus>;
-    fn cpx(&mut self, mem: &impl Memory) -> Option<ExitStatus>;
-    fn sbc(&mut self, mem: &impl Memory) -> Option<ExitStatus>;
+    fn cpx(&mut self, mem: &mut impl Memory) -> Option<ExitStatus>;
+    fn sbc(&mut self, mem: &mut impl Memory) -> Option<ExitStatus>;
     fn inc(&mut self, mem: &mut impl Memory) -> Option<ExitStatus>;
     fn inx(&mut self) -> Option<ExitStatus>;
     fn nop(&mut self) -> Option<ExitStatus>;
-    fn beq(&mut self, mem: &impl Memory) -> Option<ExitStatus>;
+    fn beq(&mut self, mem: &mut impl Memory) -> Option<ExitStatus>;
     fn sed(&mut self) -> Option<ExitStatus>;
 }
 
@@ -79,7 +79,7 @@ impl Instructions for Cpu {
         Some(ExitStatus::Brk)
     }
 
-    fn ora(&mut self, mem: &impl Memory) -> Option<ExitStatus> {
+    fn ora(&mut self, mem: &mut impl Memory) -> Option<ExitStatus> {
         let OperandValue::U8(operand) = self.get_operand(mem) else {
             return Some(ExitStatus::MissingOperand);
         };
@@ -117,7 +117,7 @@ impl Instructions for Cpu {
         None
     }
 
-    fn bpl(&mut self, mem: &impl Memory) -> Option<ExitStatus> {
+    fn bpl(&mut self, mem: &mut impl Memory) -> Option<ExitStatus> {
         let OperandValue::I8(operand) = self.get_operand(mem) else {
             return Some(ExitStatus::MissingOperand);
         };
@@ -146,7 +146,7 @@ impl Instructions for Cpu {
         None
     }
 
-    fn and(&mut self, mem: &impl Memory) -> Option<ExitStatus> {
+    fn and(&mut self, mem: &mut impl Memory) -> Option<ExitStatus> {
         let OperandValue::U8(operand) = self.get_operand(mem) else {
             return Some(ExitStatus::MissingOperand);
         };
@@ -160,7 +160,7 @@ impl Instructions for Cpu {
         None
     }
 
-    fn bit(&mut self, mem: &impl Memory) -> Option<ExitStatus> {
+    fn bit(&mut self, mem: &mut impl Memory) -> Option<ExitStatus> {
         let OperandValue::U8(operand) = self.get_operand(mem) else {
             return Some(ExitStatus::MissingOperand);
         };
@@ -233,7 +233,7 @@ impl Instructions for Cpu {
         None
     }
 
-    fn eor(&mut self, mem: &impl Memory) -> Option<ExitStatus> {
+    fn eor(&mut self, mem: &mut impl Memory) -> Option<ExitStatus> {
         let OperandValue::U8(operand) = self.get_operand(mem) else {
             return Some(ExitStatus::MissingOperand);
         };
@@ -278,7 +278,7 @@ impl Instructions for Cpu {
         None
     }
 
-    fn bvc(&mut self, mem: &impl Memory) -> Option<ExitStatus> {
+    fn bvc(&mut self, mem: &mut impl Memory) -> Option<ExitStatus> {
         let OperandValue::I8(operand) = self.get_operand(mem) else {
             return Some(ExitStatus::MissingOperand);
         };
@@ -304,7 +304,7 @@ impl Instructions for Cpu {
         None
     }
 
-    fn adc(&mut self, mem: &impl Memory) -> Option<ExitStatus> {
+    fn adc(&mut self, mem: &mut impl Memory) -> Option<ExitStatus> {
         let OperandValue::U8(operand) = self.get_operand(mem) else {
             return Some(ExitStatus::MissingOperand);
         };
@@ -354,7 +354,7 @@ impl Instructions for Cpu {
         None
     }
 
-    fn bvs(&mut self, mem: &impl Memory) -> Option<ExitStatus> {
+    fn bvs(&mut self, mem: &mut impl Memory) -> Option<ExitStatus> {
         let OperandValue::I8(operand) = self.get_operand(mem) else {
             return Some(ExitStatus::MissingOperand);
         };
@@ -411,7 +411,7 @@ impl Instructions for Cpu {
         None
     }
 
-    fn bcc(&mut self, mem: &impl Memory) -> Option<ExitStatus> {
+    fn bcc(&mut self, mem: &mut impl Memory) -> Option<ExitStatus> {
         let OperandValue::I8(operand) = self.get_operand(mem) else {
             return Some(ExitStatus::MissingOperand);
         };
@@ -439,7 +439,7 @@ impl Instructions for Cpu {
         None
     }
 
-    fn ldy(&mut self, mem: &impl Memory) -> Option<ExitStatus> {
+    fn ldy(&mut self, mem: &mut impl Memory) -> Option<ExitStatus> {
         let OperandValue::U8(operand) = self.get_operand(mem) else {
             return Some(ExitStatus::MissingOperand);
         };
@@ -454,7 +454,7 @@ impl Instructions for Cpu {
         None
     }
 
-    fn lda(&mut self, mem: &impl Memory) -> Option<ExitStatus> {
+    fn lda(&mut self, mem: &mut impl Memory) -> Option<ExitStatus> {
         let OperandValue::U8(operand) = self.get_operand(mem) else {
             return Some(ExitStatus::MissingOperand);
         };
@@ -468,7 +468,7 @@ impl Instructions for Cpu {
         None
     }
 
-    fn ldx(&mut self, mem: &impl Memory) -> Option<ExitStatus> {
+    fn ldx(&mut self, mem: &mut impl Memory) -> Option<ExitStatus> {
         let OperandValue::U8(operand) = self.get_operand(mem) else {
             return Some(ExitStatus::MissingOperand);
         };
@@ -505,7 +505,7 @@ impl Instructions for Cpu {
         None
     }
 
-    fn bcs(&mut self, mem: &impl Memory) -> Option<ExitStatus> {
+    fn bcs(&mut self, mem: &mut impl Memory) -> Option<ExitStatus> {
         let OperandValue::I8(operand) = self.get_operand(mem) else {
             return Some(ExitStatus::MissingOperand);
         };
@@ -534,7 +534,7 @@ impl Instructions for Cpu {
         None
     }
 
-    fn cpy(&mut self, mem: &impl Memory) -> Option<ExitStatus> {
+    fn cpy(&mut self, mem: &mut impl Memory) -> Option<ExitStatus> {
         let OperandValue::U8(operand) = self.get_operand(mem) else {
             return Some(ExitStatus::MissingOperand);
         };
@@ -551,7 +551,7 @@ impl Instructions for Cpu {
         None
     }
 
-    fn cmp(&mut self, mem: &impl Memory) -> Option<ExitStatus> {
+    fn cmp(&mut self, mem: &mut impl Memory) -> Option<ExitStatus> {
         let OperandValue::U8(operand) = self.get_operand(mem) else {
             return Some(ExitStatus::MissingOperand);
         };
@@ -606,7 +606,7 @@ impl Instructions for Cpu {
         None
     }
 
-    fn bne(&mut self, mem: &impl Memory) -> Option<ExitStatus> {
+    fn bne(&mut self, mem: &mut impl Memory) -> Option<ExitStatus> {
         let OperandValue::I8(operand) = self.get_operand(mem) else {
             return Some(ExitStatus::MissingOperand);
         };
@@ -624,7 +624,7 @@ impl Instructions for Cpu {
         None
     }
 
-    fn cpx(&mut self, mem: &impl Memory) -> Option<ExitStatus> {
+    fn cpx(&mut self, mem: &mut impl Memory) -> Option<ExitStatus> {
         let OperandValue::U8(operand) = self.get_operand(mem) else {
             return Some(ExitStatus::MissingOperand);
         };
@@ -641,7 +641,7 @@ impl Instructions for Cpu {
         None
     }
 
-    fn sbc(&mut self, mem: &impl Memory) -> Option<ExitStatus> {
+    fn sbc(&mut self, mem: &mut impl Memory) -> Option<ExitStatus> {
         let OperandValue::U8(operand) = self.get_operand(mem) else {
             return Some(ExitStatus::MissingOperand);
         };
@@ -696,7 +696,7 @@ impl Instructions for Cpu {
         None
     }
 
-    fn beq(&mut self, mem: &impl Memory) -> Option<ExitStatus> {
+    fn beq(&mut self, mem: &mut impl Memory) -> Option<ExitStatus> {
         let OperandValue::I8(operand) = self.get_operand(mem) else {
             return Some(ExitStatus::MissingOperand);
         };

@@ -14,12 +14,12 @@ pub enum OperandValue {
 }
 
 pub trait Operand {
-    fn get_operand(&self, mem: &impl Memory) -> OperandValue;
+    fn get_operand(&self, mem: &mut impl Memory) -> OperandValue;
     fn update_operand(&mut self, mem: &mut impl Memory, value: u8);
 }
 
 impl Operand for Cpu {
-    fn get_operand(&self, mem: &impl Memory) -> OperandValue {
+    fn get_operand(&self, mem: &mut impl Memory) -> OperandValue {
         match self.operand_location {
             OperandLocation::Implicit => OperandValue::None,
             OperandLocation::Accumulator => OperandValue::U8(self.a_register),

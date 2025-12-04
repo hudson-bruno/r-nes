@@ -64,7 +64,7 @@ pub enum INesToCartridgeError {
 }
 
 impl Memory for Cartridge {
-    fn read(&self, addr: u16) -> u8 {
+    fn read(&mut self, addr: u16) -> u8 {
         match addr {
             0x6000..=0x7FFF => todo!("cartridge ram functionality not yet implemented"),
             0x8000..=0xFFFF => {

@@ -27,4 +27,17 @@ impl Mapper for Mapper000 {
             _ => todo!("outside mapper cpu address range"),
         }
     }
+
+    fn map_ppu_read(&self, addr: u16) -> u16 {
+        match addr {
+            0x0000..=0x1FFF => addr,
+            _ => todo!("outside mapper ppu address range"),
+        }
+    }
+    fn map_ppu_write(&self, addr: u16) -> u16 {
+        match addr {
+            0x0000..=0x1FFF => todo!("attempted to write in cartridge chr rom! addr = {addr}"),
+            _ => todo!("outside mapper ppu address range"),
+        }
+    }
 }

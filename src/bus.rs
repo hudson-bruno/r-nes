@@ -1,8 +1,9 @@
-use crate::cartridge::Cartridge;
+use crate::{cartridge::Cartridge, ppu::Ppu};
 
 pub struct Bus {
     pub cpu_memory: [u8; 2 * 1024],
     pub cartridge: Option<Cartridge>,
+    pub ppu: Ppu,
 }
 
 impl Default for Bus {
@@ -16,6 +17,7 @@ impl Bus {
         Self {
             cpu_memory: [0; 2 * 1024],
             cartridge: None,
+            ppu: Ppu::new(),
         }
     }
 }

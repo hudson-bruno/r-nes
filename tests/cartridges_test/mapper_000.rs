@@ -63,7 +63,7 @@ fn test_cpu_read_1_prg_bank() {
         chr_rom,
     });
 
-    let cartridge = Cartridge::load(&mut test_file).unwrap();
+    let mut cartridge = Cartridge::load(&mut test_file).unwrap();
 
     assert_eq!(cartridge.read(0x8000), 0);
     assert_eq!(cartridge.read(0xBFFF), (0x3FFF % 256) as u8);
@@ -88,7 +88,7 @@ fn test_cpu_read_2_prg_banks() {
         chr_rom,
     });
 
-    let cartridge = Cartridge::load(&mut test_file).unwrap();
+    let mut cartridge = Cartridge::load(&mut test_file).unwrap();
 
     assert_eq!(cartridge.read(0x8000), 0);
     assert_eq!(cartridge.read(0xBFFF), (0x3FFF % 256) as u8);

@@ -30,11 +30,25 @@ impl Nes {
     }
 
     pub fn run(&mut self) -> ExitStatus {
-        self.cpu.run(&mut self.bus)
+        loop {
+            if let Some(err) = self.step() {
+                return err;
+            }
+        }
     }
 
     pub fn step(&mut self) -> Option<ExitStatus> {
-        self.cpu.step(&mut self.bus)
+        if let Some(exit_status) = self.cpu.step(&mut self.bus) {
+            return Some(exit_status);
+        }
+
+        for _ in 0..3 {
+            if self.bus.ppu.step() {
+                self.cpu.nmi(&mut self.bus);
+            }
+        }
+
+        None
     }
 
     pub fn reset(&mut self) {
