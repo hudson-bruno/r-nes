@@ -6,16 +6,19 @@ use crate::{
     },
 };
 
+#[derive(Debug)]
 pub struct Instruction {
     pub addressing_mode: InstructionAddressingMode,
     pub operation: InstructionOperation,
 }
 
+#[derive(Debug)]
 pub enum InstructionAddressingMode {
     NoMemoryNeeded(fn(&mut Cpu) -> OperandLocation),
     MemoryNeeded(fn(&mut Cpu, &mut Bus) -> OperandLocation),
 }
 
+#[derive(Debug)]
 pub enum InstructionOperation {
     NoMemoryNeeded(fn(&mut Cpu) -> Option<ExitStatus>),
     MutableMemoryNeeded(fn(&mut Cpu, &mut Bus) -> Option<ExitStatus>),

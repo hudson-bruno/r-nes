@@ -42,8 +42,8 @@ impl Nes {
             return Some(exit_status);
         }
 
-        for _ in 0..3 {
-            if self.bus.ppu.step() {
+        for _ in 0..12 {
+            if self.bus.ppu.step(self.bus.cartridge.as_mut()) {
                 self.cpu.nmi(&mut self.bus);
             }
         }

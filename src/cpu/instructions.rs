@@ -272,6 +272,8 @@ impl Instructions for Cpu {
         let OperandLocation::Memory(addr) = self.operand_location else {
             return Some(ExitStatus::MissingOperand);
         };
+        println!("🪚 self.program_counter: {:#x}", self.program_counter);
+        println!("JMP 🪚 addr: {:#x}", addr);
 
         self.program_counter = addr;
 

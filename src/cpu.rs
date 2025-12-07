@@ -66,7 +66,7 @@ impl Cpu {
 
     pub fn step(&mut self, mem: &mut Bus) -> Option<ExitStatus> {
         let op_code = mem.read(self.program_counter);
-        self.program_counter += 1;
+        self.program_counter = self.program_counter.wrapping_add(1);
 
         if let Some(op) = &INSTRUCTIONS_LOOKUP[op_code as usize] {
             self.operand_location = match op.addressing_mode {

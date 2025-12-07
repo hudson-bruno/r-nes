@@ -99,10 +99,10 @@ impl CpuMemory for Cartridge {
 
     fn write(&mut self, addr: u16, value: u8) {
         match addr {
-            0x6000..=0x7FFF => todo!("cartridge ram functionality not yet implemented"),
-            0x8000..=0xFFFF => {
-                todo!("attempted to write in cartridge rom! addr = {addr}, value = {value}")
-            }
+            // 0x6000..=0x7FFF => todo!("cartridge ram functionality not yet implemented"),
+            // 0x8000..=0xFFFF => {
+            //     todo!("attempted to write in cartridge rom! addr = {addr:X}, value = {value:b}")
+            // }
             _ => (),
         }
     }

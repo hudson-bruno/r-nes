@@ -25,8 +25,23 @@ pub struct Ppu {
     pub x: u8,
     pub w: bool,
 
+    // Cycle management
+    pub cycle: i16,
+    pub scanline: i16,
+
+    // Background rendering
+    pub bg_next_tile_id: u8,
+    pub bg_next_tile_attr: u8,
+    pub bg_next_tile_lsb: u8,
+    pub bg_next_tile_msb: u8,
+    pub bg_shifter_pattern_lo: u16,
+    pub bg_shifter_pattern_hi: u16,
+    pub bg_shifter_attrib_lo: u16,
+    pub bg_shifter_attrib_hi: u16,
+
     pub palette: [u8; 64],
     pub palette_ram: [u8; 32],
+    pub frame_data: [[u8; 256]; 240],
 }
 
 impl Ppu {
@@ -44,6 +59,16 @@ impl Ppu {
             t: 0,
             x: 0,
             w: false,
+            cycle: 0,
+            scanline: 0,
+            bg_next_tile_id: 0,
+            bg_next_tile_attr: 0,
+            bg_next_tile_lsb: 0,
+            bg_next_tile_msb: 0,
+            bg_shifter_pattern_lo: 0,
+            bg_shifter_pattern_hi: 0,
+            bg_shifter_attrib_lo: 0,
+            bg_shifter_attrib_hi: 0,
             palette: [
                 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D,
                 0x0E, 0x0F, 0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x1A, 0x1B,
@@ -52,19 +77,131 @@ impl Ppu {
                 0x38, 0x39, 0x3A, 0x3B, 0x3C, 0x3D, 0x3E, 0x3F,
             ],
             palette_ram: [0; 32],
+            frame_data: [[0; 256]; 240],
         }
     }
 
-    pub fn step(&mut self) -> bool {
+    pub fn step(&mut self, mut cartridge: Option<&mut Cartridge>) -> bool {
         let mut nmi = false;
-        for scanline in 0..=262 {
-            for cycle in 0..=341 {
-                if scanline == 241 && cycle == 1 {
-                    self.ppu_status.insert(PpuStatus::VBLANK);
-                    if self.ppu_ctrl.contains(PpuCtrl::VBLANK_NMI) {
-                        nmi = true;
+
+        if self.scanline >= -1 && self.scanline < 240 {
+            if self.scanline == 0 && self.cycle == 0 {
+                self.cycle = 1;
+            }
+
+            if self.scanline == -1 && self.cycle == 1 {
+                self.ppu_status.remove(PpuStatus::VBLANK);
+                self.ppu_status.remove(PpuStatus::SPRITE_OVERFLOW); // TODO: Check constants
+                self.ppu_status.remove(PpuStatus::SPRITE_ZERO_HIT); // TODO: Check constants
+            }
+
+            if (self.cycle >= 1 && self.cycle <= 256) && (self.scanline >= 0 && self.scanline < 240) {
+                let background_pixel: u8 = {
+                    if self.ppu_mask.contains(PpuMask::RENDER_BACKGROUND) {
+                        let bit_mux = 0x8000 >> self.x;
+                        let p0_pixel = (self.bg_shifter_pattern_lo & bit_mux) > 0;
+                        let p1_pixel = (self.bg_shifter_pattern_hi & bit_mux) > 0;
+                        ((p1_pixel as u8) << 1) | (p0_pixel as u8)
+                    } else {
+                        0
                     }
+                };
+
+                let background_palette: u8 = {
+                    if self.ppu_mask.contains(PpuMask::RENDER_BACKGROUND) {
+                        let bit_mux = 0x8000 >> self.x;
+                        let p0_palette = (self.bg_shifter_attrib_lo & bit_mux) > 0;
+                        let p1_palette = (self.bg_shifter_attrib_hi & bit_mux) > 0;
+                        ((p1_palette as u8) << 1) | (p0_palette as u8)
+                    } else {
+                        0
+                    }
+                };
+
+                // The final palette index is formed by combining the pixel color bits and the palette attribute bits.
+                let final_palette_entry = (background_palette << 2) | background_pixel;
+                let color = self.read_palette(final_palette_entry as u16);
+
+                self.frame_data[self.scanline as usize][(self.cycle - 1) as usize] = color;
+            }
+
+            if (self.cycle >= 2 && self.cycle < 258) || (self.cycle >= 321 && self.cycle < 338) {
+                self.update_shifters();
+
+                match (self.cycle - 1) % 8 {
+                    0 => {
+                        self.load_background_shifters();
+                        self.bg_next_tile_id =
+                            self.read(0x2000 | (self.v & 0x0FFF), cartridge.as_deref_mut());
+                    }
+                    2 => {
+                        self.bg_next_tile_attr = self.read(
+                            0x23C0
+                                | (self.v & 0x0C00)
+                                | ((self.v >> 4) & 0x38)
+                                | ((self.v >> 2) & 0x07),
+                            cartridge.as_deref_mut(),
+                        );
+                        if (self.v & 0x40) != 0 {
+                            self.bg_next_tile_attr >>= 4;
+                        }
+                        if (self.v & 0x02) != 0 {
+                            self.bg_next_tile_attr >>= 2;
+                        }
+                        self.bg_next_tile_attr &= 0x03;
+                    }
+                    4 => {
+                        let addr = self.ppu_ctrl.bg_pattern_addr()
+                            + (self.bg_next_tile_id as u16 * 16)
+                            + ((self.v >> 12) & 0x07);
+                        self.bg_next_tile_lsb = self.read(addr, cartridge.as_deref_mut());
+                    }
+                    6 => {
+                        let addr = self.ppu_ctrl.bg_pattern_addr()
+                            + (self.bg_next_tile_id as u16 * 16)
+                            + ((self.v >> 12) & 0x07)
+                            + 8;
+                        self.bg_next_tile_msb = self.read(addr, cartridge.as_deref_mut());
+                    }
+                    7 => {
+                        self.increment_scroll_x();
+                    }
+                    _ => {}
                 }
+            }
+
+            if self.cycle == 256 {
+                self.increment_scroll_y();
+            }
+
+            if self.cycle == 257 {
+                self.load_background_shifters();
+                self.transfer_address_x();
+            }
+
+            if self.cycle == 338 || self.cycle == 340 {
+                self.bg_next_tile_id =
+                    self.read(0x2000 | (self.v & 0x0FFF), cartridge.as_deref_mut());
+            }
+
+            if self.scanline == -1 && self.cycle >= 280 && self.cycle < 305 {
+                self.transfer_address_y();
+            }
+        }
+
+        if self.scanline == 241 && self.cycle == 1 {
+            self.ppu_status.insert(PpuStatus::VBLANK);
+            if self.ppu_ctrl.contains(PpuCtrl::VBLANK_NMI) {
+                nmi = true;
+            }
+        }
+
+        self.cycle += 1;
+        if self.cycle >= 341 {
+            self.cycle = 0;
+            self.scanline += 1;
+            if self.scanline >= 261 {
+                self.scanline = -1;
             }
         }
 
@@ -232,6 +369,84 @@ impl Ppu {
             0x0006 => self.write_ppu_addr(value),
             0x0007 => self.write_ppu_data(value, cartridge),
             _ => (),
+        }
+    }
+    fn increment_scroll_x(&mut self) {
+        if self.ppu_mask.contains(PpuMask::RENDER_BACKGROUND)
+            || self.ppu_mask.contains(PpuMask::RENDER_SPRITE)
+        {
+            if (self.v & 0x001F) == 31 {
+                self.v &= !0x001F;
+                self.v ^= 0x0400;
+            } else {
+                self.v += 1;
+            }
+        }
+    }
+
+    fn increment_scroll_y(&mut self) {
+        if self.ppu_mask.contains(PpuMask::RENDER_BACKGROUND)
+            || self.ppu_mask.contains(PpuMask::RENDER_SPRITE)
+        {
+            if (self.v & 0x7000) != 0x7000 {
+                self.v += 0x1000;
+            } else {
+                self.v &= !0x7000;
+                let mut y = (self.v & 0x03E0) >> 5;
+                if y == 29 {
+                    y = 0;
+                    self.v ^= 0x0800;
+                } else if y == 31 {
+                    y = 0;
+                } else {
+                    y += 1;
+                }
+                self.v = (self.v & !0x03E0) | (y << 5);
+            }
+        }
+    }
+
+    fn transfer_address_x(&mut self) {
+        if self.ppu_mask.contains(PpuMask::RENDER_BACKGROUND)
+            || self.ppu_mask.contains(PpuMask::RENDER_SPRITE)
+        {
+            self.v = (self.v & !0x041F) | (self.t & 0x041F);
+        }
+    }
+
+    fn transfer_address_y(&mut self) {
+        if self.ppu_mask.contains(PpuMask::RENDER_BACKGROUND)
+            || self.ppu_mask.contains(PpuMask::RENDER_SPRITE)
+        {
+            self.v = (self.v & !0x7BE0) | (self.t & 0x7BE0);
+        }
+    }
+    fn load_background_shifters(&mut self) {
+        self.bg_shifter_pattern_lo =
+            (self.bg_shifter_pattern_lo & 0xFF00) | self.bg_next_tile_lsb as u16;
+        self.bg_shifter_pattern_hi =
+            (self.bg_shifter_pattern_hi & 0xFF00) | self.bg_next_tile_msb as u16;
+
+        self.bg_shifter_attrib_lo = (self.bg_shifter_attrib_lo & 0xFF00)
+            | if (self.bg_next_tile_attr & 0b01) != 0 {
+                0xFF
+            } else {
+                0x00
+            };
+        self.bg_shifter_attrib_hi = (self.bg_shifter_attrib_hi & 0xFF00)
+            | if (self.bg_next_tile_attr & 0b10) != 0 {
+                0xFF
+            } else {
+                0x00
+            };
+    }
+
+    fn update_shifters(&mut self) {
+        if self.ppu_mask.contains(PpuMask::RENDER_BACKGROUND) {
+            self.bg_shifter_pattern_lo <<= 1;
+            self.bg_shifter_pattern_hi <<= 1;
+            self.bg_shifter_attrib_lo <<= 1;
+            self.bg_shifter_attrib_hi <<= 1;
         }
     }
 }

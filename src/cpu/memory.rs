@@ -19,12 +19,13 @@ impl CpuMemory for Bus {
         match addr {
             0x0000..=0x1FFF => self.cpu_memory[(addr & 0x07FF) as usize],
             0x2000..=0x3FFF => self.ppu.cpu_read(addr, self.cartridge.as_mut()),
-            0x4000..=0x4017 => todo!("APU/IO registers not yet implemented"),
-            0x4018..=0x401F => todo!("APU/IO testing functionality not yet implemented"),
+            // 0x4000..=0x4017 => todo!("APU/IO registers not yet implemented"),
+            // 0x4018..=0x401F => todo!("APU/IO testing functionality not yet implemented"),
             0x4020..=0xFFFF => match &mut self.cartridge {
                 Some(cartridge) => cartridge.read(addr),
                 None => (addr >> 8) as u8, // Open bus
             },
+            _ => (addr >> 8) as u8, // Open bus
         }
     }
 
@@ -32,13 +33,14 @@ impl CpuMemory for Bus {
         match addr {
             0x0000..=0x1FFF => self.cpu_memory[(addr & 0x07FF) as usize] = value,
             0x2000..=0x3FFF => self.ppu.cpu_write(addr, value, self.cartridge.as_mut()),
-            0x4000..=0x4017 => todo!("APU/IO registers not yet implemented"),
-            0x4018..=0x401F => todo!("APU/IO testing functionality not yet implemented"),
+            // 0x4000..=0x4017 => todo!("APU/IO registers not yet implemented"),
+            // 0x4018..=0x401F => todo!("APU/IO testing functionality not yet implemented"),
             0x4020..=0xFFFF => {
                 if let Some(cartridge) = &mut self.cartridge {
                     cartridge.write(addr, value)
                 }
             }
+            _ => (),
         }
     }
 }
